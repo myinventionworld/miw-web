@@ -1,0 +1,122 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Lightformer, PerformanceMonitor } from "@react-three/drei";
+import * as THREE from "three";
+
+import { WAYPOINTS } from "@/lib/flight";
+import { CosmosFlight } from "./cosmos-flight";
+import { Earth } from "./earth";
+import { Effects } from "./effects";
+import { FlightDriver } from "./flight-driver";
+import { IcePlanet } from "./ice-planet";
+import { LogoModel } from "./logo-model";
+import { Pulsar } from "./pulsar";
+import { RingedPlanet } from "./ringed-planet";
+import { Starfield } from "./starfield";
+
+/** Studio rig baked into a cube map — no HDRI fetch, no network dependency. */
+function ChromeEnvironment() {
+  return (
+    <Environment resolution={192} frames={1}>
+      <Lightformer
+        form="rect"
+        intensity={5}
+        color="#ffffff"
+        position={[0, 5.5, -7]}
+        scale={[14, 7, 1]}
+      />
+      <Lightformer
+        form="rect"
+        intensity={3.2}
+        color="#5ad9ff"
+        position={[-7, 1.2, 2]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={[10, 4, 1]}
+      />
+      <Lightformer
+        form="rect"
+        intensity={2.6}
+        color="#9d7bff"
+        position={[7, -1.4, 2]}
+        rotation={[0, -Math.PI / 2, 0]}
+        scale={[10, 4, 1]}
+      />
+      <Lightformer
+        form="ring"
+        intensity={3.4}
+        color="#ffffff"
+        position={[2.5, 3.5, 6]}
+        scale={5}
+      />
+      <Lightformer
+        form="circle"
+        intensity={1.6}
+        color="#ff9f6e"
+        position={[-4, -4, -4]}
+        scale={6}
+      />
+    </Environment>
+  );
+}
+
+export function CosmosScene() {
+  const [dpr, setDpr] = useState(1.5);
+  const [quality, setQuality] = useState<"high" | "low">("high");
+
+  const dense =
+    typeof window !== "undefined" &&
+    window.matchMedia("(min-width: 768px)").matches;
+
+  return (
+    <Canvas
+      dpr={dpr}
+      gl={{
+        antialias: false,
+        alpha: false,
+        powerPreference: "high-performance",
+        stencil: false,
+        depth: true,
+        toneMapping: THREE.NoToneMapping,
+      }}
+      camera={{
+        position: [...WAYPOINTS[0].pos],
+        fov: 38,
+        near: 0.5,
+        far: 12000,
+      }}
+      onCreated={({ gl }) => gl.setClearColor("#030305")}
+    >
+      <FlightDriver />
+
+      <PerformanceMonitor
+        bounds={() => [50, 60]}
+        onDecline={() => {
+          setDpr(1);
+          setQuality("low");
+        }}
+        onIncline={() => setDpr(Math.min(2, window.devicePixelRatio))}
+      />
+
+      {/* Far plane is huge; fog keeps the tail of the track from stacking up. */}
+      <fog attach="fog" args={["#030305", 700, 4600]} />
+      <ambientLight intensity={0.16} />
+      <pointLight position={[6, 4, 8]} intensity={22} color="#9fd8ff" />
+      <pointLight position={[-7, -3, 4]} intensity={14} color="#a77bff" />
+
+      <Suspense fallback={null}>
+        <ChromeEnvironment />
+        <LogoModel />
+        <Earth />
+        <RingedPlanet />
+        <IcePlanet />
+        <Pulsar />
+        <Starfield count={dense ? 3200 : 1400} />
+      </Suspense>
+
+      <CosmosFlight />
+      <Effects quality={quality} />
+    </Canvas>
+  );
+}

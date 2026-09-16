@@ -1,26 +1,223 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-void: #030305;
+  --color-carbon: #0a0a0d;
+
+  /* Text ramp. Everything readable sits at or above #A1A1AA — the old
+     #3F3F46 / #71717A pair was unreadable over a lit starfield. */
+  --color-platinum: #e4e4e7;
+  --color-zinc: #a1a1aa;
+  --color-steel: #71717a;
+
+  --color-signal: #34d399;
+  --color-beam: #22d3ee;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: #030305;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #ffffff;
+  color: #030305;
+}
+
+/* Lenis — the library drives real window scroll, so this is all it needs. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── typography ───────────────────────────────────────────────────────── */
+
+.tracking-telemetry {
+  letter-spacing: 0.28em;
+}
+
+/* Copy that sits over the lit side of a planet needs its own floor. */
+.text-lift {
+  text-shadow:
+    0 1px 2px rgba(3, 3, 5, 0.95),
+    0 2px 18px rgba(3, 3, 5, 0.85);
+}
+
+/* A shadow alone still leaves 14px body copy under 4.5:1 against a lit limb.
+   This wash bleeds well past the text on every side so it darkens the planet
+   without ever resolving into a panel edge. The content must be positioned to
+   paint above the pseudo-element. */
+.copy-scrim {
+  position: relative;
+}
+
+.copy-scrim::before {
+  content: "";
+  position: absolute;
+  inset: -20% -32%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 38% 50%,
+    rgba(3, 3, 5, 0.94) 0%,
+    rgba(3, 3, 5, 0.78) 44%,
+    rgba(3, 3, 5, 0) 76%
+  );
+}
+
+/* ── surfaces ─────────────────────────────────────────────────────────── */
+
+/* Dark glassmorphism. Opaque enough that white type never drops below ~11:1
+   contrast, whatever is burning behind it. */
+.panel {
+  background: rgba(9, 9, 11, 0.82);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 30px 90px -20px rgba(0, 0, 0, 0.95);
+}
+
+.panel-solid {
+  background: rgba(9, 9, 11, 0.94);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 40px 120px -25px rgba(0, 0, 0, 0.98);
+}
+
+/* Blur alone does not help here: the drawer opens over the hero's 5rem white
+   headline, and backdrop-filter smears that luminance without removing it. The
+   navbar dims the page behind the menu; this only has to finish the job. */
+.drawer {
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(32px) saturate(140%);
+  -webkit-backdrop-filter: blur(32px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hairline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3) 22%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.3) 78%,
+    transparent
+  );
+}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+
+.field {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.field:focus {
+  outline: none;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1px #ffffff;
+}
+.field::placeholder {
+  color: #a1a1aa;
+}
+
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+  height: 26px;
+  cursor: pointer;
+}
+.range:focus {
+  outline: none;
+}
+.range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.24);
+}
+.range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.24);
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.16),
+    0 0 20px rgba(255, 255, 255, 0.8);
+}
+.range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.16),
+    0 0 20px rgba(255, 255, 255, 0.8);
+}
+.range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.35),
+    0 0 24px rgba(255, 255, 255, 0.95);
+}
+
+/* Thin scrollbar for the dock's prototype frame. */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
