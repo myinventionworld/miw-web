@@ -10,8 +10,8 @@ const TICKS = [...STATIONS.map((s) => s.anchor), CONSOLE_ANCHOR];
 
 /**
  * Halfway down the final leg the console becomes the destination. `flight.station`
- * can only ever name a STATION, so without this the strip still reads "Venture
- * Lab" while the camera is parked on the contact form.
+ * can only ever name a STATION, so without this the strip still reads "Products"
+ * while the camera is parked on the contact form.
  */
 const CONSOLE_FROM =
   (STATIONS[STATIONS.length - 1].anchor + CONSOLE_ANCHOR) / 2;
@@ -95,7 +95,7 @@ export function Hud({ visible }: { visible: boolean }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-70" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
           </span>
-          <span ref={status}>Docked · 01 Studio &amp; R&amp;D</span>
+          <span ref={status}>Docked · 01 High-Load Backend</span>
         </div>
 
         <div className="flex gap-6 text-zinc md:gap-10">

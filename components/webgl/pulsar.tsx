@@ -8,8 +8,8 @@ import { BODY, damp, flight, smoothstep } from "@/lib/flight";
 import { bindUniforms } from "@/lib/utils";
 import { Rings } from "./rings";
 
-const POS = new THREE.Vector3(...BODY.venture.pos);
-const R = BODY.venture.radius;
+const POS = new THREE.Vector3(...BODY.guild.pos);
+const R = BODY.guild.radius;
 
 const RING_INNER = R * 1.48;
 const RING_OUTER = R * 2.42;

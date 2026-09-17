@@ -36,8 +36,11 @@ export function FlightDriver() {
     flight.proximity = proximityAt(flight.eased);
     flight.station = stationIndexAt(flight.eased);
 
-    flight.pointerEased.x = damp(flight.pointerEased.x, flight.pointer.x, 4, dt);
-    flight.pointerEased.y = damp(flight.pointerEased.y, flight.pointer.y, 4, dt);
+    // Slow on purpose. At lambda 4 the camera tracked the cursor closely enough
+    // to read as a 1:1 handle on the scene; this makes it a drift the eye can
+    // ignore while reading.
+    flight.pointerEased.x = damp(flight.pointerEased.x, flight.pointer.x, 2, dt);
+    flight.pointerEased.y = damp(flight.pointerEased.y, flight.pointer.y, 2, dt);
   }, -10);
 
   return null;

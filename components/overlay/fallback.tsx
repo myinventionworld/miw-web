@@ -1,6 +1,14 @@
 "use client";
 
-import { STATIONS, STATUS_TONE } from "@/lib/stations";
+import Link from "next/link";
+
+import {
+  AVAILABILITY,
+  STANDARDS,
+  STATIONS,
+  STATUS_TONE,
+} from "@/lib/stations";
+import { systemForStation } from "@/lib/systems";
 import { cn } from "@/lib/utils";
 
 /**
@@ -20,19 +28,55 @@ export function Fallback() {
       />
 
       <div className="relative mx-auto max-w-5xl px-6 py-24 md:px-10">
-        <div className="flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-signal uppercase">
+        <p className="font-mono text-[10px] tracking-telemetry text-platinum uppercase">
+          Status: {AVAILABILITY.status} // {AVAILABILITY.scope}
+        </p>
+
+        <div className="mt-6 flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-signal uppercase">
           <span className="h-px w-9 bg-signal/55" />
-          MIW · My Invention World
+          MIW Labs — Venture Studio &amp; Engineering Guild
         </div>
 
-        <h1 className="mt-8 text-[clamp(2.4rem,7vw,5.2rem)] leading-[0.9] font-semibold tracking-[-0.045em] text-white">
-          High-performance software architecture
+        <h1 className="mt-8 text-[clamp(2.2rem,6vw,4.6rem)] leading-[0.94] font-semibold tracking-[-0.045em] text-white">
+          High-Performance Systems.
+          <br className="hidden sm:block" /> Engineered for Scale and Autonomy.
         </h1>
 
         <p className="mt-8 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          MIW designs and operates distributed systems, real-time intelligence
-          platforms and the venture R&amp;D that comes out of running them. Small
-          senior teams that own the runtime, not just the repository.
+          We design and ship fault-tolerant digital platforms, distributed
+          backends and autonomous AI agents — from the architecture diagram
+          through to the thing running in production with a pager attached.
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <a
+            href="mailto:signal@miw.studio"
+            className="rounded-lg bg-white px-6 py-3 text-[14px] font-semibold text-black transition-colors hover:bg-zinc-200"
+          >
+            Initiate Project Discovery
+          </a>
+          <Link
+            href="/careers"
+            className="rounded-lg border border-white/30 px-6 py-3 text-[14px] font-medium text-white transition-colors hover:border-white/70 hover:bg-white/10"
+          >
+            Apply to the Guild
+          </Link>
+        </div>
+
+        <dl className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-y border-white/12 py-5">
+          {STANDARDS.map((s) => (
+            <div key={s.value}>
+              <dt className="font-mono text-[19px] leading-none font-semibold text-white tabular-nums">
+                {s.value}
+              </dt>
+              <dd className="mt-2 font-mono text-[9px] tracking-[0.12em] text-zinc uppercase">
+                {s.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-2 font-mono text-[9.5px] tracking-[0.1em] text-steel uppercase">
+          The standard we design to — not a claim about past results
         </p>
 
         <p className="mt-6 font-mono text-[10px] tracking-telemetry text-zinc uppercase">
@@ -47,19 +91,76 @@ export function Fallback() {
                   {s.index}
                 </span>
                 <span className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
-                  {s.nav}
+                  {s.pillar} · {s.nav}
                 </span>
               </div>
 
               <h2 className="mt-5 text-[clamp(1.7rem,4vw,2.8rem)] leading-[0.98] font-semibold tracking-[-0.04em] text-white">
-                {s.title}
+                {s.copy.business.headline}
               </h2>
               <p className="mt-4 text-xl leading-snug font-medium text-platinum">
-                {s.lede}
+                {s.copy.business.lede}
               </p>
-              <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-zinc">
-                {s.body}
-              </p>
+
+              {/* The static document always speaks business. A visitor without
+                  WebGL has no toggle to reach, and the outcome framing is the
+                  one that has to land first either way. */}
+              <div className="mt-6 max-w-2xl space-y-5 border-l border-white/15 pl-5">
+                <div>
+                  <div className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                    The problem
+                  </div>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-zinc">
+                    {s.copy.business.problem}
+                  </p>
+                </div>
+                <div>
+                  <div className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                    What we build
+                  </div>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-zinc">
+                    {s.copy.business.solution}
+                  </p>
+                </div>
+              </div>
+
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {s.copy.business.proof.map((p) => (
+                  <li
+                    key={p}
+                    className="rounded-sm border border-signal/35 bg-signal/10 px-2.5 py-1 font-mono text-[10px] tracking-[0.1em] text-signal uppercase"
+                  >
+                    {p}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Level two. No toggle exists here, so the engineering readout is
+                  simply printed under the business case rather than hidden. */}
+              <dl className="mt-7 max-w-2xl border-t border-white/12 pt-4">
+                {s.specs.map((spec) => (
+                  <div key={spec.label} className="flex gap-4 py-1">
+                    <dt className="w-[70px] shrink-0 font-mono text-[9px] tracking-[0.14em] text-steel uppercase">
+                      {spec.label}
+                    </dt>
+                    <dd className="font-mono text-[11px] leading-[1.5] text-zinc">
+                      {spec.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              {(() => {
+                const study = systemForStation(s.id);
+                return study ? (
+                  <Link
+                    href={`/systems/${study.slug}`}
+                    className="mt-5 inline-block font-mono text-[10px] tracking-telemetry text-white uppercase underline-offset-4 hover:underline"
+                  >
+                    {study.codename} — read the write-up →
+                  </Link>
+                ) : null;
+              })()}
 
               <ul className="mt-9 grid gap-x-10 gap-y-7 sm:grid-cols-2">
                 {s.projects.map((p) => (
@@ -93,13 +194,18 @@ export function Fallback() {
           ))}
         </div>
 
-        <section className="mt-28 border-t border-white/15 pt-10">
+        <section
+          id="transmission"
+          className="mt-28 scroll-mt-10 border-t border-white/15 pt-10"
+        >
           <h2 className="text-3xl font-semibold tracking-[-0.03em] text-white">
-            Open a channel
+            Ready to build something that holds?
           </h2>
           <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-platinum">
-            An engineer reads the brief before anyone books a call. Goes to the
-            engineering desk, not a CRM sequence.
+            Bring the architecture of your platform, the system you want
+            audited, or — if you write code — yourself. An engineer reads the
+            brief before anyone books a call: it goes to the engineering desk,
+            not a CRM sequence.
           </p>
           <a
             href="mailto:signal@miw.studio"

@@ -1,0 +1,244 @@
+import type { Metadata } from "next";
+import { ArrowRight } from "lucide-react";
+
+import { EditorialShell } from "@/components/editorial/shell";
+import { GuildApplicationForm } from "@/components/guild/application-form";
+import {
+  CAREERS_FAQ,
+  GUILD,
+  GUILD_OPENINGS,
+  HIRING_STEPS,
+} from "@/lib/stations";
+
+export const metadata: Metadata = {
+  title: "Careers — The Engineering Guild & Incubator — MIW",
+  description:
+    "MIW takes ambitious first- and second-year developers, puts them on real enterprise work under Principal-level supervision, and pays a share of it. Three open directions, a published hiring process, and an application that asks for your work rather than your CV.",
+};
+
+function SectionLabel({ n, children }: { n: string; children: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="font-mono text-[10px] tracking-telemetry text-steel">
+        {n}
+      </span>
+      <span className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
+        {children}
+      </span>
+      <span className="h-px flex-1 bg-white/10" />
+    </div>
+  );
+}
+
+/**
+ * Recruiting lives on its own route rather than on the flight deck. The landing
+ * page sells to the person signing the contract; this one talks to the person
+ * who wants to build under supervision, and mixing the two audiences on one
+ * scroll is what made the old page unreadable.
+ */
+export default function CareersPage() {
+  return (
+    <EditorialShell active="careers">
+      <p className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
+        {GUILD.eyebrow}
+      </p>
+      <h1 className="mt-5 max-w-3xl text-[clamp(2rem,4.6vw,3.2rem)] leading-[1.02] font-semibold tracking-[-0.04em] text-white">
+        {GUILD.title}
+      </h1>
+      <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-platinum">
+        {GUILD.lede}
+      </p>
+      <p className="mt-4 max-w-2xl text-[14.5px] leading-relaxed text-zinc">
+        {GUILD.body}
+      </p>
+
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <a
+          href="#apply"
+          className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2.5 text-[13px] font-semibold text-black transition-colors hover:bg-zinc-200"
+        >
+          {GUILD.cta}
+          <ArrowRight className="size-3.5" strokeWidth={2.4} />
+        </a>
+        <a
+          href="#roles"
+          className="inline-flex items-center gap-2 rounded-md border border-white/25 px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
+        >
+          See the {GUILD_OPENINGS.length} open directions
+        </a>
+      </div>
+
+      <section className="mt-20">
+        <SectionLabel n="01">What you get</SectionLabel>
+        <dl className="mt-7 grid gap-4 sm:grid-cols-2">
+          {GUILD.tracks.map((t) => (
+            <div
+              key={t.label}
+              className="rounded-xl border border-white/12 bg-white/3 p-5"
+            >
+              <dt className="text-[15px] font-semibold text-white">{t.label}</dt>
+              <dd className="mt-2 text-[13.5px] leading-relaxed text-zinc">
+                {t.body}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="roles" className="mt-20 scroll-mt-20">
+        <SectionLabel n="02">Open directions</SectionLabel>
+        <p className="mt-6 max-w-2xl text-[14.5px] leading-relaxed text-zinc">
+          These are directions, not headcount. We are not filling a seat with a
+          fixed title — a strong applicant on any of them gets a crew built
+          around them.
+        </p>
+
+        <div className="mt-7 space-y-4">
+          {GUILD_OPENINGS.map((o) => (
+            <article
+              key={o.id}
+              className="rounded-xl border border-white/12 bg-white/3 p-6 md:p-8"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h3 className="text-[20px] leading-snug font-semibold tracking-[-0.02em] text-white">
+                  {o.label}
+                </h3>
+                <span className="font-mono text-[9.5px] tracking-[0.14em] text-steel uppercase">
+                  Crew on {o.system}
+                </span>
+              </div>
+
+              <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-zinc">
+                {o.body}
+              </p>
+
+              <div className="mt-6 grid gap-8 md:grid-cols-[1.4fr_1fr]">
+                <div>
+                  <h4 className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                    What you would actually work on
+                  </h4>
+                  <ul className="mt-3 space-y-2.5">
+                    {o.work.map((w) => (
+                      <li key={w} className="flex gap-3">
+                        <span className="mt-[9px] size-1 shrink-0 rounded-full bg-white/35" />
+                        <span className="text-[13.5px] leading-relaxed text-platinum">
+                          {w}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="space-y-5">
+                  <div>
+                    <h4 className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                      Stack
+                    </h4>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {o.stack.map((s) => (
+                        <span
+                          key={s}
+                          className="rounded border border-white/15 px-2 py-0.5 font-mono text-[10px] text-platinum"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                      Who it is for
+                    </h4>
+                    <p className="mt-2.5 text-[13px] leading-relaxed text-zinc">
+                      {o.level}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/12 pt-5">
+                <p className="max-w-lg text-[13.5px] leading-relaxed text-signal">
+                  {o.signal}
+                </p>
+                <a
+                  href="#apply"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-white/25 px-3.5 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:border-white/60 hover:bg-white/8"
+                >
+                  Apply
+                  <ArrowRight className="size-3" strokeWidth={2.4} />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-20">
+        <SectionLabel n="03">How hiring works</SectionLabel>
+        <p className="mt-6 max-w-2xl text-[14.5px] leading-relaxed text-zinc">
+          Published because not knowing is what stops people applying. Every
+          step is something we do to your work, not a personality screen.
+        </p>
+        <ol className="mt-7 grid gap-px overflow-hidden rounded-xl border border-white/12 bg-white/10 md:grid-cols-2">
+          {HIRING_STEPS.map((s) => (
+            <li key={s.step} className="bg-carbon p-6">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-mono text-[10px] tracking-telemetry text-steel">
+                  {s.step}
+                </span>
+                <span className="font-mono text-[9px] tracking-[0.14em] text-signal uppercase">
+                  {s.meta}
+                </span>
+              </div>
+              <h3 className="mt-3 text-[16px] font-semibold text-white">
+                {s.label}
+              </h3>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-zinc">
+                {s.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="mt-20">
+        <SectionLabel n="04">What we expect</SectionLabel>
+        <ul className="mt-7 space-y-3.5">
+          {GUILD.expectations.map((e) => (
+            <li key={e} className="flex gap-3.5">
+              <span className="mt-[11px] h-px w-5 shrink-0 bg-signal/60" />
+              <span className="text-[15px] leading-relaxed text-platinum">
+                {e}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-20">
+        <SectionLabel n="05">Questions</SectionLabel>
+        <dl className="mt-7 divide-y divide-white/10 border-y border-white/10">
+          {CAREERS_FAQ.map((f) => (
+            <div key={f.q} className="grid gap-2 py-5 md:grid-cols-[1fr_1.6fr] md:gap-8">
+              <dt className="text-[14.5px] font-semibold text-white">{f.q}</dt>
+              <dd className="text-[14px] leading-relaxed text-zinc">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="apply" className="mt-20 scroll-mt-20">
+        <h2 className="text-[clamp(1.6rem,3vw,2.2rem)] leading-[1.1] font-semibold tracking-[-0.03em] text-white">
+          Send the work, not a CV.
+        </h2>
+        <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-platinum">
+          Link something you built and tell us what was hard about it. A
+          Principal Architect reads it, and you get a written answer either way.
+        </p>
+        <div className="mt-8">
+          <GuildApplicationForm />
+        </div>
+      </section>
+    </EditorialShell>
+  );
+}

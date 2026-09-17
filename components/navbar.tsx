@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { Activity, ArrowUpRight, Menu, X } from "lucide-react";
 
+import { systemByCodename } from "@/lib/systems";
 import {
-  NAV_STATIONS,
+  AVAILABILITY,
+  NAV_SECTIONS,
   STATUS_TONE,
+  stationById,
+  type Mode,
+  type NavSection,
   type Project,
-  type Station,
   type StationId,
 } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -47,7 +52,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
     >
       <rect width="160" height="96" fill="#09090b" />
 
-      {station === "systems" &&
+      {station === "backend" &&
         (() => {
           // Positions resolved first so the edges land on the nodes. Drawing
           // each edge back to an un-jittered grid slot left every project with
@@ -83,7 +88,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
           );
         })()}
 
-      {station === "intelligence" &&
+      {station === "ai" &&
         Array.from({ length: 14 }, (_, i) => {
           const h = 8 + rnd(i) * 62;
           return (
@@ -99,7 +104,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
           );
         })}
 
-      {station === "venture" &&
+      {station === "labs" &&
         Array.from({ length: 5 }, (_, i) => (
           <ellipse
             key={i}
@@ -114,7 +119,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
           />
         ))}
 
-      {station === "studio" && (
+      {station === "guild" && (
         <>
           {Array.from({ length: 6 }, (_, i) => (
             <line
@@ -142,23 +147,83 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
   );
 }
 
+/* ── mode toggle ──────────────────────────────────────────────────────── */
+
+/**
+ * Two readers arrive at this page: the one who signs and the one who has to
+ * maintain it. Rather than averaging the copy into something neither trusts,
+ * the toggle picks which one is being spoken to.
+ */
+export function ModeToggle({
+  mode,
+  onChange,
+  className,
+}: {
+  mode: Mode;
+  onChange: (m: Mode) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Copy mode"
+      className={cn(
+        "flex items-center rounded-full border border-white/15 bg-black/50 p-0.5 backdrop-blur",
+        className,
+      )}
+    >
+      {(
+        [
+          ["business", "Impact"],
+          ["telemetry", "Specs"],
+        ] as const
+      ).map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onChange(id)}
+          aria-pressed={mode === id}
+          className={cn(
+            "relative rounded-full px-2.5 py-1 font-mono text-[9px] tracking-telemetry uppercase transition-colors",
+            mode === id ? "text-black" : "text-zinc hover:text-white",
+          )}
+        >
+          {mode === id && (
+            <motion.span
+              layoutId="mode-pill"
+              className="absolute inset-0 rounded-full bg-white"
+              transition={{ type: "spring", stiffness: 480, damping: 36 }}
+            />
+          )}
+          <span className="relative">{label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ── mega drawer ──────────────────────────────────────────────────────── */
 
+/**
+ * A project with a written-up case study opens the case study. The rest fly
+ * the camera to their station — there is nothing deeper to show yet, and a
+ * link to a stub page is worse than no link.
+ */
 function ProjectCard({
   project,
   station,
   onOpen,
+  onDismiss,
 }: {
   project: Project;
   station: StationId;
   onOpen: () => void;
+  onDismiss: () => void;
 }) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group w-full text-left focus:outline-none"
-    >
+  const study = systemByCodename(project.name);
+
+  const body = (
+    <>
       <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/12 transition-colors group-hover:border-white/35 group-focus-visible:border-white">
         <ProjectThumb station={station} code={project.code} />
         <span
@@ -169,6 +234,12 @@ function ProjectCard({
         >
           {project.status}
         </span>
+        {study && (
+          <span className="absolute right-2 bottom-2 flex items-center gap-1 border border-white/25 bg-black/75 px-1.5 py-0.5 font-mono text-[8px] tracking-[0.16em] text-white uppercase backdrop-blur">
+            Case study
+            <ArrowUpRight className="size-2.5" strokeWidth={2.4} />
+          </span>
+        )}
       </div>
 
       <div className="mt-3 flex items-baseline gap-2">
@@ -194,17 +265,43 @@ function ProjectCard({
           </span>
         ))}
       </div>
+    </>
+  );
+
+  if (study) {
+    return (
+      <Link
+        href={`/systems/${study.slug}`}
+        onClick={onDismiss}
+        className="group block w-full text-left focus:outline-none"
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group w-full text-left focus:outline-none"
+    >
+      {body}
     </button>
   );
 }
 
 function MegaDrawer({
-  station,
+  section,
   onNavigate,
+  onDismiss,
 }: {
-  station: Station;
+  section: NavSection;
   onNavigate: (id: StationId) => void;
+  onDismiss: () => void;
 }) {
+  const stations = section.stations.map(stationById);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -12 }}
@@ -215,33 +312,41 @@ function MegaDrawer({
     >
       <div className="mx-auto max-w-[1400px] px-6 py-9 md:px-10 md:py-11">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
+          <div className="max-w-xl">
             <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-              Station {station.index}
+              {stations.map((s) => s.index).join(" · ")} / {section.label}
             </span>
             <h3 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
-              {station.title}
+              {section.blurb}
             </h3>
           </div>
-          <button
-            type="button"
-            onClick={() => onNavigate(station.id)}
-            className="flex items-center gap-2 border border-white/25 px-4 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black"
-          >
-            Travel to station
-            <ArrowUpRight className="size-3.5" strokeWidth={2} />
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {stations.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => onNavigate(s.id)}
+                className="flex items-center gap-2 border border-white/25 px-4 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black"
+              >
+                {s.index} {s.nav}
+                <ArrowUpRight className="size-3.5" strokeWidth={2} />
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid gap-x-7 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
-          {station.projects.map((p) => (
-            <ProjectCard
-              key={p.code}
-              project={p}
-              station={station.id}
-              onOpen={() => onNavigate(station.id)}
-            />
-          ))}
+          {stations.flatMap((s) =>
+            s.projects.map((p) => (
+              <ProjectCard
+                key={p.code}
+                project={p}
+                station={s.id}
+                onOpen={() => onNavigate(s.id)}
+                onDismiss={onDismiss}
+              />
+            )),
+          )}
         </div>
       </div>
     </motion.div>
@@ -255,15 +360,19 @@ export function Navbar({
   onLaunch,
   telemetry,
   onToggleTelemetry,
+  mode,
+  onModeChange,
 }: {
   onNavigate: (id: StationId) => void;
   /** Jumps to the transmission console at the end of the runway. */
   onLaunch: () => void;
   telemetry: boolean;
   onToggleTelemetry: () => void;
+  mode: Mode;
+  onModeChange: (m: Mode) => void;
 }) {
-  const [open, setOpen] = useState<StationId | null>(null);
-  const [hovered, setHovered] = useState<StationId | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -300,12 +409,26 @@ export function Navbar({
     }, 140);
   };
 
-  const go = (id: StationId) => {
+  const dismiss = () => {
     setOpen(null);
     setHovered(null);
     setMobile(false);
+  };
+
+  const go = (section: NavSection) => {
+    dismiss();
+    if (section.go === "console") onLaunch();
+    else onNavigate(section.go);
+  };
+
+  const goStation = (id: StationId) => {
+    dismiss();
     onNavigate(id);
   };
+
+  const openSection = NAV_SECTIONS.find(
+    (s) => s.id === open && s.stations.length > 0,
+  );
 
   return (
     <div
@@ -319,7 +442,7 @@ export function Navbar({
           a full-viewport child of this container would otherwise count as the
           navbar for hover purposes and the menu would never close. */}
       <AnimatePresence>
-        {open && !mobile && (
+        {openSection && !mobile && (
           <motion.div
             key="scrim"
             aria-hidden
@@ -333,13 +456,35 @@ export function Navbar({
       </AnimatePresence>
 
       <header className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 to-transparent" />
+
+        {/* Commercial status. The single most-asked question before anyone
+            writes a brief is whether the studio is even taking work. */}
+        <div className="relative border-b border-white/10 bg-black/45 backdrop-blur">
+          <div className="mx-auto flex h-8 max-w-[1400px] items-center justify-between gap-4 px-5 md:px-8">
+            <p className="flex min-w-0 items-center gap-2 font-mono text-[9.5px] tracking-telemetry text-platinum uppercase">
+              <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-signal" />
+              <span className="truncate">
+                Status: {AVAILABILITY.status}
+                <span className="hidden text-steel md:inline">
+                  {" // "}
+                  {AVAILABILITY.scope}
+                </span>
+              </span>
+            </p>
+            <ModeToggle
+              mode={mode}
+              onChange={onModeChange}
+              className="shrink-0"
+            />
+          </div>
+        </div>
 
         <nav className="relative mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:px-8">
           {/* logo */}
           <button
             type="button"
-            onClick={() => go("studio")}
+            onClick={() => goStation("backend")}
             className="group flex items-center gap-2.5"
             aria-label="MIW — go to station 01"
           >
@@ -354,7 +499,7 @@ export function Navbar({
 
           {/* centre tabs */}
           <div className="absolute left-1/2 hidden -translate-x-1/2 items-center lg:flex">
-            {NAV_STATIONS.map((s) => (
+            {NAV_SECTIONS.map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -367,8 +512,8 @@ export function Navbar({
                   setHovered(s.id);
                   setOpen(s.id);
                 }}
-                onClick={() => go(s.id)}
-                aria-expanded={open === s.id}
+                onClick={() => go(s)}
+                aria-expanded={s.stations.length > 0 ? open === s.id : undefined}
                 className="relative px-4 py-2 text-[13px] font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
               >
                 {active === s.id && (
@@ -383,13 +528,23 @@ export function Navbar({
                     }}
                   />
                 )}
-                <span className="relative">{s.nav}</span>
+                <span className="relative">{s.label}</span>
               </button>
             ))}
           </div>
 
           {/* right cluster */}
           <div className="flex items-center gap-2">
+            {/* A route, not a station. The Guild tab flies the camera to the
+                pitch; this goes to the page someone job-hunting actually wants. */}
+            <Link
+              href="/careers"
+              onClick={dismiss}
+              className="hidden px-3 py-2 text-[12.5px] font-medium text-platinum transition-colors hover:text-white sm:block"
+            >
+              Careers
+            </Link>
+
             <button
               type="button"
               onClick={onToggleTelemetry}
@@ -408,13 +563,12 @@ export function Navbar({
             <button
               type="button"
               onClick={() => {
-                setOpen(null);
-                setMobile(false);
+                dismiss();
                 onLaunch();
               }}
               className="hidden items-center gap-2 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200 sm:flex"
             >
-              Launch Project
+              Book Architecture Call
               <ArrowUpRight className="size-3.5" strokeWidth={2.4} />
             </button>
 
@@ -435,11 +589,12 @@ export function Navbar({
         </nav>
 
         <AnimatePresence>
-          {open && !mobile && (
+          {openSection && !mobile && (
             <MegaDrawer
-              key={open}
-              station={NAV_STATIONS.find((s) => s.id === open)!}
-              onNavigate={go}
+              key={openSection.id}
+              section={openSection}
+              onNavigate={goStation}
+              onDismiss={dismiss}
             />
           )}
         </AnimatePresence>
@@ -454,21 +609,46 @@ export function Navbar({
               className="drawer absolute inset-x-0 top-full lg:hidden"
             >
               <div className="px-5 py-5">
-                {NAV_STATIONS.map((s) => (
+                {NAV_SECTIONS.map((s) => (
                   <button
                     key={s.id}
                     type="button"
-                    onClick={() => go(s.id)}
-                    className="flex w-full items-baseline justify-between border-b border-white/10 py-4 text-left last:border-0"
+                    onClick={() => go(s)}
+                    className="flex w-full items-baseline justify-between gap-4 border-b border-white/10 py-4 text-left last:border-0"
                   >
                     <span className="text-[15px] font-medium text-white">
-                      {s.nav}
+                      {s.label}
                     </span>
-                    <span className="font-mono text-[9px] tracking-telemetry text-zinc">
-                      {s.index}
+                    <span className="truncate font-mono text-[9px] tracking-telemetry text-zinc">
+                      {s.stations.map((id) => stationById(id).index).join(" · ")}
                     </span>
                   </button>
                 ))}
+
+                <Link
+                  href="/careers"
+                  onClick={dismiss}
+                  className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
+                >
+                  <span className="text-[15px] font-medium text-white">
+                    Careers
+                  </span>
+                  <span className="font-mono text-[9px] tracking-telemetry text-zinc">
+                    Open directions
+                  </span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    dismiss();
+                    onLaunch();
+                  }}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-[13px] font-semibold text-black"
+                >
+                  Book Architecture Call
+                  <ArrowUpRight className="size-3.5" strokeWidth={2.4} />
+                </button>
               </div>
             </motion.div>
           )}

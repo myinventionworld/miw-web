@@ -5,7 +5,7 @@
  * entire frame budget.
  */
 
-import { STATIONS, CONSOLE_ANCHOR } from "./stations";
+import { STATIONS, CONSOLE_ANCHOR, type StationId } from "./stations";
 
 export interface Pointer {
   x: number;
@@ -79,11 +79,13 @@ export type Vec3 = [number, number, number];
 /** The chrome mark sits on the track itself, so the camera flies through it. */
 export const LOGO_ORIGIN: Vec3 = [5.6, 3.0, -1.0];
 
-export const BODY: Record<string, { pos: Vec3; radius: number }> = {
-  studio: { pos: [-18, -11, -64], radius: 19 },
-  systems: { pos: [22, -3, -246], radius: 15 },
-  intelligence: { pos: [-19, 6, -420], radius: 16 },
-  venture: { pos: [0, 0, -648], radius: 12 },
+// Keyed by StationId so a station rename fails the build instead of silently
+// resolving to `undefined` inside useFrame.
+export const BODY: Record<StationId, { pos: Vec3; radius: number }> = {
+  backend: { pos: [-18, -11, -64], radius: 19 },
+  ai: { pos: [22, -3, -246], radius: 15 },
+  labs: { pos: [-19, 6, -420], radius: 16 },
+  guild: { pos: [0, 0, -648], radius: 12 },
 };
 
 /* ── camera track ─────────────────────────────────────────────────────── */

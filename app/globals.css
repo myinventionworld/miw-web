@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* The station dock's two-column layout needs both axes. Its brief is a fixed
+   ~646px and wants ~794px of viewport to clear the nav and the HUD, so a wide
+   but short window (1366x768, any landscape tablet) gets the single-column
+   layout even though it passes `lg`. */
+@custom-variant deck-wide (@media (min-width: 64rem) and (min-height: 50rem));
+
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
@@ -75,13 +81,17 @@ html.lenis body {
 .copy-scrim::before {
   content: "";
   position: absolute;
-  inset: -20% -32%;
+  inset: -2rem -30%;
   pointer-events: none;
+  /* Sized and centred so alpha hits zero exactly on the box edge. The ellipse
+     used to be offset and stop short, which left the wash ~50% opaque where
+     its box ended — a hard vertical seam that cut across anything the bleed
+     reached, the station card included. */
   background: radial-gradient(
-    ellipse at 38% 50%,
-    rgba(3, 3, 5, 0.94) 0%,
-    rgba(3, 3, 5, 0.78) 44%,
-    rgba(3, 3, 5, 0) 76%
+    ellipse 50% 50% at 50% 50%,
+    rgba(3, 3, 5, 0.95) 0%,
+    rgba(3, 3, 5, 0.9) 55%,
+    rgba(3, 3, 5, 0) 100%
   );
 }
 

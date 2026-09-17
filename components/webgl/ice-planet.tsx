@@ -8,8 +8,8 @@ import { NOISE_GLSL } from "@/lib/glsl";
 import { BODY, damp, flight, smoothstep } from "@/lib/flight";
 import { bindUniforms } from "@/lib/utils";
 
-const POS = new THREE.Vector3(...BODY.intelligence.pos);
-const R = BODY.intelligence.radius;
+const POS = new THREE.Vector3(...BODY.labs.pos);
+const R = BODY.labs.radius;
 
 const SUN_DIR = new THREE.Vector3(-0.48, 0.3, 0.82).normalize();
 

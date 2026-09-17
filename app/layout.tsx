@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MIW — My Invention World",
+  title: "MIW — Engineering & AI Systems",
   description:
-    "An avant-garde digital engineering and software R&D studio. Orbital systems architecture, cognitive intelligence, hyper-scale digital artifacts.",
+    "Architecture-first engineering studio and product lab. We design fault-tolerant enterprise systems, agentic AI pipelines and developer tools.",
 };
 
 export const viewport: Viewport = {
