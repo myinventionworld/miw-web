@@ -3,17 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { ReactLenis, useLenis } from "lenis/react";
-import { useScroll, type MotionValue } from "motion/react";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { useMotionValue, type MotionValue } from "motion/react";
+import { Arrow } from "@/components/glyph";
 
 import { clamp01, flight } from "@/lib/flight";
+import { useDockSnap } from "@/lib/use-dock-snap";
 import {
   CONSOLE_ANCHOR,
   stationById,
   type Mode,
   type StationId,
 } from "@/lib/stations";
-import { detectWebGL } from "@/lib/utils";
+import { detectWebGL, prefersFlatDeck } from "@/lib/utils";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./overlay/fallback";
@@ -52,8 +53,8 @@ function Hero({
         </div>
 
         <h1 className="text-lift mt-6 text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.94] font-semibold tracking-[-0.045em] text-white">
-          High-Performance Systems.
-          <br className="hidden sm:block" /> Engineered for Scale and Autonomy.
+          High-Performance
+          <br className="hidden sm:block" /> Software Architecture.
         </h1>
 
         {/* Only the body copy takes a scrim. The headline is large enough to
@@ -61,9 +62,9 @@ function Hero({
             the hero is framed against. */}
         <div className="copy-scrim mt-6 max-w-xl">
           <p className="text-lift relative text-[16px] leading-relaxed text-platinum">
-            We design and ship fault-tolerant digital platforms, distributed
-            backends and autonomous AI agents — from the architecture diagram
-            through to the thing running in production with a pager attached.
+            Engineered for scale, resilience and autonomy. We build systems that
+            don&apos;t fail under load — from the architecture diagram through to
+            the thing running in production with a pager attached.
           </p>
         </div>
 
@@ -73,16 +74,16 @@ function Hero({
             onClick={onDiscovery}
             className="flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[14px] font-semibold text-black transition-colors hover:bg-zinc-200"
           >
-            Initiate Project Discovery
-            <ArrowUpRight className="size-4" strokeWidth={2.4} />
+            Initiate Technical Discovery
+            <Arrow dir="up-right" className="text-[15px]" weight={1.7} />
           </button>
           <button
             type="button"
             onClick={onExplore}
             className="flex items-center gap-2 rounded-lg border border-white/30 bg-black/40 px-6 py-3 text-[14px] font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
           >
-            Explore the Transit
-            <ChevronDown className="size-4" strokeWidth={2.2} />
+            Enter Transit Stations
+            <Arrow dir="down" className="text-[15px]" weight={1.6} />
           </button>
         </div>
 
@@ -94,7 +95,7 @@ function Hero({
         </div>
 
         <div className="mt-10 flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-steel uppercase">
-          <ChevronDown className="size-3.5 animate-bounce" strokeWidth={2} />
+          <Arrow dir="down" className="animate-bounce text-[13px]" weight={1.4} />
           Four stations ahead · Scroll to depart
         </div>
       </div>
@@ -108,15 +109,36 @@ function Hero({
  * scroller and the browser fight each other for the same scrollTop.
  */
 function Deck({ webgl }: { webgl: boolean }) {
-  const { scrollYProgress } = useScroll();
   const [telemetry, setTelemetry] = useState(true);
   // Business first: the visitor who has to be convinced is the one holding the
   // budget, not the one who already reads p99 charts for a living.
   const [mode, setMode] = useState<Mode>("business");
 
+  /**
+   * One scroll position, read by everything.
+   *
+   * This was motion's `useScroll`, which left the page with two clocks: the
+   * camera read Lenis's `animatedScroll` while every overlay read a MotionValue
+   * that motion promotes to a native `ScrollTimeline` and hands to the
+   * compositor. They agree most of the time and that is the problem — when they
+   * did not, the HUD and the station card disagreed about which station you were
+   * at, and a compositor-owned `opacity` is not readable from JS to check (see
+   * the hero fade-back bug recorded in `stage.tsx`).
+   *
+   * Lenis owns `scrollTop` here, so it is the only defensible source. Driving a
+   * plain MotionValue from it costs the compositor offload and buys nothing back
+   * — Lenis is already running a rAF loop every frame.
+   */
+  const progress = useMotionValue(0);
+
   const lenis = useLenis(({ scroll, limit }) => {
-    flight.progress = limit > 0 ? clamp01(scroll / limit) : 0;
+    const p = limit > 0 ? clamp01(scroll / limit) : 0;
+    flight.progress = p;
+    progress.set(p);
   });
+
+  // Fires on user gestures only, so it never argues with `travel` below.
+  useDockSnap(lenis);
 
   const travel = useCallback(
     (p: number) => {
@@ -170,16 +192,16 @@ function Deck({ webgl }: { webgl: boolean }) {
       />
 
       <Hero
-        progress={scrollYProgress}
+        progress={progress}
         onExplore={() => goStation("backend")}
         onDiscovery={() => travel(CONSOLE_ANCHOR)}
       />
       <ProjectDock
-        progress={scrollYProgress}
+        progress={progress}
         mode={mode}
         onAction={() => travel(CONSOLE_ANCHOR)}
       />
-      <TransmissionConsole progress={scrollYProgress} />
+      <TransmissionConsole progress={progress} />
       <Hud visible={telemetry} />
 
       {/* The only element with real height — everything else is fixed. */}
@@ -189,10 +211,16 @@ function Deck({ webgl }: { webgl: boolean }) {
 }
 
 export function Experience() {
-  const [webgl, setWebgl] = useState<boolean | null>(null);
+  /**
+   * `null` until the first client effect, because both inputs are runtime
+   * capabilities and a server render has neither. Rendering the deck optimistically
+   * and swapping it out would mount a WebGL context on a phone just to throw it
+   * away.
+   */
+  const [flight3d, setFlight3d] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setWebgl(detectWebGL());
+    setFlight3d(detectWebGL() && !prefersFlatDeck());
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => {
@@ -213,7 +241,14 @@ export function Experience() {
     };
   }, []);
 
-  if (webgl === false) return <Fallback />;
+  // Touch and no-WebGL both land on the same flat route. It is not a downgrade
+  // path with missing content — it carries the whole page as a normal document
+  // that scrolls the way the device expects.
+  if (flight3d === false) return <Fallback />;
+
+  // `null` renders the deck shell with no scene rather than nothing: the server
+  // pass lands here, and a blank first paint would cost the LCP on the one device
+  // class that does get the deck. The scene mounts on the next commit.
 
   return (
     <ReactLenis
@@ -227,7 +262,7 @@ export function Experience() {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(webgl)} />
+      <Deck webgl={Boolean(flight3d)} />
     </ReactLenis>
   );
 }

@@ -55,13 +55,17 @@ export function Stage({
   /**
    * Holds the end values out to 0 and 1 so the ramp spans the whole scroll.
    *
-   * `useTransform` clamps outside its range, so in JS these extra stops are
-   * redundant. They are not redundant in the DOM: motion hands scroll-linked
-   * `opacity` to a native `ScrollTimeline` animation, and Chrome fills whatever
-   * slice of the timeline the keyframes leave uncovered by interpolating back
-   * toward the element's underlying style. A window ending at 0.036 therefore
-   * faded the hero out on cue and then quietly faded it *back in* across the
-   * remaining 96% of the page.
+   * `useTransform` clamps outside its range, so these extra stops are redundant
+   * — today. They were not always: when `progress` came from `useScroll`, motion
+   * handed the resulting `opacity` to a native `ScrollTimeline` and Chrome
+   * filled whatever slice of the timeline the keyframes left uncovered by
+   * interpolating back toward the element's underlying style. A window ending at
+   * 0.036 faded the hero out on cue and then quietly faded it *back in* across
+   * the remaining 96% of the page.
+   *
+   * `progress` is now a plain MotionValue driven by Lenis, so there is no
+   * timeline to leave uncovered. Kept because it costs two array pushes and the
+   * failure it prevents took a long time to find.
    */
   const ramp = (values: number[]): [number[], number[]] => {
     const input = [a, b, c, d];
@@ -82,8 +86,8 @@ export function Stage({
   const scale = useTransform(progress, ...ramp([enter ? 0.975 : 1, 1, 1, exit ? 1.045 : 1]));
 
   // Culled when fully outside the window, so a faded stage never eats a pointer
-  // event. Derived from `progress` rather than from `opacity`, which is owned by
-  // the compositor and no longer readable as a plain JS value.
+  // event. Derived from `progress` rather than from `opacity` so it stays true
+  // regardless of who ends up owning the opacity animation.
   const visibility = useTransform(progress, (p) =>
     (enter && p <= a) || (exit && p >= d) ? "hidden" : "visible",
   );

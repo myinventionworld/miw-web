@@ -6,6 +6,13 @@
    layout even though it passes `lg`. */
 @custom-variant deck-wide (@media (min-width: 64rem) and (min-height: 50rem));
 
+/* The other axis, and the one that actually bites. A 1366x768 panel — still the
+   most common laptop screen there is — leaves about 640px of viewport once the
+   browser's own chrome is subtracted, and the console is laid out against a band
+   of `viewport - 128`. Everything gated on this trades padding for reach on a
+   short window and changes nothing on a tall one. */
+@custom-variant deck-short (@media (max-height: 44rem));
+
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;

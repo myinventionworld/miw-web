@@ -83,10 +83,35 @@ export const LOGO_ORIGIN: Vec3 = [5.6, 3.0, -1.0];
 // resolving to `undefined` inside useFrame.
 export const BODY: Record<StationId, { pos: Vec3; radius: number }> = {
   backend: { pos: [-18, -11, -64], radius: 19 },
-  ai: { pos: [22, -3, -246], radius: 15 },
+  commerce: { pos: [22, -3, -246], radius: 15 },
   labs: { pos: [-19, 6, -420], radius: 16 },
   guild: { pos: [0, 0, -648], radius: 12 },
 };
+
+/**
+ * Where the body sits in frame once docked, in half-screens: x +1 is the right
+ * edge, y +1 is the top. The dock lock centres the body by construction, so
+ * without this every station composes identically — and worse, the info card
+ * now alternates sides down the page, which would park three of the four cards
+ * directly on top of their own subject.
+ *
+ * Read it as the mirror of the card: card left, body right.
+ */
+export const FRAME_BIAS: Record<StationId, { x: number; y: number }> = {
+  backend: { x: 0.52, y: -0.06 },
+  commerce: { x: -0.54, y: 0.02 },
+  labs: { x: 0.52, y: 0.04 },
+  // Station 04's card is centred, so the pulsar has nowhere sideways to go and
+  // is lifted clear of it instead.
+  guild: { x: 0.04, y: 0.5 },
+};
+
+/**
+ * World offset that moves the aim point one half-screen. Derived from the docked
+ * lens (38° vertical) at `LOOK_DISTANCE`, so a bias of 1.0 lands the body on the
+ * frame edge rather than at some arbitrary amount of rotation.
+ */
+export const BIAS_SCALE = { x: 10, y: 5.6 } as const;
 
 /* ── camera track ─────────────────────────────────────────────────────── */
 
@@ -154,6 +179,13 @@ export const ANCHORS: number[] = [
   ...STATIONS.map((s) => s.anchor),
   CONSOLE_ANCHOR,
 ];
+
+/**
+ * Every position the scroll magnet is allowed to rest at. The hero is a parking
+ * point too — it just has no station anchor, because no camera keyframe needs to
+ * be locked to it.
+ */
+export const DOCKS: number[] = [0, ...ANCHORS];
 
 /** Index of the nearest anchor and the normalised gap position around it. */
 function segment(p: number) {

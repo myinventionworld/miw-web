@@ -5,7 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import {
+  BIAS_SCALE,
   BODY,
+  FRAME_BIAS,
   damp,
   flight,
   sampleCamera,
@@ -72,19 +74,32 @@ export function CosmosFlight() {
     // station and 0 mid-leg, so the lock and the warp are exact inverses.
     const station = STATIONS[flight.station];
     const anchor = BODY[station.id];
+    // Past the last station the lock releases. `proximityAt` returns 1 for
+    // everything beyond the final anchor, so without this the camera keeps
+    // the pulsar dead-centre all the way to the console — a star behind the
+    // form is exactly the washed-out composition this rebuild replaced.
+    const lock = anchor ? flight.proximity * (1 - smoothstep(0.84, 0.93, p)) : 0;
     if (anchor) {
       body.current.set(...anchor.pos);
-      // Past the last station the lock releases. `proximityAt` returns 1 for
-      // everything beyond the final anchor, so without this the camera keeps
-      // the pulsar dead-centre all the way to the console — a star behind the
-      // form is exactly the washed-out composition this rebuild replaced.
-      const lock = flight.proximity * (1 - smoothstep(0.84, 0.93, p));
       target.current.lerp(body.current, lock * 0.92);
     }
 
     forward.current.copy(target.current).sub(position.current).normalize();
     right.current.crossVectors(forward.current, camera.up).normalize();
     up.current.crossVectors(right.current, forward.current).normalize();
+
+    // Docking composition. The lock above centres the body by construction,
+    // which is the wrong answer now that the info card alternates sides: three
+    // of the four stations would park their card on top of their own subject.
+    // Nudging the aim point away from the body slides it across the frame, and
+    // scaling by `lock` means this only ever applies while parked — the transit
+    // is still aimed down the track.
+    const bias = FRAME_BIAS[station.id];
+    if (bias && lock > 0.001) {
+      target.current
+        .addScaledVector(right.current, -bias.x * BIAS_SCALE.x * lock)
+        .addScaledVector(up.current, -bias.y * BIAS_SCALE.y * lock);
+    }
 
     // Parallax as a look-target offset rather than a post-hoc euler tweak, so
     // the camera basis stays orthonormal and the horizon never shears.

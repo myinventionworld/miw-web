@@ -1,4 +1,4 @@
-import type { ArchEdge, ArchNode } from "@/lib/systems";
+import type { ArchEdge, ArchNode } from "@/data/projects";
 
 /**
  * Architecture diagrams are laid out on a declared grid, not force-directed.

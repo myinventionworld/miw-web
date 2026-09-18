@@ -122,7 +122,11 @@ export function Starfield({ count = 3200 }: { count?: number }) {
     g.position.copy(camera.position);
 
     const warp = flight.warp;
-    const target = lerp(1.6, 620, Math.pow(warp, 1.35));
+    // Docking slows the tunnel instead of stopping it. A dead starfield behind a
+    // parked card reads as a canvas that crashed; a crawling one reads as
+    // station-keeping, which is the thing actually happening.
+    const idle = lerp(2.2, 0.4, flight.proximity);
+    const target = lerp(idle, 620, Math.pow(warp, 1.35));
     speed.current = lerp(speed.current, target, 1 - Math.exp(-3.4 * delta));
     travel.current += speed.current * delta;
 

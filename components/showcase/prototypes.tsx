@@ -1,384 +1,357 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import type { Variant } from "@/lib/stations";
+import type { Variant } from "@/data/projects";
 import { cn } from "@/lib/utils";
 
 /**
- * The working part of every product frame. These are real widgets rather than
- * screenshots or a video loop: the visitor gets to poke at the thing, which is
- * the only demo format that survives a sceptical engineer.
+ * The working part of every product frame. Real widgets rather than a video
+ * loop or a screenshot: the visitor gets to poke at the thing, which is the
+ * only demo format that survives a sceptical engineer.
  *
- * Nothing here animates on its own. The old canvas teaser ran a second 60Hz
- * rAF loop alongside the WebGL scene for no informational gain — state changes
- * only when somebody clicks.
+ * Each one demonstrates the single mechanism its case study is actually about —
+ * the seat lock, the idempotency key, the edge cache. An abstract that merely
+ * looks technical would be the same decoration the video was, in fewer bytes.
+ *
+ * Nothing here animates on its own. The old canvas teaser ran a second 60Hz rAF
+ * loop alongside the WebGL scene for no informational gain; state changes only
+ * when somebody clicks.
  */
 
-const hashf = (n: number) => {
-  const s = Math.sin(n * 127.1) * 43758.5453;
-  return s - Math.floor(s);
-};
-
+/**
+ * No fixed height and no scrollbar. This used to be a 196px window with
+ * `overflow-y-auto`, which made it a scroll container nested inside the card,
+ * which was itself nested inside the page — put the cursor here and the wheel
+ * went nowhere. Each widget below is sized to fit instead.
+ */
 function ProtoShell({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      data-lenis-prevent
-      className="thin-scroll h-[196px] overflow-y-auto bg-[#08080b] p-3"
-    >
+    <div className="bg-[#08080b] p-2.5 deck-short:p-2">{children}</div>
+  );
+}
+
+function ProtoHead({
+  label,
+  children,
+}: {
+  label: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-2 flex items-center justify-between gap-3">
+      <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
+        {label}
+      </span>
       {children}
     </div>
   );
 }
 
-/* ── topology: where the latency budget goes ──────────────────────────── */
+const TOGGLE =
+  "shrink-0 rounded-sm border px-2 py-1 font-mono text-[9px] tracking-telemetry uppercase transition-colors";
 
-const HOPS = [
-  { id: "edge", label: "edge / tls", ms: 4, p99: 9 },
-  { id: "api", label: "api gateway", ms: 11, p99: 26 },
-  { id: "auth", label: "auth verify", ms: 6, p99: 14 },
-  { id: "orders", label: "orders svc", ms: 23, p99: 61 },
-  { id: "pg", label: "postgres", ms: 9, p99: 38 },
-  { id: "bus", label: "event emit", ms: 3, p99: 7 },
-];
-
-function TopologyProto() {
-  const [selected, setSelected] = useState("orders");
-  const total = HOPS.reduce((s, x) => s + x.ms, 0);
-  const hop = HOPS.find((x) => x.id === selected)!;
-
+/** Terminal line under each demo. Mono, one fact, no exclamation marks. */
+function Readout({
+  tone = "neutral",
+  children,
+}: {
+  tone?: "neutral" | "good" | "warn";
+  children: React.ReactNode;
+}) {
   return (
-    <ProtoShell>
-      <div className="mb-2 flex items-baseline justify-between">
-        <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-          Latency budget
-        </span>
-        <span className="font-mono text-[11px] text-white tabular-nums">
-          {total} ms p50
-        </span>
-      </div>
-
-      <div className="flex h-5 overflow-hidden rounded-sm border border-white/15">
-        {HOPS.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            onClick={() => setSelected(x.id)}
-            aria-label={x.label}
-            style={{ width: `${(x.ms / total) * 100}%` }}
-            className={cn(
-              "h-full border-r border-black/60 transition-colors last:border-r-0",
-              selected === x.id ? "bg-white" : "bg-beam/40 hover:bg-beam/70",
-            )}
-          />
-        ))}
-      </div>
-
-      <div className="mt-3 space-y-1">
-        {HOPS.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            onClick={() => setSelected(x.id)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-sm px-2 py-1 text-left font-mono text-[10px] transition-colors",
-              selected === x.id
-                ? "bg-white/12 text-white"
-                : "text-zinc hover:bg-white/6 hover:text-platinum",
-            )}
-          >
-            <span>{x.label}</span>
-            <span className="tabular-nums">
-              {x.ms} / {x.p99} ms
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <p className="mt-2 font-mono text-[10px] leading-relaxed text-platinum">
-        {hop.label} owns {Math.round((hop.ms / total) * 100)}% of p50 and blows
-        to {hop.p99} ms at p99.
-      </p>
-    </ProtoShell>
+    <p
+      aria-live="polite"
+      className={cn(
+        "mt-2 font-mono text-[10px] leading-[1.5]",
+        tone === "good" && "text-signal",
+        tone === "warn" && "text-amber-300",
+        tone === "neutral" && "text-platinum",
+      )}
+    >
+      {children}
+    </p>
   );
 }
 
-/* ── cluster: what a broker loss actually costs ───────────────────────── */
+/* ── booking: the seat lock, contested on purpose ─────────────────────── */
 
-function ClusterProto() {
-  const [producers, setProducers] = useState(6);
-  const [degraded, setDegraded] = useState(false);
+const ROWS = 3;
+const COLS = 8;
+const PRESOLD = [0, 1, 5, 9, 14, 17, 18, 22];
 
-  const partitions = useMemo(() => {
-    const live = degraded ? 5 : 6;
-    return Array.from({ length: 6 }, (_, i) => {
-      const down = degraded && i === 2;
-      const share = down ? 0 : 1 / live;
-      const throughput = Math.round(producers * 14200 * share);
-      const lag = down
-        ? 0
-        : Math.round(producers * (degraded ? 260 : 120) * hashf(i * 5.7));
-      return { i, down, throughput, lag };
-    });
-  }, [producers, degraded]);
+type Attempt =
+  | { kind: "idle" }
+  | { kind: "held"; seat: number }
+  | { kind: "won"; seat: number }
+  | { kind: "lost"; seat: number };
 
-  const worst = Math.max(1, ...partitions.map((p) => p.lag));
+function BookingProto() {
+  const [sold, setSold] = useState<number[]>(PRESOLD);
+  const [attempt, setAttempt] = useState<Attempt>({ kind: "idle" });
 
-  return (
-    <ProtoShell>
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-          Producers {producers}
-        </span>
-        <input
-          type="range"
-          min={1}
-          max={12}
-          value={producers}
-          aria-label="Producer count"
-          onChange={(e) => setProducers(e.currentTarget.valueAsNumber)}
-          className="range h-5 flex-1"
-        />
-        <button
-          type="button"
-          onClick={() => setDegraded((v) => !v)}
-          className={cn(
-            "shrink-0 rounded-sm border px-2 py-1 font-mono text-[9px] tracking-telemetry uppercase transition-colors",
-            degraded
-              ? "border-amber-400/70 bg-amber-400/15 text-amber-300"
-              : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
-          )}
-        >
-          {degraded ? "broker down" : "kill broker"}
-        </button>
-      </div>
+  const held = attempt.kind === "held" ? attempt.seat : null;
+  const contested = attempt.kind === "held";
 
-      <div className="space-y-1.5">
-        {partitions.map((p) => (
-          <div key={p.i} className="flex items-center gap-2">
-            <span className="w-6 shrink-0 font-mono text-[10px] text-zinc">
-              p{p.i}
-            </span>
-            <div className="h-2.5 flex-1 overflow-hidden rounded-sm bg-white/8">
-              <div
-                className={cn(
-                  "h-full transition-[width] duration-300",
-                  p.down ? "bg-white/15" : "bg-beam/80",
-                )}
-                style={{ width: `${(p.lag / worst) * 100}%` }}
-              />
-            </div>
-            <span className="w-[86px] shrink-0 text-right font-mono text-[10px] text-platinum tabular-nums">
-              {p.down ? "— offline" : `${p.throughput.toLocaleString()}/s`}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-3 font-mono text-[10px] leading-relaxed text-platinum">
-        {degraded
-          ? "Leadership moved off p2. Remaining partitions absorb the write path; lag is bounded by the replay budget, not by luck."
-          : "Six partitions, one leader each. Consumer offsets commit after the side effect, so replay is idempotent."}
-      </p>
-    </ProtoShell>
-  );
-}
-
-/* ── query: the governed layer the agent is allowed to emit ───────────── */
-
-const METRICS = [
-  { id: "orders", label: "orders" },
-  { id: "latency", label: "p99_ms" },
-  { id: "errors", label: "error_rate" },
-] as const;
-
-const GRAINS = ["1m", "5m", "1h"] as const;
-
-function QueryProto() {
-  const [metric, setMetric] = useState<(typeof METRICS)[number]["id"]>("orders");
-  const [grain, setGrain] = useState<(typeof GRAINS)[number]>("5m");
-
-  const seed = METRICS.findIndex((m) => m.id === metric) * 31 + grain.length * 7;
-  const bars = useMemo(
-    () =>
-      Array.from({ length: 22 }, (_, i) => 0.18 + 0.78 * hashf(i * 2.3 + seed)),
-    [seed],
-  );
-  const peak = Math.max(...bars);
-
-  return (
-    <ProtoShell>
-      <div className="mb-2 flex flex-wrap items-center gap-1.5">
-        {METRICS.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => setMetric(m.id)}
-            className={cn(
-              "rounded-sm border px-2 py-0.5 font-mono text-[9px] tracking-telemetry uppercase transition-colors",
-              metric === m.id
-                ? "border-white bg-white font-semibold text-black"
-                : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
-            )}
-          >
-            {m.label}
-          </button>
-        ))}
-        <span className="mx-1 h-3 w-px bg-white/15" />
-        {GRAINS.map((g) => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => setGrain(g)}
-            className={cn(
-              "rounded-sm border px-2 py-0.5 font-mono text-[9px] transition-colors",
-              grain === g
-                ? "border-white bg-white font-semibold text-black"
-                : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
-            )}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex h-[58px] items-end gap-[3px]">
-        {bars.map((v, i) => (
-          <div
-            key={i}
-            style={{ height: `${v * 100}%` }}
-            className={cn(
-              "flex-1 rounded-t-[1px] transition-all duration-300",
-              v === peak ? "bg-white" : "bg-beam/70 hover:bg-beam",
-            )}
-          />
-        ))}
-      </div>
-
-      <div className="mt-3 mb-1 font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-        Agent-emitted · governed layer
-      </div>
-      <pre className="overflow-x-auto rounded-sm border border-white/10 bg-white/4 p-2 font-mono text-[9.5px] leading-relaxed text-platinum">
-        {`SELECT toStartOfInterval(ts, INTERVAL ${grain.replace(
-          /(\d+)(\w)/,
-          "$1 $2",
-        )}) AS t,
-       ${metric}
-FROM  tidewater.metrics_governed
-WHERE t > now() - INTERVAL 2 HOUR
-ORDER BY t`}
-      </pre>
-    </ProtoShell>
-  );
-}
-
-/* ── experiments: cache hit as an equality proof ──────────────────────── */
-
-const BUILD_STEPS = [
-  { name: "resolve graph", ms: 120 },
-  { name: "fetch inputs", ms: 340 },
-  { name: "compile crate", ms: 1180 },
-  { name: "link artifact", ms: 260 },
-  { name: "sign + attest", ms: 90 },
-];
-
-function ExperimentsProto() {
-  const [step, setStep] = useState(BUILD_STEPS.length);
-  const [warm, setWarm] = useState(true);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
-
-  const run = useCallback(
-    (i: number) => {
-      if (i >= BUILD_STEPS.length) return;
-      setStep(i + 1);
-      timer.current = setTimeout(() => run(i + 1), warm ? 110 : 260);
-    },
-    [warm],
-  );
-
-  const start = () => {
-    if (timer.current) clearTimeout(timer.current);
-    setStep(0);
-    timer.current = setTimeout(() => run(0), 80);
+  /** The second passenger reaches for the same row the first one is holding. */
+  const race = () => {
+    if (attempt.kind !== "held") return;
+    const seat = attempt.seat;
+    setSold((s) => (s.includes(seat) ? s : [...s, seat]));
+    setAttempt({ kind: "won", seat });
   };
 
-  const total = BUILD_STEPS.reduce(
-    (s, x, i) => s + (warm && i < 3 ? Math.round(x.ms * 0.04) : x.ms),
-    0,
-  );
-
   return (
     <ProtoShell>
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <ProtoHead label={`Seats sold ${sold.length}/${ROWS * COLS}`}>
         <button
           type="button"
-          onClick={start}
-          className="flex items-center gap-1.5 rounded-sm border border-white/25 px-2 py-1 font-mono text-[9px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black"
-        >
-          <RotateCcw className="h-2.5 w-2.5" />
-          Run build
-        </button>
-        <button
-          type="button"
-          onClick={() => setWarm((v) => !v)}
+          onClick={race}
+          disabled={!contested}
           className={cn(
-            "rounded-sm border px-2 py-1 font-mono text-[9px] tracking-telemetry uppercase transition-colors",
-            warm
-              ? "border-signal/70 bg-signal/12 text-signal"
-              : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
+            TOGGLE,
+            contested
+              ? "border-amber-400/70 bg-amber-400/15 text-amber-300"
+              : "border-white/15 text-steel",
           )}
         >
-          {warm ? "cache warm" : "cache cold"}
+          Race a second passenger
         </button>
-      </div>
+      </ProtoHead>
 
-      <div className="space-y-1">
-        {BUILD_STEPS.map((s, i) => {
-          const done = i < step;
-          const cached = warm && i < 3;
+      <div className="grid grid-cols-8 gap-1">
+        {Array.from({ length: ROWS * COLS }, (_, i) => {
+          const taken = sold.includes(i);
+          const mine = held === i;
           return (
-            <div
-              key={s.name}
+            <button
+              key={i}
+              type="button"
+              disabled={taken}
+              aria-label={`Seat ${i + 1}${taken ? " — sold" : ""}`}
+              onClick={() => setAttempt({ kind: "held", seat: i })}
               className={cn(
-                "flex items-center justify-between rounded-sm px-2 py-1 font-mono text-[10px] transition-colors duration-200",
-                done ? "bg-white/10 text-white" : "text-steel",
+                "h-5 rounded-sm border font-mono text-[8px] transition-colors",
+                taken
+                  ? "cursor-not-allowed border-white/10 bg-white/8 text-steel"
+                  : mine
+                    ? "border-signal bg-signal/25 text-white"
+                    : "border-beam/40 bg-beam/10 text-beam hover:border-beam hover:bg-beam/25",
               )}
             >
-              <span className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    done ? (cached ? "bg-signal" : "bg-beam") : "bg-white/20",
-                  )}
-                />
-                {s.name}
-              </span>
-              <span className="tabular-nums">
-                {done ? (cached ? "cache hit" : `${s.ms} ms`) : "—"}
-              </span>
-            </div>
+              {i + 1}
+            </button>
           );
         })}
       </div>
 
-      <p className="mt-2 font-mono text-[10px] text-platinum tabular-nums">
-        wall {total} ms · artifact digest stable across machines
-      </p>
+      {attempt.kind === "won" ? (
+        <Readout tone="good">
+          {`> txn A: COMMIT seat ${attempt.seat + 1}`}
+          <br />
+          {"> txn B: 409 seat_taken — blocked at SELECT … FOR UPDATE. Double bookings: 0"}
+        </Readout>
+      ) : attempt.kind === "held" ? (
+        <Readout tone="warn">
+          {`> txn A holds seat ${attempt.seat + 1}. Send the second passenger at it.`}
+        </Readout>
+      ) : (
+        <Readout>
+          {
+            "> pick a free seat, then race another passenger for the same one. The loser is refused by the database, not by a cleanup job."
+          }
+        </Readout>
+      )}
+    </ProtoShell>
+  );
+}
+
+/* ── checkout: redelivery is a no-op, cache absorbs the sale ───────────── */
+
+function CheckoutProto() {
+  const [deliveries, setDeliveries] = useState(0);
+  const [sale, setSale] = useState(false);
+
+  // Two tiers plus the floor that reaches Postgres. The sale does not change the
+  // ratio much — that is the whole claim being demonstrated.
+  const tiers = sale
+    ? { l1: 71, l2: 24, db: 5 }
+    : { l1: 58, l2: 37, db: 5 };
+  const hit = tiers.l1 + tiers.l2;
+
+  return (
+    <ProtoShell>
+      <ProtoHead label={`Catalogue cache · hit ${hit}%`}>
+        <button
+          type="button"
+          onClick={() => setSale((v) => !v)}
+          className={cn(
+            TOGGLE,
+            sale
+              ? "border-amber-400/70 bg-amber-400/15 text-amber-300"
+              : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
+          )}
+        >
+          {sale ? "flash sale · 40× rps" : "baseline traffic"}
+        </button>
+      </ProtoHead>
+
+      <div className="flex h-4 overflow-hidden rounded-sm border border-white/15">
+        <div
+          style={{ width: `${tiers.l1}%` }}
+          className="h-full bg-white/85"
+          title="L1 · process memory"
+        />
+        <div
+          style={{ width: `${tiers.l2}%` }}
+          className="h-full bg-beam/70"
+          title="L2 · Redis"
+        />
+        <div
+          style={{ width: `${tiers.db}%` }}
+          className="h-full bg-white/12"
+          title="Postgres"
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between font-mono text-[9px] text-steel">
+        <span>L1 memory {tiers.l1}%</span>
+        <span>L2 redis {tiers.l2}%</span>
+        <span>postgres {tiers.db}%</span>
+      </div>
+
+      <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+        <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
+          Charges {Math.min(deliveries, 1)} · deliveries {deliveries}
+        </span>
+        <button
+          type="button"
+          onClick={() => setDeliveries((d) => d + 1)}
+          className={cn(
+            TOGGLE,
+            "border-white/25 text-white hover:bg-white hover:text-black",
+          )}
+        >
+          Deliver stripe webhook
+        </button>
+      </div>
+
+      {deliveries === 0 ? (
+        <Readout>
+          {
+            "> gateways retry by design. Deliver the same event twice and watch the second one settle to the order that already exists."
+          }
+        </Readout>
+      ) : deliveries === 1 ? (
+        <Readout tone="good">
+          {"> pi_3Nk…9Qa → order #10482 created. 1 charge captured."}
+        </Readout>
+      ) : (
+        <Readout tone="good">
+          {`> pi_3Nk…9Qa → duplicate ×${deliveries - 1}, unique constraint held. Still order #10482, still 1 charge.`}
+        </Readout>
+      )}
+    </ProtoShell>
+  );
+}
+
+/* ── streaming: where the route budget goes, warm and cold ────────────── */
+
+const ROUTES = [
+  { id: "home", path: "/", warm: [6, 8, 0], cold: [6, 41, 26] },
+  { id: "browse", path: "/browse", warm: [7, 11, 0], cold: [7, 58, 38] },
+  { id: "title", path: "/title/[id]", warm: [6, 9, 0], cold: [6, 47, 31] },
+  // Per-viewer data cannot be cached at the edge, and pretending otherwise
+  // would be the one dishonest row in the table.
+  { id: "library", path: "/library", warm: [7, 22, 19], cold: [7, 24, 21] },
+] as const;
+
+const LEGS = ["edge", "render", "data"] as const;
+const LEG_TONE = ["bg-white/85", "bg-beam/70", "bg-signal/70"];
+
+function StreamingProto() {
+  const [warm, setWarm] = useState(true);
+  const [route, setRoute] = useState<(typeof ROUTES)[number]["id"]>("browse");
+
+  const rows = useMemo(
+    () =>
+      ROUTES.map((r) => {
+        // Widened out of the `as const` literal union: the tuple's element type
+        // is the set of millisecond values that happen to appear in the table,
+        // and a sum of them is not a member of it.
+        const legs: number[] = [...(warm ? r.warm : r.cold)];
+        return { ...r, legs, total: legs.reduce((a, b) => a + b, 0) };
+      }),
+    [warm],
+  );
+
+  const worst = Math.max(...rows.map((r) => r.total));
+  const active = rows.find((r) => r.id === route)!;
+
+  return (
+    <ProtoShell>
+      <ProtoHead label="Route change budget">
+        <button
+          type="button"
+          onClick={() => setWarm((v) => !v)}
+          className={cn(
+            TOGGLE,
+            warm
+              ? "border-signal/70 bg-signal/12 text-signal"
+              : "border-amber-400/70 bg-amber-400/15 text-amber-300",
+          )}
+        >
+          {warm ? "edge cache warm" : "edge cache cold"}
+        </button>
+      </ProtoHead>
+
+      <div className="space-y-1">
+        {rows.map((r) => (
+          <button
+            key={r.id}
+            type="button"
+            onClick={() => setRoute(r.id)}
+            className={cn(
+              "flex w-full items-center gap-2 rounded-sm px-1.5 py-[3px] text-left transition-colors",
+              route === r.id ? "bg-white/10" : "hover:bg-white/6",
+            )}
+          >
+            <span
+              className={cn(
+                "w-[74px] shrink-0 truncate font-mono text-[9.5px]",
+                route === r.id ? "text-white" : "text-zinc",
+              )}
+            >
+              {r.path}
+            </span>
+            <span className="flex h-2 flex-1 overflow-hidden rounded-sm bg-white/8">
+              {r.legs.map((ms, i) => (
+                <span
+                  key={LEGS[i]}
+                  style={{ width: `${(ms / worst) * 100}%` }}
+                  className={cn("h-full", LEG_TONE[i])}
+                />
+              ))}
+            </span>
+            <span className="w-[42px] shrink-0 text-right font-mono text-[9.5px] text-platinum tabular-nums">
+              {r.total} ms
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <Readout>
+        {active.id === "library"
+          ? `> ${active.path} is per-viewer, so it reads Postgres either way — ${active.legs[2]} ms of its ${active.total} ms. The cache cannot help here and does not pretend to.`
+          : warm
+            ? `> ${active.path} served from ISR at the edge: ${active.legs[0]} ms edge + ${active.legs[1]} ms render, no origin data call.`
+            : `> ${active.path} cold: ${active.legs[2]} ms waiting on the catalogue upstream. Revalidation is what keeps this off the viewer's path.`}
+      </Readout>
     </ProtoShell>
   );
 }
 
 export function Prototype({ variant }: { variant: Variant }) {
-  if (variant === "topology") return <TopologyProto />;
-  if (variant === "cluster") return <ClusterProto />;
-  if (variant === "query") return <QueryProto />;
-  return <ExperimentsProto />;
+  if (variant === "booking") return <BookingProto />;
+  if (variant === "checkout") return <CheckoutProto />;
+  return <StreamingProto />;
 }

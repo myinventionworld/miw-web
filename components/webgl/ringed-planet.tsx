@@ -9,8 +9,8 @@ import { BODY, damp, flight, smoothstep } from "@/lib/flight";
 import { bindUniforms } from "@/lib/utils";
 import { Rings } from "./rings";
 
-const POS = new THREE.Vector3(...BODY.ai.pos);
-const R = BODY.ai.radius;
+const POS = new THREE.Vector3(...BODY.commerce.pos);
+const R = BODY.commerce.radius;
 
 const RING_INNER = R * 1.34;
 const RING_OUTER = R * 2.28;

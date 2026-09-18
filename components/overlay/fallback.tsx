@@ -8,12 +8,20 @@ import {
   STATIONS,
   STATUS_TONE,
 } from "@/lib/stations";
-import { systemForStation } from "@/lib/systems";
+import { projectForStation } from "@/data/projects";
 import { cn } from "@/lib/utils";
 
 /**
- * Static document served when WebGL is missing or blocked. Same content model
- * as the flight deck, so the copy can never drift between the two.
+ * The flat deck. Served to two audiences that want the same thing: browsers
+ * without WebGL, and touch devices, where the scroll-pinned camera has no wheel
+ * gesture to read and the station card fills the screen anyway.
+ *
+ * Same content model as the flight deck — every string here is read from
+ * `lib/stations.ts` and `data/projects.ts`, so the two versions of the page
+ * cannot drift into disagreeing about what the studio does.
+ *
+ * It is not a stripped-down page. It is the whole argument as a document, which
+ * is what a phone was always better at rendering.
  */
 export function Fallback() {
   return (
@@ -38,23 +46,29 @@ export function Fallback() {
         </div>
 
         <h1 className="mt-8 text-[clamp(2.2rem,6vw,4.6rem)] leading-[0.94] font-semibold tracking-[-0.045em] text-white">
-          High-Performance Systems.
-          <br className="hidden sm:block" /> Engineered for Scale and Autonomy.
+          High-Performance
+          <br className="hidden sm:block" /> Software Architecture.
         </h1>
 
         <p className="mt-8 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          We design and ship fault-tolerant digital platforms, distributed
-          backends and autonomous AI agents — from the architecture diagram
-          through to the thing running in production with a pager attached.
+          Engineered for scale, resilience and autonomy. We build systems that
+          don&apos;t fail under load — from the architecture diagram through to
+          the thing running in production with a pager attached.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <a
-            href="mailto:signal@miw.studio"
+            href="#transmission"
             className="rounded-lg bg-white px-6 py-3 text-[14px] font-semibold text-black transition-colors hover:bg-zinc-200"
           >
-            Initiate Project Discovery
+            Initiate Technical Discovery
           </a>
+          <Link
+            href="/work"
+            className="rounded-lg border border-white/30 px-6 py-3 text-[14px] font-medium text-white transition-colors hover:border-white/70 hover:bg-white/10"
+          >
+            Read the case studies
+          </Link>
           <Link
             href="/careers"
             className="rounded-lg border border-white/30 px-6 py-3 text-[14px] font-medium text-white transition-colors hover:border-white/70 hover:bg-white/10"
@@ -79,8 +93,11 @@ export function Fallback() {
           The standard we design to — not a claim about past results
         </p>
 
+        {/* Stated, not hidden. Someone who has seen the flight deck on a desktop
+            and then opens the same URL on a phone should know the difference is
+            a decision rather than a broken page. */}
         <p className="mt-6 font-mono text-[10px] tracking-telemetry text-zinc uppercase">
-          WebGL unavailable — interactive flight deck disabled
+          Flight deck off — this device gets the document
         </p>
 
         <div className="mt-24 space-y-20">
@@ -150,46 +167,93 @@ export function Fallback() {
                 ))}
               </dl>
 
+              {/* The artifact, where there is one. No interactive prototype:
+                  that widget exists to be poked at with a cursor, and a card
+                  that only works on the device this page is not being served to
+                  would be decoration. The numbers and the link are the part that
+                  travels. */}
               {(() => {
-                const study = systemForStation(s.id);
-                return study ? (
-                  <Link
-                    href={`/systems/${study.slug}`}
-                    className="mt-5 inline-block font-mono text-[10px] tracking-telemetry text-white uppercase underline-offset-4 hover:underline"
-                  >
-                    {study.codename} — read the write-up →
-                  </Link>
-                ) : null;
-              })()}
-
-              <ul className="mt-9 grid gap-x-10 gap-y-7 sm:grid-cols-2">
-                {s.projects.map((p) => (
-                  <li key={p.code}>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-[10px] tracking-telemetry text-steel">
-                        {p.code}
-                      </span>
-                      <span className="text-[15px] font-semibold text-white">
-                        {p.name}
+                const project = projectForStation(s.id);
+                if (!project) return null;
+                return (
+                  <div className="mt-9 rounded-xl border border-white/12 bg-white/3 p-5">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-mono text-[13px] font-semibold tracking-[0.12em] text-white">
+                        {project.codename}
                       </span>
                       <span
                         className={cn(
                           "rounded-full border px-2 py-0.5 font-mono text-[9px] tracking-telemetry uppercase",
-                          STATUS_TONE[p.status],
+                          STATUS_TONE[project.status],
                         )}
                       >
-                        {p.status}
+                        {project.environment}
                       </span>
                     </div>
-                    <p className="mt-2 text-[14px] leading-relaxed text-platinum">
-                      {p.summary}
+
+                    <p className="mt-3 text-[14px] leading-relaxed text-platinum">
+                      {project.pitch.executive}
                     </p>
-                    <p className="mt-2 font-mono text-[11px] text-zinc">
-                      {p.stack.join(" · ")}
+
+                    <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+                      {project.metrics.map((m) => (
+                        <div
+                          key={m.label}
+                          className="rounded-md border border-white/12 px-3 py-2.5"
+                        >
+                          <dt className="font-mono text-[14px] leading-none text-white tabular-nums">
+                            {m.value}
+                          </dt>
+                          <dd className="mt-1.5 font-mono text-[8.5px] leading-[1.4] tracking-[0.1em] text-steel uppercase">
+                            {m.label}
+                            {m.basis === "target" ? " · budget" : " · measured"}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <p className="mt-4 font-mono text-[11px] text-zinc">
+                      {project.stack.join(" · ")}
                     </p>
-                  </li>
-                ))}
-              </ul>
+
+                    {/* This document is what a phone gets — it is the whole
+                        reason the flat deck exists — so these three are touch
+                        targets, not desktop footnotes. They measured 15px tall.
+                        `py-2` against a cancelled `-my-2` lifts them to 31px
+                        and leaves the row's spacing exactly where it was; the
+                        row keeps 16px between columns and gains its own
+                        row-gap so a wrapped line does not butt hit areas. */}
+                    <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+                      <Link
+                        href={`/work/${project.slug}`}
+                        className="-my-2 rounded-md py-2 font-mono text-[10px] tracking-telemetry text-white uppercase underline-offset-4 hover:underline"
+                      >
+                        Read the case study →
+                      </Link>
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="-my-2 rounded-md py-2 font-mono text-[10px] tracking-telemetry text-zinc uppercase underline-offset-4 hover:text-white hover:underline"
+                        >
+                          Live app ↗
+                        </a>
+                      )}
+                      {!project.liveUrl && project.repoUrl && (
+                        <a
+                          href={project.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="-my-2 rounded-md py-2 font-mono text-[10px] tracking-telemetry text-zinc uppercase underline-offset-4 hover:text-white hover:underline"
+                        >
+                          Source ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </section>
           ))}
         </div>

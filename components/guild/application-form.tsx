@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowUpRight, Check } from "lucide-react";
+import { Tick } from "@/components/glyph";
 
 import { GUILD_LEVELS, GUILD_OPENINGS } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -114,7 +114,7 @@ export function GuildApplicationForm() {
           className="rounded-xl border border-white/12 bg-white/3 p-8 text-center md:p-12"
         >
           <div className="mx-auto flex size-11 items-center justify-center rounded-full border border-signal/50 bg-signal/12">
-            <Check className="size-5 text-signal" strokeWidth={2.2} />
+            <Tick className="text-[19px] text-signal" />
           </div>
           <h3 className="mt-6 text-[28px] font-semibold tracking-[-0.03em] text-white">
             Application received
@@ -268,7 +268,6 @@ export function GuildApplicationForm() {
               className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-[13.5px] font-semibold text-black transition-colors hover:bg-zinc-200 disabled:cursor-wait disabled:bg-zinc-400"
             >
               {sending ? "Submitting…" : "Submit Guild Application"}
-              <ArrowUpRight className="size-4" strokeWidth={2.4} />
             </button>
           </div>
         </motion.form>

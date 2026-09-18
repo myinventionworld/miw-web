@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
-
+import { Arrow } from "@/components/glyph";
 import { EditorialShell } from "@/components/editorial/shell";
 import { GuildApplicationForm } from "@/components/guild/application-form";
 import {
@@ -16,15 +15,17 @@ export const metadata: Metadata = {
     "MIW takes ambitious first- and second-year developers, puts them on real enterprise work under Principal-level supervision, and pays a share of it. Three open directions, a published hiring process, and an application that asks for your work rather than your CV.",
 };
 
+/** Same reasoning as the case study: the words are the heading, so mark them up
+ *  as one. Without this the `<h3>` on every open direction sits under no `<h2>`. */
 function SectionLabel({ n, children }: { n: string; children: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="font-mono text-[10px] tracking-telemetry text-steel">
+      <span aria-hidden className="font-mono text-[10px] tracking-telemetry text-steel">
         {n}
       </span>
-      <span className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
+      <h2 className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
         {children}
-      </span>
+      </h2>
       <span className="h-px flex-1 bg-white/10" />
     </div>
   );
@@ -58,7 +59,7 @@ export default function CareersPage() {
           className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2.5 text-[13px] font-semibold text-black transition-colors hover:bg-zinc-200"
         >
           {GUILD.cta}
-          <ArrowRight className="size-3.5" strokeWidth={2.4} />
+          <Arrow className="text-[13px]" weight={1.7} />
         </a>
         <a
           href="#roles"
@@ -165,7 +166,7 @@ export default function CareersPage() {
                   className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-white/25 px-3.5 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:border-white/60 hover:bg-white/8"
                 >
                   Apply
-                  <ArrowRight className="size-3" strokeWidth={2.4} />
+                  <Arrow className="text-[11px]" weight={1.8} />
                 </a>
               </div>
             </article>
@@ -213,6 +214,25 @@ export default function CareersPage() {
             </li>
           ))}
         </ul>
+
+        {/* Readiness, printed after the expectations rather than above them.
+            Leading with a stack list is how a page that wants first-year
+            students talks them out of applying. */}
+        <dl className="mt-9 grid gap-4 md:grid-cols-3">
+          {GUILD.readiness.map((r) => (
+            <div
+              key={r.label}
+              className="rounded-xl border border-white/12 bg-white/3 p-5"
+            >
+              <dt className="text-[14.5px] leading-snug font-semibold text-white">
+                {r.label}
+              </dt>
+              <dd className="mt-2.5 text-[13.5px] leading-relaxed text-zinc">
+                {r.body}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className="mt-20">

@@ -12,29 +12,16 @@
  * Positioning lives in `.agents/product-marketing.md`.
  */
 
-export type StationId = "backend" | "ai" | "labs" | "guild";
+export type StationId = "backend" | "commerce" | "labs" | "guild";
 
 /** Business reads outcomes, telemetry reads mechanism. Same station either way. */
 export type Mode = "business" | "telemetry";
-
-/** Which generative visual the dock renders for this station. */
-export type Variant = "topology" | "cluster" | "query" | "experiments";
 
 export type ProjectStatus =
   | "Live"
   | "Public beta"
   | "In build"
   | "Internal MVP";
-
-export interface Project {
-  code: string;
-  name: string;
-  summary: string;
-  stack: string[];
-  status: ProjectStatus;
-  /** Set only when there is something real to open. */
-  href?: string;
-}
 
 /**
  * Value first, tech proof second. `headline` is the biggest text on the
@@ -49,17 +36,12 @@ export interface StationCopy {
   proof: string[];
 }
 
-export interface Featured {
-  codename: string;
-  status: ProjectStatus;
-  stack: string[];
-  blurb: string;
-  variant: Variant;
-}
-
-/** Station 04 sells a way of working, so it gets an offer card, not an artifact. */
+/**
+ * Station 04 sells a way of working, so it gets an offer card, not an artifact.
+ * No headline of its own — `copy[mode].headline` is the station's claim, and the
+ * programme copy used to restate it a paragraph later in slightly worse words.
+ */
 export interface Program {
-  headline: string;
   points: { label: string; body: string }[];
 }
 
@@ -80,10 +62,19 @@ export interface Station {
    * should not have to find a toggle to learn what the thing is built out of.
    */
   specs: { label: string; value: string }[];
-  featured?: Featured;
   program?: Program;
-  projects: Project[];
 }
+
+/**
+ * Deliberately no `featured` field and no project list.
+ *
+ * Both used to live here, which meant the deck carried a codename, a stack and
+ * a blurb per station that had to be kept in step with the case study by hand —
+ * and sixteen invented project names that existed only to fill a nav drawer.
+ * The artifact a station shows is now looked up from `data/projects.ts` by
+ * station id, so there is exactly one place where a product's name, status and
+ * links are written down. A station with no real system shows no frame.
+ */
 
 export const STATIONS: Station[] = [
   {
@@ -123,135 +114,56 @@ export const STATIONS: Station[] = [
       },
     },
     specs: [
-      { label: "Stack", value: "Go · Java · Kafka · Postgres · k8s" },
+      { label: "Stack", value: "Java · Spring Boot · Go · Postgres · k8s" },
       { label: "Latency", value: "p99 < 120ms, allocated per hop" },
-      { label: "Pattern", value: "Event-driven · bulkheaded · replayable" },
-    ],
-    featured: {
-      codename: "MERIDIAN",
-      status: "Live",
-      stack: ["Go", "Kafka", "Postgres", "Kubernetes"],
-      blurb:
-        "An event backbone with exactly-once semantics at the consumer edge and replay that does not page anyone. Kill a broker and watch the write path hold.",
-      variant: "topology",
-    },
-    projects: [
-      {
-        code: "S-01",
-        name: "MERIDIAN",
-        summary:
-          "Event backbone with consumer-side idempotency, partition-aware backpressure and bounded replay.",
-        stack: ["Go", "Kafka", "Redis"],
-        status: "Live",
-      },
-      {
-        code: "S-02",
-        name: "HALYARD",
-        summary:
-          "Multi-region control plane. Leases, fencing tokens, and a failover path that is rehearsed weekly.",
-        stack: ["Rust", "etcd", "Kubernetes"],
-        status: "Live",
-      },
-      {
-        code: "S-03",
-        name: "BALLAST",
-        summary:
-          "Online schema migration for tables too large to lock. Backfill, verify, cut over, keep the rollback.",
-        stack: ["Postgres", "Go", "Temporal"],
-        status: "In build",
-      },
-      {
-        code: "S-04",
-        name: "PORTHOLE",
-        summary:
-          "Tracing and SLO tooling that answers which hop spent the budget, not just that the request was slow.",
-        stack: ["OpenTelemetry", "ClickHouse", "Next.js"],
-        status: "Live",
-      },
+      { label: "Pattern", value: "ACID at the contested row · bulkheaded services" },
+      // Applied AI sits on this station rather than on one of its own. It is a
+      // capability we sell and integrate; it is not yet a system of ours anyone
+      // can open, and a station with no artifact is exactly the empty promise
+      // this rebuild exists to remove.
+      { label: "Autonomy", value: "Agent integrations, same review gate" },
     ],
   },
   {
-    id: "ai",
+    id: "commerce",
     index: "02",
-    pillar: "Autonomy",
-    nav: "Applied AI",
-    title: "Applied AI & Autonomous Infrastructure",
+    pillar: "Throughput",
+    nav: "Commerce",
+    title: "High-Throughput Commerce & Order Pipelines",
     anchor: 0.3,
-    cta: { label: "Explore AI Integration" },
+    cta: { label: "Stress-Test My Checkout" },
     copy: {
       business: {
-        headline: "Routine hours come off the board, with a receipt for each one.",
-        lede: "Agents with a job description: the model plans, ordinary code executes, and a person signs off wherever the decision is expensive.",
+        headline: "The sale you spent the budget on is the sale you can serve.",
+        lede: "Checkout completes in one pass, stock stays truthful while the campaign is running, and a payment confirmed twice still bills the customer once.",
         problem:
-          "Assistants that invent answers, no record of what they touched, and nobody willing to promise in writing that your customer data stayed inside the company.",
+          "A promotion works, traffic arrives, and the shop picks that hour to get slow. Carts are abandoned at the payment step, two customers buy the last unit, and a retried webhook charges someone twice — every one of which costs more than the campaign made.",
         solution:
-          "Agents with a job description. The model plans, ordinary code executes, and a person signs off wherever the decision is expensive. Routine hours come off the board with an audit trail behind every one of them.",
+          "We rebuild the order pipeline around the worst hour rather than the average one. The commit path is short, the catalogue is served from cache, documents and email leave the critical path, and duplicate payment events settle to one order.",
         proof: [
-          "Data stays inside your boundary",
-          "Every action auditable",
-          "Sign-off where it counts",
+          "Checkout holds at peak",
+          "One charge per order",
+          "Stock stays truthful",
         ],
       },
       telemetry: {
-        headline: "Deterministic pipelines. Bounded context. Zero-leak egress.",
-        lede: "The model proposes a step, a policy gate signs it, and sandboxed code runs it — the model never holds a credential.",
+        headline: "Idempotent at the boundary. Cached in two tiers. Queued off the hot path.",
+        lede: "Gateways retry by design, so the webhook handler dedupes on the payment intent inside the settling transaction rather than hoping delivery is unique.",
         problem:
-          "Free-form prompting against production data: unbounded context, unvalidated tool output, no egress policy and nothing to replay when it goes wrong.",
+          "Stock decremented in application code, catalogue reads going to Postgres on every render, invoice generation inline in the checkout request, and a webhook handler that treats redelivery as a new intent.",
         solution:
-          "Schema-validated tool calling and structured outputs, context windows with a hard ceiling, human-in-the-loop gates on privileged calls. The model chooses the step; sandboxed code runs it.",
+          "Reservation and settlement in one transaction, a process-memory tier in front of Redis for catalogue reads, invoicing on a distributed queue, and a unique constraint on the payment intent doing the deduplication.",
         proof: [
-          "Zero-leak egress",
-          "Structured outputs",
-          "Human-in-the-loop gates",
+          "Exactly-once settlement",
+          "Cache hit > 94% target",
+          "Sub-second commit budget",
         ],
       },
     },
     specs: [
-      { label: "Stack", value: "TypeScript · Python · Bedrock · ClickHouse" },
-      { label: "Latency", value: "plan → first row < 2s" },
-      { label: "Pattern", value: "Governed tool calling · human-in-the-loop" },
-    ],
-    featured: {
-      codename: "WAYPOINT",
-      status: "In build",
-      stack: ["TypeScript", "Postgres", "ClickHouse", "Bedrock"],
-      blurb:
-        "The agent plans in natural language and emits one governed query. Deterministic execution, bounded context, every tool call logged and permissioned.",
-      variant: "query",
-    },
-    projects: [
-      {
-        code: "I-01",
-        name: "WAYPOINT",
-        summary:
-          "Agent runtime. The model chooses the step, sandboxed code runs it, and nothing reaches prod unreviewed.",
-        stack: ["TypeScript", "WebAssembly", "Postgres"],
-        status: "In build",
-      },
-      {
-        code: "I-02",
-        name: "TIDEWATER",
-        summary:
-          "Streaming lakehouse. Sub-second ingest, late-arrival handling, and a compaction policy you can read.",
-        stack: ["Flink", "ClickHouse", "S3"],
-        status: "Live",
-      },
-      {
-        code: "I-03",
-        name: "SEXTANT",
-        summary:
-          "Semantic layer with versioned metric definitions and lineage down to the source column.",
-        stack: ["DuckDB", "TypeScript", "dbt"],
-        status: "Live",
-      },
-      {
-        code: "I-04",
-        name: "DEAD RECKONING",
-        summary:
-          "Anomaly detection tuned for on-call: high precision, explicit alert budget, explainable firings.",
-        stack: ["Rust", "ClickHouse", "Grafana"],
-        status: "In build",
-      },
+      { label: "Stack", value: "Next.js · Node / Go · Postgres · Redis · Stripe" },
+      { label: "Latency", value: "submit → confirmed order < 1s" },
+      { label: "Pattern", value: "Idempotent hooks · two-tier cache · queued docs" },
     ],
   },
   {
@@ -291,51 +203,9 @@ export const STATIONS: Station[] = [
       },
     },
     specs: [
-      { label: "Stack", value: "Rust · WebAssembly · TypeScript · Next.js" },
-      { label: "Latency", value: "warm rebuild < 400ms" },
-      { label: "Pattern", value: "Deterministic builds · content-addressed" },
-    ],
-    featured: {
-      codename: "KILN",
-      status: "Internal MVP",
-      stack: ["Rust", "WebAssembly", "TypeScript"],
-      blurb:
-        "Our build and release toolchain. Deterministic artifacts, content-addressed cache, no hidden state. Cold or warm, the digest is the same.",
-      variant: "experiments",
-    },
-    projects: [
-      {
-        code: "V-01",
-        name: "SPARROW",
-        summary:
-          "Edge runtime for request-path logic. Cold start under a millisecond, hard memory ceiling.",
-        stack: ["Rust", "V8", "Cloudflare"],
-        status: "Public beta",
-      },
-      {
-        code: "V-02",
-        name: "LODESTONE",
-        summary:
-          "Data contracts enforced in CI. A breaking schema change fails the producer's build, not the consumer's night.",
-        stack: ["Go", "Protobuf", "Kafka"],
-        status: "In build",
-      },
-      {
-        code: "V-03",
-        name: "KILN",
-        summary:
-          "Deterministic build toolchain with a content-addressed cache and reproducible release artifacts.",
-        stack: ["Rust", "WebAssembly"],
-        status: "Internal MVP",
-      },
-      {
-        code: "V-04",
-        name: "FOUNDRY",
-        summary:
-          "The incubation track itself — how a free tool earns a budget, a team, and eventually a price.",
-        stack: ["Process", "Next.js"],
-        status: "Internal MVP",
-      },
+      { label: "Stack", value: "Next.js · TypeScript · Prisma · Vercel Edge" },
+      { label: "Latency", value: "p99 route change < 90ms" },
+      { label: "Pattern", value: "Edge ISR · typed end to end · zero-cost hosting" },
     ],
   },
   {
@@ -380,7 +250,6 @@ export const STATIONS: Station[] = [
       { label: "Pattern", value: "Principal-owned merge gate" },
     ],
     program: {
-      headline: "A guild, not an agency bench.",
       points: [
         {
           label: "Principal supervision",
@@ -400,40 +269,6 @@ export const STATIONS: Station[] = [
         },
       ],
     },
-    projects: [
-      {
-        code: "G-01",
-        name: "Intake",
-        summary:
-          "First- and second-year developers who already build things nobody asked them to build.",
-        stack: ["Portfolio", "Live review"],
-        status: "Live",
-      },
-      {
-        code: "G-02",
-        name: "Mentorship",
-        summary:
-          "Weekly design review with the Principal Architect, on the system you are actually shipping.",
-        stack: ["ADR", "Code review"],
-        status: "Live",
-      },
-      {
-        code: "G-03",
-        name: "Revenue share",
-        summary:
-          "Royalties on the commercial projects you build, paid on the same schedule the studio is paid.",
-        stack: ["Revshare"],
-        status: "Live",
-      },
-      {
-        code: "G-04",
-        name: "Co-founded products",
-        summary:
-          "Lab products spun out with their builders on the cap table, not as work-for-hire.",
-        stack: ["Equity", "Lab track"],
-        status: "In build",
-      },
-    ],
   },
 ];
 
@@ -459,8 +294,8 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "studio",
     label: "Studio",
     blurb:
-      "Custom backends, architecture audits and applied AI for teams that already have traffic.",
-    stations: ["backend", "ai"],
+      "Fault-tolerant backends, commerce pipelines and architecture audits for teams that already have traffic.",
+    stations: ["backend", "commerce"],
     go: "backend",
   },
   {
@@ -496,7 +331,7 @@ export const CONSOLE_ANCHOR = 0.97;
  * a bar that always says "2 slots left" is a bar nobody reads twice.
  */
 export const AVAILABILITY = {
-  status: "Accepting 2 client engagements for Q4",
+  status: "Accepting 2 client projects for Q3/Q4",
   scope: "Avg scope: 4–8 weeks",
 } as const;
 
@@ -514,21 +349,38 @@ export const STANDARDS = [
 /* ── transmission console ─────────────────────────────────────────────── */
 
 /**
- * Two audiences, two forms. Mixing a developer's portfolio link into the same
- * field set as a budget range is what made the old single form ask everyone
- * for things that did not apply to them.
+ * Three intents, three forms. Mixing a developer's portfolio link into the same
+ * field set as a budget range is what made the old single form ask everyone for
+ * things that did not apply to them.
+ *
+ * "Hire the studio" used to be one tab covering both a greenfield build and a
+ * look at a system that already exists. They are different conversations: one
+ * starts from what you want, the other from what already breaks, and the second
+ * is the cheaper first step for most of the people who arrive here.
  */
 export const CONSOLE_TABS = [
   {
-    id: "studio",
-    flag: "--hire-studio",
-    label: "Hire MIW Studio",
-    note: "A build, a rescue, an audit or an AI integration. Answered by an engineer.",
+    id: "engineering",
+    flag: "--client-engineering",
+    label: "Client Engineering",
+    heading: "Ready to build something that holds?",
+    note: "A new build, an MVP, or an AI integration on top of a system you already run.",
+  },
+  {
+    id: "audit",
+    flag: "--architecture-audit",
+    label: "Architecture Audit",
+    // Not "build". An audit delivers a document and a ranked queue of work; a
+    // heading that promises a build here is how an audit becomes a scope fight
+    // in week two.
+    heading: "Find out what breaks first — before it does.",
+    note: "The system works and the growth curve says it will not. We read it and write down what breaks first.",
   },
   {
     id: "guild",
     flag: "--join-guild",
     label: "Join the Guild",
+    heading: "Not an internship. A crew, a review gate and a cut of the work.",
     note: "You write code and want to build under Principal-level supervision.",
   },
 ] as const;
@@ -566,6 +418,17 @@ export const ENGAGEMENTS = [
 export type EngagementId = (typeof ENGAGEMENTS)[number]["id"];
 
 /**
+ * Which engagements each console tab offers. The tab has already told us
+ * roughly why the reader is here, so asking them to pick from all four again
+ * would be asking the same question twice in two different wordings.
+ */
+export const TAB_ENGAGEMENTS: Record<ConsoleTab, readonly EngagementId[]> = {
+  engineering: ["mvp", "ai"],
+  audit: ["audit", "rescue"],
+  guild: [],
+};
+
+/**
  * Asked up front rather than discovered on call three. A range that rules the
  * studio out is worth ten minutes of everyone's time, not ten days of it.
  */
@@ -595,13 +458,13 @@ export const TIMELINES = [
 /** Recruit-facing detail. The client-facing pitch is station 04 above. */
 export const GUILD = {
   eyebrow: "MIW Labs — Guild & Incubator",
-  title: "The Engineering Guild & Incubator",
-  lede: "We take ambitious first- and second-year developers, put them on real enterprise work under Principal-level supervision, and pay them a share of it.",
+  title: "The MIW Engineering Guild",
+  lede: "We are not an outsourcing galley. We are an engineering laboratory: ambitious first- and second-year developers on real production work, under Principal-level supervision, paid a share of what it earns.",
   body: "This is not an internship and it is not a course. You join a crew building a system that a paying client depends on, your work goes through the same review gate as everyone else's, and when the project earns money you earn a cut of it. The strongest work becomes a lab product with its builders on the cap table.",
   tracks: [
     {
       label: "Real enterprise stack",
-      body: "Distributed services, event backbones, AI pipelines running under an SLA — not a to-do app.",
+      body: "Transactional booking platforms, payment pipelines and catalogue systems under real load — not a to-do app.",
     },
     {
       label: "Principal-level mentorship",
@@ -621,54 +484,79 @@ export const GUILD = {
     "You can read a codebase you did not write without giving up.",
     "You want the review that tells you what is wrong, not the one that says nice work.",
   ],
+  /**
+   * Readiness, not a checklist of things you must already know. We teach the
+   * stack; what cannot be taught in a term is the willingness to be wrong about
+   * it in public every week. Kept separate from `expectations` because a reader
+   * who conflates the two decides they are unqualified and closes the tab.
+   */
+  readiness: [
+    {
+      label: "The stack you would be dropped into",
+      body: "Go and Java on the service side, Next.js and TypeScript on the surface, Kubernetes underneath. You are not expected to arrive fluent in all of it — you are expected to be willing to be a beginner in public, weekly.",
+    },
+    {
+      label: "Event-driven thinking",
+      body: "Queues, retries, at-least-once delivery and what it costs. If the phrase 'this handler will be called twice' does not yet worry you, this is the part of the job that will teach you why it should.",
+    },
+    {
+      label: "Deterministic code",
+      body: "Same input, same output, same result on someone else's machine. Code whose behaviour depends on timing, ordering or a machine's local state is the thing the review gate exists to catch.",
+    },
+  ],
   cta: "Apply to the Guild",
 } as const;
 
 /**
  * Directions rather than headcount. We are not filling a seat with a fixed
  * title — a strong applicant on any of these gets a crew built around them.
+ *
+ * Each one names the system you would actually be put on, and all three are
+ * systems in `data/projects.ts` that a reader can go and inspect. A track
+ * advertising work on something we do not run is how an incubator turns into a
+ * course.
  */
 export const GUILD_OPENINGS = [
   {
     id: "backend",
     label: "Backend & Distributed Systems",
-    system: "MERIDIAN",
+    system: "OMNIBUS",
     level: "Open to first-year students through working engineers",
-    stack: ["Go", "Java", "Kubernetes", "Kafka", "Postgres"],
-    body: "Services that hold under load. You will work on failure domains, backpressure and replay on a system that a paying client depends on.",
+    stack: ["Java", "Spring Boot", "Go", "Kubernetes", "Postgres"],
+    body: "Services that hold under load, and transactions that hold under contention. You will work on locking, failure domains and deploy topology on a platform that is already serving requests.",
     work: [
-      "Own a consumer end to end: schema, idempotency, offset handling, the runbook when it falls behind.",
-      "Sit in the broker-loss drill and write up what the system actually did versus what the design said it would.",
-      "Take a latency regression from the p99 chart down to the hop that spent the budget.",
+      "Own an endpoint end to end: contract, transaction boundary, failure response, the runbook when it degrades.",
+      "Write the concurrent test that proves two requests for the last seat cannot both win, then make it pass.",
+      "Take a latency regression from the p99 chart down to the query that spent the budget.",
     ],
     signal:
       "Show us something concurrent you wrote and can explain the failure modes of.",
   },
   {
-    id: "ai",
-    label: "Applied AI & Agentic Systems",
-    system: "WAYPOINT",
-    level: "Open to anyone who has shipped something an LLM actually drives",
-    stack: ["Python", "TypeScript", "Bedrock", "Claude", "MCP"],
-    body: "Agent runtimes with policy gates, structured tool calling and audit trails. Prompting is the smallest part of this track.",
+    id: "commerce",
+    label: "Commerce, Payments & Throughput",
+    system: "COMMERCE CORE",
+    level: "Open to anyone who wants the hard part of a checkout, not the UI",
+    stack: ["Go", "Node.js", "Redis", "Postgres", "Stripe"],
+    body: "Order pipelines built for the worst hour: idempotent payment handling, cache tiers, queued documents. This is also where our applied-AI work lands first, because an order pipeline is where automation has something measurable to do.",
     work: [
-      "Add a tool to the sandbox: schema both directions, the permission it needs, the audit record it leaves.",
-      "Build the eval that proves a planner change did not quietly get worse.",
-      "Work the retrieval layer so context stays bounded as the corpus grows.",
+      "Make a webhook handler idempotent and prove it by replaying a real delivery twice.",
+      "Load-test the catalogue path and move the ceiling by a cache tier rather than by a bigger instance.",
+      "Move something slow off the checkout path onto a queue without losing the failure signal.",
     ],
     signal:
-      "Show us an agent or pipeline you built that does something real, not a wrapper around a chat box.",
+      "Show us something you built that handles money, retries or both, and tell us what you got wrong first.",
   },
   {
     id: "frontend",
     label: "Modern Frontend & Systems UI",
-    system: "KILN",
+    system: "WOVIE",
     level: "Open to anyone who can make a dense interface stay fast",
-    stack: ["Next.js", "TypeScript", "Tailwind", "WebGL"],
-    body: "Interfaces for dense operational data — dashboards, consoles, telemetry. Performance is a requirement here, not a later pass.",
+    stack: ["Next.js", "TypeScript", "Tailwind", "Prisma", "WebGL"],
+    body: "Interfaces over large data sets and dense operational readouts. Performance is a requirement on this track, not a pass somebody does later.",
     work: [
-      "Build a console view over a live stream that stays readable when the data gets ugly.",
-      "Hold a frame budget on a page that renders thousands of rows and a scene behind them.",
+      "Hold a route-change budget on a page rendering a catalogue, with the cache cold.",
+      "Cut hydration down to the surface that actually responds to a click, and measure the difference.",
       "Make the accessible path the default one, not the retrofit.",
     ],
     signal:
