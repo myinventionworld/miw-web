@@ -7,13 +7,17 @@ import {
   useMotionValueEvent,
   type MotionValue,
 } from "motion/react";
-import Link from "next/link";
+import { useTranslation } from "react-i18next";
+import { LocaleLink } from "@/components/locale-link";
 import { Arrow } from "@/components/glyph";
 
 import {
   STATIONS,
   type Mode,
+  type ProgramPoint,
+  type Spec,
   type Station,
+  type StationCopy,
   type StationId,
 } from "@/lib/stations";
 import { projectForStation, type ProjectCase } from "@/data/projects";
@@ -98,9 +102,12 @@ function Beat({ label, children }: { label: string; children: ReactNode }) {
  * what the thing is built out of.
  */
 function SpecStrip({ station }: { station: Station }) {
+  const { t } = useTranslation("stations");
+  const specs = t(`${station.id}.specs`, { returnObjects: true }) as Spec[];
+
   return (
     <dl className="mt-5 border-t border-white/12 pt-3.5">
-      {station.specs.map((s) => (
+      {specs.map((s) => (
         <div key={s.label} className="flex gap-3 py-[3px]">
           <dt className="w-[62px] shrink-0 font-mono text-[9px] tracking-[0.14em] text-steel uppercase">
             {s.label}
@@ -128,6 +135,8 @@ function SpecStrip({ station }: { station: Station }) {
  * the card it sits on has none spare on a 13" deck.
  */
 function MetricStrip({ project }: { project: ProjectCase }) {
+  const { t } = useTranslation(["projects", "common"]);
+
   // Telemetry-only, and the block that made Telemetry the taller of the two
   // modes — so it is where the last 12px of a short deck come from. Trimming the
   // chips' own padding keeps all three metrics and their basis labels, which is
@@ -136,17 +145,20 @@ function MetricStrip({ project }: { project: ProjectCase }) {
     <dl className="mt-2.5 grid grid-cols-3 gap-2 deck-short:mt-2 deck-short:gap-1.5">
       {project.metrics.map((m) => (
         <div
-          key={m.label}
-          title={m.note}
+          key={m.id}
+          title={t(`${project.id}.metrics.${m.id}.note`)}
           className="rounded-md border border-white/12 bg-white/4 px-2.5 py-1.5 deck-short:py-1"
         >
           <dt className="font-mono text-[12px] leading-none text-white tabular-nums">
             {m.value}
           </dt>
           <dd className="mt-1 font-mono text-[8.5px] leading-[1.25] tracking-[0.08em] text-steel uppercase">
-            {m.label}
+            {t(`${project.id}.metrics.${m.id}.label`)}
             <span className="text-steel/70">
-              {m.basis === "target" ? " · budget" : " · measured"}
+              {" · "}
+              {m.basis === "target"
+                ? t("common:project.budget")
+                : t("common:project.measured")}
             </span>
           </dd>
         </div>
@@ -170,10 +182,12 @@ function ArtifactBody({
   project: ProjectCase;
   mode: Mode;
 }) {
+  const { t } = useTranslation(["stations", "projects"]);
+
   return (
     <>
       <div className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-        Station {station.index} · {project.name}
+        {t("ui.station", { index: station.index })} · {project.name}
       </div>
       <div className="mt-1.5 flex items-baseline justify-between gap-3">
         <h3 className="font-mono text-xl leading-none font-semibold text-white">
@@ -189,7 +203,11 @@ function ArtifactBody({
           headline, and the frame below states the same thing by running. Full
           text is one click away at `/work/[slug]`. */}
       <p className="mt-3 hidden text-[13px] leading-relaxed text-platinum deck-wide:block">
-        {mode === "business" ? project.pitch.executive : project.pitch.telemetry}
+        {t(
+          mode === "business"
+            ? `projects:${project.id}.pitch.executive`
+            : `projects:${project.id}.pitch.telemetry`,
+        )}
       </p>
 
       {mode === "telemetry" && <MetricStrip project={project} />}
@@ -204,35 +222,34 @@ function ArtifactBody({
  * a product frame for a people programme would be the exact dishonesty the
  * rest of this page is written to avoid.
  */
-function ProgramBody({
-  station,
-  program,
-}: {
-  station: Station;
-  program: NonNullable<Station["program"]>;
-}) {
+function ProgramBody({ station }: { station: Station }) {
+  const { t } = useTranslation("stations");
+  const points = t(`${station.id}.program`, {
+    returnObjects: true,
+  }) as ProgramPoint[];
+
   return (
     <>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-            Station {station.index} · Programme
+            {t("ui.station", { index: station.index })} · {t("ui.programme")}
           </div>
           <h3 className="mt-1.5 font-mono text-xl leading-none font-semibold text-white">
-            THE GUILD
+            {t("ui.programmeName")}
           </h3>
         </div>
 
         <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-signal/60 px-2.5 py-1 font-mono text-[9px] tracking-telemetry text-signal uppercase">
           <span className="size-1.5 rounded-full bg-current" />
-          Intake open
+          {t("ui.intakeOpen")}
         </span>
       </div>
 
       {/* Two columns, because this card closes the flight centred and full
           width — a single column of four would run past the fold. */}
       <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-        {program.points.map((p) => (
+        {points.map((p) => (
           <div
             key={p.label}
             className="rounded-lg border border-white/12 bg-white/4 px-3.5 py-2.5"
@@ -265,18 +282,21 @@ function StationCta({
   const style =
     "flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-[12px] font-semibold text-black transition-colors hover:bg-zinc-200";
 
-  if (station.cta.href) {
+  const { t } = useTranslation("stations");
+  const label = t(`${station.id}.cta`);
+
+  if (station.ctaHref) {
     return (
-      <Link href={station.cta.href} className={style}>
-        {station.cta.label}
+      <LocaleLink href={station.ctaHref} className={style}>
+        {label}
         <Arrow className="text-[14px]" weight={1.7} />
-      </Link>
+      </LocaleLink>
     );
   }
 
   return (
     <button type="button" onClick={() => onAction?.(station)} className={style}>
-      {station.cta.label}
+      {label}
       <Arrow className="text-[14px]" weight={1.7} />
     </button>
   );
@@ -304,7 +324,11 @@ function CardBrief({
   mode: Mode;
   always?: boolean;
 }) {
-  const copy = station.copy[mode];
+  const { t } = useTranslation("stations");
+  const copy = t(`${station.id}.${mode}`, {
+    returnObjects: true,
+  }) as StationCopy;
+
   return (
     <div
       className={cn(
@@ -314,7 +338,7 @@ function CardBrief({
     >
       <div className="flex items-center gap-2.5 font-mono text-[9px] tracking-telemetry text-beam uppercase">
         <span className="h-px w-6 bg-beam/55" />
-        {station.index} / {station.pillar}
+        {station.index} / {t(`${station.id}.pillar`)}
       </div>
       <h2
         className={cn(
@@ -415,7 +439,7 @@ function Card({
       <CardBrief station={station} mode={mode} always={centred} />
 
       {station.program ? (
-        <ProgramBody station={station} program={station.program} />
+        <ProgramBody station={station} />
       ) : project ? (
         <ArtifactBody station={station} project={project} mode={mode} />
       ) : null}
@@ -434,14 +458,17 @@ function Card({
  * cares will go looking and the reader who does not can skip it.
  */
 function Brief({ station, mode }: { station: Station; mode: Mode }) {
-  const copy = station.copy[mode];
+  const { t } = useTranslation("stations");
+  const copy = t(`${station.id}.${mode}`, {
+    returnObjects: true,
+  }) as StationCopy;
 
   return (
     <div className="copy-scrim pointer-events-none hidden max-w-md deck-wide:block">
       <div className="relative">
         <div className="flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-beam uppercase">
           <span className="h-px w-9 bg-beam/55" />
-          {station.index} / {station.pillar}
+          {station.index} / {t(`${station.id}.pillar`)}
         </div>
 
         {/* Keyed on mode so flipping the toggle re-enters rather than swapping
@@ -461,8 +488,8 @@ function Brief({ station, mode }: { station: Station; mode: Mode }) {
           </p>
 
           <div className="mt-5 space-y-4 border-l border-white/15 pl-4">
-            <Beat label="The problem">{copy.problem}</Beat>
-            <Beat label="What we build">{copy.solution}</Beat>
+            <Beat label={t("ui.problem")}>{copy.problem}</Beat>
+            <Beat label={t("ui.solution")}>{copy.solution}</Beat>
           </div>
 
           {/* In Specs mode the chips just restate the strip below. */}
@@ -543,7 +570,12 @@ export function ProjectDock({
                 a percentage max-height needs, which the panel — inside an
                 auto-height box — does not. */}
             {side === "center" ? (
-              <div className={cn("relative z-10 mx-auto w-full max-w-[880px]", CAP)}>
+              <div
+                className={cn(
+                  "relative z-10 mx-auto w-full max-w-[880px]",
+                  CAP,
+                )}
+              >
                 <Card station={active} mode={mode} onAction={onAction} />
               </div>
             ) : (

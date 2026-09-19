@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { ReactLenis, useLenis } from "lenis/react";
 import { useMotionValue, type MotionValue } from "motion/react";
+import { useTranslation } from "react-i18next";
 import { Arrow } from "@/components/glyph";
 
 import { clamp01, flight } from "@/lib/flight";
@@ -39,6 +40,8 @@ function Hero({
   onExplore: () => void;
   onDiscovery: () => void;
 }) {
+  const { t } = useTranslation("common");
+
   return (
     <Stage
       progress={progress}
@@ -49,12 +52,12 @@ function Hero({
       <div className="mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 md:px-10">
         <div className="flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-signal uppercase">
           <span className="h-px w-9 bg-signal/55" />
-          MIW Labs — Venture Studio &amp; Engineering Guild
+          {t("brand.tagline")}
         </div>
 
         <h1 className="text-lift mt-6 text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.94] font-semibold tracking-[-0.045em] text-white">
-          High-Performance
-          <br className="hidden sm:block" /> Software Architecture.
+          {t("home.titleTop")}
+          <br className="hidden sm:block" /> {t("home.titleBottom")}
         </h1>
 
         {/* Only the body copy takes a scrim. The headline is large enough to
@@ -62,9 +65,7 @@ function Hero({
             the hero is framed against. */}
         <div className="copy-scrim mt-6 max-w-xl">
           <p className="text-lift relative text-[16px] leading-relaxed text-platinum">
-            Engineered for scale, resilience and autonomy. We build systems that
-            don&apos;t fail under load — from the architecture diagram through to
-            the thing running in production with a pager attached.
+            {t("home.lede")}
           </p>
         </div>
 
@@ -74,7 +75,7 @@ function Hero({
             onClick={onDiscovery}
             className="flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[14px] font-semibold text-black transition-colors hover:bg-zinc-200"
           >
-            Initiate Technical Discovery
+            {t("home.ctaContact")}
             <Arrow dir="up-right" className="text-[15px]" weight={1.7} />
           </button>
           <button
@@ -82,21 +83,20 @@ function Hero({
             onClick={onExplore}
             className="flex items-center gap-2 rounded-lg border border-white/30 bg-black/40 px-6 py-3 text-[14px] font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
           >
-            Enter Transit Stations
+            {t("home.ctaStations")}
             <Arrow dir="down" className="text-[15px]" weight={1.6} />
           </button>
         </div>
 
         <div className="copy-scrim mt-5 max-w-xl">
           <p className="text-lift relative text-[13px] leading-relaxed text-platinum">
-            We don&apos;t just build for hire — we operate our own SaaS products
-            under the same uptime standard we sell.
+            {t("home.ownProducts")}
           </p>
         </div>
 
         <div className="mt-10 flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-steel uppercase">
           <Arrow dir="down" className="animate-bounce text-[13px]" weight={1.4} />
-          Four stations ahead · Scroll to depart
+          {t("home.scrollHint")}
         </div>
       </div>
     </Stage>

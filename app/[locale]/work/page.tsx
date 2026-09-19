@@ -1,44 +1,49 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { locale as currentLocale } from "next/root-params";
 import { Arrow } from "@/components/glyph";
 
 import { EditorialShell } from "@/components/editorial/shell";
 import { PROJECTS } from "@/data/projects";
+import { initTranslations } from "@/i18n";
 import { STATUS_TONE } from "@/lib/stations";
+import { alternates, localeHref } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Work — MIW",
-  description:
-    "Three systems MIW designed and built: a transactional booking platform, a high-throughput commerce pipeline and an edge-cached media catalogue. Architecture, decisions and the budgets each one holds.",
-};
+export async function generateMetadata(props: PageProps<"/[locale]/work">) {
+  const { locale } = await props.params;
+  const { t } = await initTranslations(locale, ["projects"]);
 
-export default function WorkIndexPage() {
+  return {
+    title: t("index.metaTitle"),
+    description: t("index.metaDescription"),
+    alternates: alternates(locale, "/work"),
+  };
+}
+
+export default async function WorkIndexPage() {
+  const locale = await currentLocale();
+  const { t } = await initTranslations(locale, ["projects", "common"]);
+
   return (
     <EditorialShell active="work">
       <p className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
-        Work
+        {t("index.eyebrow")}
       </p>
       <h1 className="mt-5 text-[clamp(2rem,4.6vw,3.2rem)] leading-[1.02] font-semibold tracking-[-0.04em] text-white">
-        Three systems, written up the way we would hand them over.
+        {t("index.title")}
       </h1>
       <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-platinum">
-        Not a client logo wall. Each of these is a system we designed and built,
-        described the way we would brief a new engineer onto it: the problem it
-        exists to solve, the shape it ended up, the decisions that were argued
-        about, and the budget it has to hold.
+        {t("index.lede")}
       </p>
       <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-zinc">
-        Client engagements are under NDA and are not listed here. What we publish
-        instead is evidence you can check yourself — one of these has an address
-        you can open right now, and one has source you can read.
+        {t("index.body")}
       </p>
 
       <div className="mt-14 space-y-4">
         {PROJECTS.map((p) => (
           <Link
             key={p.slug}
-            href={`/work/${p.slug}`}
+            href={localeHref(locale, `/work/${p.slug}`)}
             className="group block rounded-xl border border-white/12 bg-white/3 p-6 transition-colors hover:border-white/30 hover:bg-white/6 md:p-7"
           >
             <div className="flex flex-wrap items-center gap-3">
@@ -52,23 +57,23 @@ export default function WorkIndexPage() {
                 )}
               >
                 <span className="size-1.5 rounded-full bg-current" />
-                {p.environment}
+                {t(`environment.${p.environment}`)}
               </span>
               <span className="font-mono text-[10px] tracking-[0.14em] text-steel uppercase">
-                {p.category}
+                {t(`${p.id}.category`)}
               </span>
             </div>
 
             <h2 className="mt-4 text-[22px] leading-[1.18] font-semibold tracking-[-0.025em] text-white md:text-[26px]">
-              {p.headline}
+              {t(`${p.id}.headline`)}
             </h2>
             <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-zinc">
-              {p.pitch.executive}
+              {t(`${p.id}.pitch.executive`)}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
               <span className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-telemetry text-white uppercase">
-                Read the case study
+                {t("common:project.readCaseStudy")}
                 <Arrow
                   className="text-[11px] transition-transform group-hover:translate-x-1"
                   weight={1.8}

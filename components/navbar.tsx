@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useTranslation } from "react-i18next";
+import { LocaleLink } from "@/components/locale-link";
+import { LocaleSwitch } from "@/components/locale-switch";
 import { AnimatePresence, motion } from "motion/react";
 import { Arrow, Bars, Cross, Trace } from "@/components/glyph";
 
 import { projectsForStations, type ProjectCase } from "@/data/projects";
 import {
-  AVAILABILITY,
   NAV_SECTIONS,
   STATUS_TONE,
   stationById,
   type Mode,
   type NavSection,
+  type ProgramPoint,
   type StationId,
 } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -167,23 +169,25 @@ export function ModeToggle({
   onChange: (m: Mode) => void;
   className?: string;
 }) {
+  const { t } = useTranslation("common");
+
   return (
     <div className={cn("flex shrink-0 items-center gap-2", className)}>
       <span
         aria-hidden
         className="hidden font-mono text-[9px] tracking-telemetry text-steel uppercase lg:inline"
       >
-        Mode
+        {t("nav.modeLabel")}
       </span>
       <div
         role="group"
-        aria-label="Copy mode"
+        aria-label={t("nav.modeGroup")}
         className="flex items-center rounded-full border border-white/15 bg-black/50 p-0.5 backdrop-blur"
       >
         {(
           [
-            ["business", "Business", "Impact"],
-            ["telemetry", "Telemetry", "Code"],
+            ["business", "nav.business", "nav.businessSub"],
+            ["telemetry", "nav.telemetry", "nav.telemetrySub"],
           ] as const
         ).map(([id, label, sub]) => (
           <button
@@ -209,8 +213,8 @@ export function ModeToggle({
               />
             )}
             <span className="relative">
-              {label}
-              <span className="hidden sm:inline"> / {sub}</span>
+              {t(label)}
+              <span className="hidden sm:inline"> / {t(sub)}</span>
             </span>
           </button>
         ))}
@@ -234,8 +238,10 @@ function ProjectCard({
   project: ProjectCase;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation(["projects", "common"]);
+
   return (
-    <Link
+    <LocaleLink
       href={`/work/${project.slug}`}
       onClick={onDismiss}
       className="group block w-full text-left focus:outline-none"
@@ -248,10 +254,10 @@ function ProjectCard({
             STATUS_TONE[project.status],
           )}
         >
-          {project.status}
+          {t(`status.${project.status}`)}
         </span>
         <span className="absolute right-2 bottom-2 flex items-center gap-1 border border-white/25 bg-black/75 px-1.5 py-0.5 font-mono text-[8px] tracking-[0.16em] text-white uppercase backdrop-blur">
-          Case study
+          {t("common:project.caseStudy")}
           <Arrow className="text-[9px]" weight={1.8} />
         </span>
       </div>
@@ -266,20 +272,20 @@ function ProjectCard({
       </div>
 
       <p className="mt-1.5 text-[12.5px] leading-relaxed text-platinum/80">
-        {project.pitch.executive}
+        {t(`${project.id}.pitch.executive`)}
       </p>
 
       <div className="mt-2.5 flex flex-wrap gap-1.5">
-        {project.stack.map((t) => (
+        {project.stack.map((name) => (
           <span
-            key={t}
+            key={name}
             className="border border-white/15 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.1em] text-zinc"
           >
-            {t}
+            {name}
           </span>
         ))}
       </div>
-    </Link>
+    </LocaleLink>
   );
 }
 
@@ -292,6 +298,7 @@ function MegaDrawer({
   onNavigate: (id: StationId) => void;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation("stations");
   const stations = section.stations.map(stationById);
   const projects = projectsForStations(section.stations);
 
@@ -307,10 +314,11 @@ function MegaDrawer({
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
             <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-              {stations.map((s) => s.index).join(" · ")} / {section.label}
+              {stations.map((s) => s.index).join(" · ")} /{" "}
+              {t(`sections.${section.id}.label`)}
             </span>
             <h3 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
-              {section.blurb}
+              {t(`sections.${section.id}.blurb`)}
             </h3>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -321,7 +329,7 @@ function MegaDrawer({
                 onClick={() => onNavigate(s.id)}
                 className="flex items-center gap-2 border border-white/25 px-4 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black"
               >
-                {s.index} {s.nav}
+                {s.index} {t(`${s.id}.nav`)}
                 <Arrow className="text-[13px]" />
               </button>
             ))}
@@ -342,7 +350,13 @@ function MegaDrawer({
              its drawer shows the terms instead of pretending to a catalogue. */
           <dl className="grid gap-x-7 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
             {stations
-              .flatMap((s) => s.program?.points ?? [])
+              .flatMap((s) =>
+                s.program
+                  ? (t(`${s.id}.program`, {
+                      returnObjects: true,
+                    }) as ProgramPoint[])
+                  : [],
+              )
               .map((p) => (
                 <div key={p.label} className="border-t border-white/12 pt-3">
                   <dt className="font-mono text-[9.5px] tracking-telemetry text-white uppercase">
@@ -378,6 +392,7 @@ export function Navbar({
   mode: Mode;
   onModeChange: (m: Mode) => void;
 }) {
+  const { t } = useTranslation(["common", "stations"]);
   const [open, setOpen] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
@@ -472,18 +487,21 @@ export function Navbar({
             <p className="flex min-w-0 items-center gap-2 font-mono text-[9.5px] tracking-telemetry text-platinum uppercase">
               <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-signal" />
               <span className="truncate">
-                Status: {AVAILABILITY.status}
+                {t("availability.prefix")}: {t("availability.status")}
                 <span className="hidden text-steel md:inline">
                   {" // "}
-                  {AVAILABILITY.scope}
+                  {t("availability.scope")}
                 </span>
               </span>
             </p>
-            <ModeToggle
-              mode={mode}
-              onChange={onModeChange}
-              className="shrink-0"
-            />
+            {/* The strip, not the nav row below it: that row is already carrying
+                two routes, a toggle, a filled button and a burger, and it is the
+                row that has to survive a phone. This one holds a single line of
+                status text that truncates, so it can give up the width. */}
+            <div className="flex shrink-0 items-center gap-3">
+              <LocaleSwitch />
+              <ModeToggle mode={mode} onChange={onModeChange} />
+            </div>
           </div>
         </div>
 
@@ -495,7 +513,7 @@ export function Navbar({
             // 19.5px tall as bare type. The row is h-16, so the height is there
             // for the taking and `-my-2` keeps the mark on the same baseline.
             className="group -my-2 flex items-center gap-2.5 py-2"
-            aria-label="MIW — go to station 01"
+            aria-label={t("brand.logoAria")}
           >
             <span className="relative flex size-4 items-center justify-center">
               <span className="absolute inset-0 rounded-full border border-white/35" />
@@ -522,7 +540,9 @@ export function Navbar({
                   setOpen(s.id);
                 }}
                 onClick={() => go(s)}
-                aria-expanded={s.stations.length > 0 ? open === s.id : undefined}
+                aria-expanded={
+                  s.stations.length > 0 ? open === s.id : undefined
+                }
                 className="relative px-4 py-2 text-[13px] font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
               >
                 {active === s.id && (
@@ -537,7 +557,9 @@ export function Navbar({
                     }}
                   />
                 )}
-                <span className="relative">{s.label}</span>
+                <span className="relative">
+                  {t(`stations:sections.${s.id}.label`)}
+                </span>
               </button>
             ))}
           </div>
@@ -547,27 +569,27 @@ export function Navbar({
             {/* Routes, not stations. The centre tabs fly the camera; these two
                 go to the pages a visitor with a specific question — what have
                 you built, are you hiring — actually wants to read. */}
-            <Link
+            <LocaleLink
               href="/work"
               onClick={dismiss}
               className="hidden px-3 py-2 text-[12.5px] font-medium text-platinum transition-colors hover:text-white sm:block"
             >
-              Work
-            </Link>
+              {t("nav.work")}
+            </LocaleLink>
 
-            <Link
+            <LocaleLink
               href="/careers"
               onClick={dismiss}
               className="hidden px-3 py-2 text-[12.5px] font-medium text-platinum transition-colors hover:text-white sm:block"
             >
-              Careers
-            </Link>
+              {t("nav.careers")}
+            </LocaleLink>
 
             <button
               type="button"
               onClick={onToggleTelemetry}
               aria-pressed={telemetry}
-              aria-label="Toggle telemetry readout"
+              aria-label={t("nav.telemetryToggle")}
               className={cn(
                 "hidden size-9 items-center justify-center rounded-md border transition-colors sm:flex",
                 telemetry
@@ -586,14 +608,14 @@ export function Navbar({
               }}
               className="hidden items-center gap-2 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200 sm:flex"
             >
-              Book Architecture Call
+              {t("nav.bookCall")}
               <Arrow dir="up-right" className="text-[14px]" weight={1.7} />
             </button>
 
             <button
               type="button"
               onClick={() => setMobile((v) => !v)}
-              aria-label="Menu"
+              aria-label={t("nav.menu")}
               aria-expanded={mobile}
               className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white lg:hidden"
             >
@@ -635,39 +657,41 @@ export function Navbar({
                     className="flex w-full items-baseline justify-between gap-4 border-b border-white/10 py-4 text-left last:border-0"
                   >
                     <span className="text-[15px] font-medium text-white">
-                      {s.label}
+                      {t(`stations:sections.${s.id}.label`)}
                     </span>
                     <span className="truncate font-mono text-[9px] tracking-telemetry text-zinc">
-                      {s.stations.map((id) => stationById(id).index).join(" · ")}
+                      {s.stations
+                        .map((id) => stationById(id).index)
+                        .join(" · ")}
                     </span>
                   </button>
                 ))}
 
-                <Link
+                <LocaleLink
                   href="/work"
                   onClick={dismiss}
                   className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
                 >
                   <span className="text-[15px] font-medium text-white">
-                    Work
+                    {t("nav.work")}
                   </span>
                   <span className="font-mono text-[9px] tracking-telemetry text-zinc">
-                    Case studies
+                    {t("nav.caseStudies")}
                   </span>
-                </Link>
+                </LocaleLink>
 
-                <Link
+                <LocaleLink
                   href="/careers"
                   onClick={dismiss}
                   className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
                 >
                   <span className="text-[15px] font-medium text-white">
-                    Careers
+                    {t("nav.careers")}
                   </span>
                   <span className="font-mono text-[9px] tracking-telemetry text-zinc">
-                    Open directions
+                    {t("nav.openDirections")}
                   </span>
-                </Link>
+                </LocaleLink>
 
                 <button
                   type="button"
@@ -677,7 +701,7 @@ export function Navbar({
                   }}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-[13px] font-semibold text-black"
                 >
-                  Book Architecture Call
+                  {t("nav.bookCall")}
                   <Arrow dir="up-right" className="text-[14px]" weight={1.7} />
                 </button>
               </div>

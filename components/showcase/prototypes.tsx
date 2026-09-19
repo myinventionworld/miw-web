@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { Variant } from "@/data/projects";
 import { cn } from "@/lib/utils";
@@ -87,6 +88,7 @@ type Attempt =
   | { kind: "lost"; seat: number };
 
 function BookingProto() {
+  const { t } = useTranslation("projects");
   const [sold, setSold] = useState<number[]>(PRESOLD);
   const [attempt, setAttempt] = useState<Attempt>({ kind: "idle" });
 
@@ -103,7 +105,12 @@ function BookingProto() {
 
   return (
     <ProtoShell>
-      <ProtoHead label={`Seats sold ${sold.length}/${ROWS * COLS}`}>
+      <ProtoHead
+        label={t("prototype.booking.seatsSold", {
+          sold: sold.length,
+          total: ROWS * COLS,
+        })}
+      >
         <button
           type="button"
           onClick={race}
@@ -115,7 +122,7 @@ function BookingProto() {
               : "border-white/15 text-steel",
           )}
         >
-          Race a second passenger
+          {t("prototype.booking.race")}
         </button>
       </ProtoHead>
 
@@ -128,7 +135,10 @@ function BookingProto() {
               key={i}
               type="button"
               disabled={taken}
-              aria-label={`Seat ${i + 1}${taken ? " — sold" : ""}`}
+              aria-label={t(
+                taken ? "prototype.booking.seatSold" : "prototype.booking.seat",
+                { n: i + 1 },
+              )}
               onClick={() => setAttempt({ kind: "held", seat: i })}
               className={cn(
                 "h-5 rounded-sm border font-mono text-[8px] transition-colors",
@@ -147,20 +157,16 @@ function BookingProto() {
 
       {attempt.kind === "won" ? (
         <Readout tone="good">
-          {`> txn A: COMMIT seat ${attempt.seat + 1}`}
+          {t("prototype.booking.won", { seat: attempt.seat + 1 })}
           <br />
-          {"> txn B: 409 seat_taken — blocked at SELECT … FOR UPDATE. Double bookings: 0"}
+          {t("prototype.booking.wonBlocked")}
         </Readout>
       ) : attempt.kind === "held" ? (
         <Readout tone="warn">
-          {`> txn A holds seat ${attempt.seat + 1}. Send the second passenger at it.`}
+          {t("prototype.booking.held", { seat: attempt.seat + 1 })}
         </Readout>
       ) : (
-        <Readout>
-          {
-            "> pick a free seat, then race another passenger for the same one. The loser is refused by the database, not by a cleanup job."
-          }
-        </Readout>
+        <Readout>{t("prototype.booking.idle")}</Readout>
       )}
     </ProtoShell>
   );
@@ -169,6 +175,7 @@ function BookingProto() {
 /* ── checkout: redelivery is a no-op, cache absorbs the sale ───────────── */
 
 function CheckoutProto() {
+  const { t } = useTranslation("projects");
   const [deliveries, setDeliveries] = useState(0);
   const [sale, setSale] = useState(false);
 
@@ -181,7 +188,7 @@ function CheckoutProto() {
 
   return (
     <ProtoShell>
-      <ProtoHead label={`Catalogue cache · hit ${hit}%`}>
+      <ProtoHead label={t("prototype.checkout.cacheHit", { hit })}>
         <button
           type="button"
           onClick={() => setSale((v) => !v)}
@@ -192,7 +199,9 @@ function CheckoutProto() {
               : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
           )}
         >
-          {sale ? "flash sale · 40× rps" : "baseline traffic"}
+          {t(
+            sale ? "prototype.checkout.sale" : "prototype.checkout.baseline",
+          )}
         </button>
       </ProtoHead>
 
@@ -200,7 +209,7 @@ function CheckoutProto() {
         <div
           style={{ width: `${tiers.l1}%` }}
           className="h-full bg-white/85"
-          title="L1 · process memory"
+          title={t("prototype.checkout.l1")}
         />
         <div
           style={{ width: `${tiers.l2}%` }}
@@ -214,14 +223,17 @@ function CheckoutProto() {
         />
       </div>
       <div className="mt-1.5 flex justify-between font-mono text-[9px] text-steel">
-        <span>L1 memory {tiers.l1}%</span>
-        <span>L2 redis {tiers.l2}%</span>
-        <span>postgres {tiers.db}%</span>
+        <span>{t("prototype.checkout.l1Legend", { pct: tiers.l1 })}</span>
+        <span>{t("prototype.checkout.l2Legend", { pct: tiers.l2 })}</span>
+        <span>{t("prototype.checkout.dbLegend", { pct: tiers.db })}</span>
       </div>
 
       <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
         <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-          Charges {Math.min(deliveries, 1)} · deliveries {deliveries}
+          {t("prototype.checkout.charges", {
+            charges: Math.min(deliveries, 1),
+            deliveries,
+          })}
         </span>
         <button
           type="button"
@@ -231,23 +243,17 @@ function CheckoutProto() {
             "border-white/25 text-white hover:bg-white hover:text-black",
           )}
         >
-          Deliver stripe webhook
+          {t("prototype.checkout.deliver")}
         </button>
       </div>
 
       {deliveries === 0 ? (
-        <Readout>
-          {
-            "> gateways retry by design. Deliver the same event twice and watch the second one settle to the order that already exists."
-          }
-        </Readout>
+        <Readout>{t("prototype.checkout.idle")}</Readout>
       ) : deliveries === 1 ? (
-        <Readout tone="good">
-          {"> pi_3Nk…9Qa → order #10482 created. 1 charge captured."}
-        </Readout>
+        <Readout tone="good">{t("prototype.checkout.first")}</Readout>
       ) : (
         <Readout tone="good">
-          {`> pi_3Nk…9Qa → duplicate ×${deliveries - 1}, unique constraint held. Still order #10482, still 1 charge.`}
+          {t("prototype.checkout.duplicate", { n: deliveries - 1 })}
         </Readout>
       )}
     </ProtoShell>
@@ -269,6 +275,7 @@ const LEGS = ["edge", "render", "data"] as const;
 const LEG_TONE = ["bg-white/85", "bg-beam/70", "bg-signal/70"];
 
 function StreamingProto() {
+  const { t } = useTranslation("projects");
   const [warm, setWarm] = useState(true);
   const [route, setRoute] = useState<(typeof ROUTES)[number]["id"]>("browse");
 
@@ -289,7 +296,7 @@ function StreamingProto() {
 
   return (
     <ProtoShell>
-      <ProtoHead label="Route change budget">
+      <ProtoHead label={t("prototype.streaming.budget")}>
         <button
           type="button"
           onClick={() => setWarm((v) => !v)}
@@ -300,7 +307,9 @@ function StreamingProto() {
               : "border-amber-400/70 bg-amber-400/15 text-amber-300",
           )}
         >
-          {warm ? "edge cache warm" : "edge cache cold"}
+          {t(
+            warm ? "prototype.streaming.warm" : "prototype.streaming.cold",
+          )}
         </button>
       </ProtoHead>
 
@@ -341,10 +350,21 @@ function StreamingProto() {
 
       <Readout>
         {active.id === "library"
-          ? `> ${active.path} is per-viewer, so it reads Postgres either way — ${active.legs[2]} ms of its ${active.total} ms. The cache cannot help here and does not pretend to.`
+          ? t("prototype.streaming.perViewer", {
+              path: active.path,
+              data: active.legs[2],
+              total: active.total,
+            })
           : warm
-            ? `> ${active.path} served from ISR at the edge: ${active.legs[0]} ms edge + ${active.legs[1]} ms render, no origin data call.`
-            : `> ${active.path} cold: ${active.legs[2]} ms waiting on the catalogue upstream. Revalidation is what keeps this off the viewer's path.`}
+            ? t("prototype.streaming.servedWarm", {
+                path: active.path,
+                edge: active.legs[0],
+                render: active.legs[1],
+              })
+            : t("prototype.streaming.servedCold", {
+                path: active.path,
+                data: active.legs[2],
+              })}
       </Readout>
     </ProtoShell>
   );

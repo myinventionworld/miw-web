@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { LocaleLink } from "@/components/locale-link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, type MotionValue } from "motion/react";
 import { Arrow, Carrier, Tick } from "@/components/glyph";
 
@@ -12,11 +13,11 @@ import {
   ENGAGEMENTS,
   GUILD_OPENINGS,
   STAGES,
-  STANDARDS,
   TAB_ENGAGEMENTS,
   TIMELINES,
   type ConsoleTab,
   type EngagementId,
+  type Standard,
 } from "@/lib/stations";
 import { cn } from "@/lib/utils";
 import { Stage } from "./stage";
@@ -47,6 +48,11 @@ function Label({ children, hint }: { children: ReactNode; hint?: string }) {
   );
 }
 
+/**
+ * The option's value is its id, not the words on it. A submitted `budget` of
+ * "$10k – $25k" and one of "10–25 tis. $" are the same answer, and a desk that
+ * has to normalise them by hand is a desk that will get it wrong once.
+ */
 function Select({
   label,
   value,
@@ -56,7 +62,7 @@ function Select({
   label: string;
   value: string;
   onChange: (v: string) => void;
-  options: readonly string[];
+  options: readonly { id: string; label: string }[];
 }) {
   return (
     <label className="block">
@@ -69,8 +75,8 @@ function Select({
         className="field w-full appearance-none rounded-lg px-3 py-2.5 text-[12.5px]"
       >
         {options.map((o) => (
-          <option key={o} value={o} className="bg-carbon">
-            {o}
+          <option key={o.id} value={o.id} className="bg-carbon">
+            {o.label}
           </option>
         ))}
       </select>
@@ -89,6 +95,7 @@ export function TransmissionConsole({
 }: {
   progress: MotionValue<number>;
 }) {
+  const { t } = useTranslation(["console", "common", "careers"]);
   const [tab, setTab] = useState<ConsoleTab>("engineering");
   const [engagement, setEngagement] = useState<EngagementId>("mvp");
   const [name, setName] = useState("");
@@ -108,8 +115,10 @@ export function TransmissionConsole({
     [],
   );
 
-  const selectedTab = CONSOLE_TABS.find((t) => t.id === tab)!;
-  const selectedEngagement = ENGAGEMENTS.find((e) => e.id === engagement)!;
+  const selectedTab = CONSOLE_TABS.find((c) => c.id === tab)!;
+  const standards = t("common:standards", {
+    returnObjects: true,
+  }) as Standard[];
   const sending = status.kind === "sending";
 
   /**
@@ -118,9 +127,7 @@ export function TransmissionConsole({
    * selected under `--client-engineering` — a mismatch nobody would notice until
    * the transmission arrived contradicting itself.
    */
-  const offered = ENGAGEMENTS.filter((e) =>
-    TAB_ENGAGEMENTS[tab].includes(e.id),
-  );
+  const offered = ENGAGEMENTS.filter((e) => TAB_ENGAGEMENTS[tab].includes(e));
 
   function pickTab(next: ConsoleTab) {
     setTab(next);
@@ -136,30 +143,21 @@ export function TransmissionConsole({
     // Validated in the order the fields are read, so the message always points
     // at the first thing wrong rather than the last thing checked.
     if (name.trim().length < 2) {
-      setStatus({ kind: "error", message: "err: operator name required." });
+      setStatus({ kind: "error", message: t("form.errName") });
       return;
     }
     if (org.trim().length < 2) {
-      setStatus({
-        kind: "error",
-        message: "err: company required — the answer depends on who runs it.",
-      });
+      setStatus({ kind: "error", message: t("form.errOrg") });
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      setStatus({
-        kind: "error",
-        message: "err: a reachable address is required to reply.",
-      });
+      setStatus({ kind: "error", message: t("form.errEmail") });
       return;
     }
     // A written reply needs something to reply about. One line is enough; the
     // point of the minimum is to keep this desk out of the auto-blast lists.
     if (scope.trim().length < 12) {
-      setStatus({
-        kind: "error",
-        message: "err: describe the scope in a line — this desk replies in prose.",
-      });
+      setStatus({ kind: "error", message: t("form.errScope") });
       return;
     }
 
@@ -203,11 +201,11 @@ export function TransmissionConsole({
             <div className="flex items-center gap-2.5">
               <Carrier className="text-[14px] text-signal" />
               <span className="font-mono text-[10px] tracking-telemetry text-white uppercase">
-                Transmission console
+                {t("title")}
               </span>
             </div>
             <span className="hidden font-mono text-[10px] tracking-telemetry text-zinc uppercase sm:inline">
-              Direct to engineering
+              {t("subtitle")}
             </span>
           </div>
 
@@ -218,18 +216,18 @@ export function TransmissionConsole({
               names its own arguments is the one honest place for that joke. */}
           <div
             role="tablist"
-            aria-label="Transmission type"
+            aria-label={t("tablist")}
             className="mt-4 flex flex-wrap gap-2 deck-short:mt-3"
           >
-            {CONSOLE_TABS.map((t) => {
-              const active = t.id === tab;
+            {CONSOLE_TABS.map((c) => {
+              const active = c.id === tab;
               return (
                 <button
-                  key={t.id}
+                  key={c.id}
                   type="button"
                   role="tab"
                   aria-selected={active}
-                  onClick={() => pickTab(t.id)}
+                  onClick={() => pickTab(c.id)}
                   className={cn(
                     "rounded-md border px-3.5 py-2 font-mono text-[11px] whitespace-nowrap transition-all duration-200",
                     active
@@ -237,8 +235,8 @@ export function TransmissionConsole({
                       : "border-white/25 text-platinum hover:border-white/60 hover:bg-white/8 hover:text-white",
                   )}
                 >
-                  [ <span className="hidden sm:inline">{t.flag}</span>
-                  <span className="sm:hidden">{t.label}</span> ]
+                  [ <span className="hidden sm:inline">{c.flag}</span>
+                  <span className="sm:hidden">{t(`tabs.${c.id}.label`)}</span> ]
                 </button>
               );
             })}
@@ -247,7 +245,7 @@ export function TransmissionConsole({
             aria-live="polite"
             className="mt-2.5 text-[12.5px] text-zinc deck-short:mt-2"
           >
-            {selectedTab.note}
+            {t(`tabs.${tab}.note`)}
           </p>
 
           <AnimatePresence mode="wait" initial={false}>
@@ -261,19 +259,17 @@ export function TransmissionConsole({
                 className="pt-6"
               >
                 <h2 className="max-w-lg text-[24px] leading-[1.1] font-semibold tracking-[-0.03em] text-white md:text-[28px]">
-                  {selectedTab.heading}
+                  {t("tabs.guild.heading")}
                 </h2>
                 <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-platinum">
-                  The guild application asks for the hardest thing you have
-                  built rather than a CV, so it lives on its own page with room
-                  to answer properly.
+                  {t("guild.body")}
                 </p>
 
                 <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-white/12 bg-white/10 sm:grid-cols-3">
                   {GUILD_OPENINGS.map((o) => (
                     <div key={o.id} className="bg-carbon/90 p-3.5">
                       <p className="text-[13px] leading-snug font-semibold text-white">
-                        {o.label}
+                        {t(`careers:openings.${o.id}.label`)}
                       </p>
                       <p className="mt-1.5 font-mono text-[9.5px] leading-[1.6] text-steel">
                         {o.stack.join(" · ")}
@@ -282,15 +278,15 @@ export function TransmissionConsole({
                   ))}
                 </div>
 
-                <Link
+                <LocaleLink
                   href="/careers"
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-black transition-colors hover:bg-zinc-200 sm:w-auto sm:px-8"
                 >
-                  Open the Guild application
+                  {t("guild.cta")}
                   <Arrow className="text-[15px]" weight={1.7} />
-                </Link>
+                </LocaleLink>
                 <p className="mt-3 font-mono text-[9.5px] tracking-[0.1em] text-steel uppercase">
-                  Read by an engineer · portfolio over credentials
+                  {t("guild.note")}
                 </p>
               </motion.div>
             ) : status.kind === "sent" ? (
@@ -306,19 +302,21 @@ export function TransmissionConsole({
                   <Tick className="text-[19px] text-signal" />
                 </div>
                 <h3 className="mt-5 text-3xl font-semibold tracking-[-0.03em] text-white md:text-4xl">
-                  Transmission received
+                  {t("receipt.title")}
                 </h3>
                 <p className="mt-3 text-lg leading-snug text-platinum">
-                  An engineer reads this before anyone books a call. Expect a
-                  written response, usually inside two working days.
+                  {t("receipt.body")}
                 </p>
 
                 <dl className="mx-auto mt-7 grid max-w-lg grid-cols-2 gap-x-8 gap-y-4 border-t border-white/15 pt-5 text-left">
                   {[
-                    ["Engagement", selectedEngagement.label],
-                    ["Organisation", org || "—"],
-                    ["Budget", budget],
-                    ["Reply channel", email],
+                    [
+                      t("receipt.engagement"),
+                      t(`engagements.${engagement}.label`),
+                    ],
+                    [t("receipt.organisation"), org || "—"],
+                    [t("receipt.budget"), t(`budgets.${budget}`)],
+                    [t("receipt.channel"), email],
                   ].map(([k, v]) => (
                     <div key={k} className="flex flex-col gap-1.5">
                       <dt className="font-mono text-[10px] tracking-telemetry text-zinc uppercase">
@@ -336,7 +334,7 @@ export function TransmissionConsole({
                   onClick={() => setStatus({ kind: "idle" })}
                   className="mt-7 font-mono text-[10px] tracking-telemetry text-platinum uppercase underline-offset-4 transition-colors hover:text-white hover:underline"
                 >
-                  Amend the transmission
+                  {t("receipt.amend")}
                 </button>
               </motion.div>
             ) : (
@@ -360,15 +358,18 @@ export function TransmissionConsole({
                 <div className="space-y-5 deck-short:space-y-4">
                   <div>
                     <h2 className="text-[24px] leading-[1.1] font-semibold tracking-[-0.03em] text-white deck-short:text-[21px] md:text-[28px]">
-                      {selectedTab.heading}
+                      {t(`tabs.${tab}.heading`)}
                     </h2>
 
                     {/* Trust signal sits above the form rather than below the
                       button: these are design budgets, and a reader who takes
                       them for delivered client results is a reader we misled. */}
                     <dl className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1.5 rounded-lg border border-white/12 bg-white/4 px-3.5 py-2.5 deck-short:mt-3 deck-short:py-2">
-                      {STANDARDS.map((s) => (
-                        <div key={s.value} className="flex items-baseline gap-1.5">
+                      {standards.map((s) => (
+                        <div
+                          key={s.value}
+                          className="flex items-baseline gap-1.5"
+                        >
                           <dt className="font-mono text-[14px] leading-none font-semibold text-white tabular-nums">
                             {s.value}
                           </dt>
@@ -379,20 +380,22 @@ export function TransmissionConsole({
                       ))}
                     </dl>
                     <p className="mt-1.5 font-mono text-[9.5px] tracking-[0.1em] text-steel uppercase">
-                      The standard we design to — not a claim about past results
+                      {t("form.standardsNote")}
                     </p>
                   </div>
 
                   <fieldset>
-                    <Label hint="Pick one">Nature of the work</Label>
+                    <Label hint={t("form.engagementHint")}>
+                      {t("form.engagement")}
+                    </Label>
                     <div className="flex flex-wrap gap-2">
                       {offered.map((e) => {
-                        const active = e.id === engagement;
+                        const active = e === engagement;
                         return (
                           <button
-                            key={e.id}
+                            key={e}
                             type="button"
-                            onClick={() => setEngagement(e.id)}
+                            onClick={() => setEngagement(e)}
                             aria-pressed={active}
                             className={cn(
                               "rounded-md border px-3 py-1.5 text-[12px] transition-all duration-200",
@@ -401,7 +404,7 @@ export function TransmissionConsole({
                                 : "border-white/25 text-platinum hover:border-white/60 hover:bg-white/8 hover:text-white",
                             )}
                           >
-                            {e.label}
+                            {t(`engagements.${e}.label`)}
                           </button>
                         );
                       })}
@@ -410,35 +413,46 @@ export function TransmissionConsole({
 
                   <div className="grid grid-cols-3 gap-2.5">
                     <Select
-                      label="Stage"
+                      label={t("form.stage")}
                       value={stage}
                       onChange={setStage}
-                      options={STAGES}
+                      options={STAGES.map((id) => ({
+                        id,
+                        label: t(`stages.${id}`),
+                      }))}
                     />
                     <Select
-                      label="Budget"
+                      label={t("form.budget")}
                       value={budget}
                       onChange={setBudget}
-                      options={BUDGETS}
+                      options={BUDGETS.map((id) => ({
+                        id,
+                        label: t(`budgets.${id}`),
+                      }))}
                     />
                     <Select
-                      label="Timeline"
+                      label={t("form.timeline")}
                       value={timeline}
                       onChange={setTimeline}
-                      options={TIMELINES}
+                      options={TIMELINES.map((id) => ({
+                        id,
+                        label: t(`timelines.${id}`),
+                      }))}
                     />
                   </div>
                 </div>
 
                 <div className="mt-5 space-y-4 deck-short:space-y-3 md:mt-0">
                   <div>
-                    <Label hint="All required">Name / Company</Label>
+                    <Label hint={t("form.identityHint")}>
+                      {t("form.identity")}
+                    </Label>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Name"
-                        aria-label="Name"
+                        placeholder={t("form.name")}
+                        aria-label={t("form.name")}
                         autoComplete="name"
                         required
                         className="field w-full rounded-lg px-4 py-3 text-[13px]"
@@ -446,8 +460,8 @@ export function TransmissionConsole({
                       <input
                         value={org}
                         onChange={(e) => setOrg(e.target.value)}
-                        placeholder="Company"
-                        aria-label="Company"
+                        placeholder={t("form.company")}
+                        aria-label={t("form.company")}
                         autoComplete="organization"
                         required
                         className="field w-full rounded-lg px-4 py-3 text-[13px]"
@@ -456,8 +470,8 @@ export function TransmissionConsole({
                     <input
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Work email"
-                      aria-label="Work email"
+                      placeholder={t("form.email")}
+                      aria-label={t("form.email")}
                       type="email"
                       inputMode="email"
                       autoComplete="email"
@@ -469,13 +483,13 @@ export function TransmissionConsole({
                   <div>
                     {/* The prompt follows the engagement — a rescue and a
                         greenfield MVP are not the same question. */}
-                    <Label hint="One line is enough">Scope</Label>
+                    <Label hint={t("form.scopeHint")}>{t("form.scope")}</Label>
                     <textarea
                       value={scope}
                       onChange={(e) => setScope(e.target.value)}
                       rows={3}
-                      placeholder={selectedEngagement.prompt}
-                      aria-label="Scope"
+                      placeholder={t(`engagements.${engagement}.prompt`)}
+                      aria-label={t("form.scope")}
                       required
                       // `rows` is the floor, not the height — a short deck
                       // overrides it in CSS. Two visible lines still honours the
@@ -500,8 +514,8 @@ export function TransmissionConsole({
                       {status.kind === "error"
                         ? status.message
                         : status.kind === "sending"
-                          ? `> opening channel ${selectedTab.flag} …`
-                          : "> engineering desk, not a CRM sequence."}
+                          ? t("form.sending", { flag: selectedTab.flag })
+                          : t("form.idle")}
                     </p>
 
                     <button
@@ -511,7 +525,7 @@ export function TransmissionConsole({
                     >
                       {/* No mark. "Execute" is already the verb, and an arrow on
                           a submit button points at nothing. */}
-                      {sending ? "Transmitting…" : "Execute Transmission"}
+                      {sending ? t("form.submitting") : t("form.submit")}
                     </button>
                   </div>
                 </div>

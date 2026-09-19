@@ -1,0 +1,105 @@
+{
+  "title": "Vysílací konzole",
+  "subtitle": "Přímo k inženýrům",
+  "tablist": "Typ vysílání",
+
+  "tabs": {
+    "engineering": {
+      "label": "Klientský vývoj",
+      "heading": "Chcete postavit něco, co vydrží?",
+      "note": "Nová stavba, MVP nebo AI integrace nad systémem, který už provozujete."
+    },
+    "audit": {
+      "label": "Audit architektury",
+      "heading": "Zjistěte, co se rozbije první — než se to stane.",
+      "note": "Systém funguje a křivka růstu říká, že nebude. Přečteme ho a sepíšeme, co se rozbije první."
+    },
+    "guild": {
+      "label": "Do cechu",
+      "heading": "Není to stáž. Je to posádka, brána review a podíl z práce.",
+      "note": "Píšeš kód a chceš stavět pod dohledem na úrovni Principal."
+    }
+  },
+
+  "engagements": {
+    "mvp": {
+      "label": "Nová stavba / MVP",
+      "prompt": "Co stavíte, pro koho to je a co musí vydržet, až to poroste?"
+    },
+    "rescue": {
+      "label": "Záchrana architektury",
+      "prompt": "Co se dnes rozbíjí, jak často a co už jste zkusili, abyste to spravili?"
+    },
+    "ai": {
+      "label": "AI integrace",
+      "prompt": "Který proces chcete sejmout z lidí a jakých dat se musí dotknout?"
+    },
+    "audit": {
+      "label": "Audit architektury",
+      "prompt": "Co je v systému nosné a co se rozbije první, až to poroste?"
+    }
+  },
+
+  "budgets": {
+    "5-10k": "$5k – $10k",
+    "10-25k": "$10k – $25k",
+    "25k-plus": "$25k+",
+    "unsure": "Zatím nevím"
+  },
+
+  "stages": {
+    "pre-seed": "Pre-seed / nápad",
+    "seed": "Seed / první trakce",
+    "series-a": "Series A+",
+    "established": "Zavedený byznys"
+  },
+
+  "timelines": {
+    "now": "Začínáme hned",
+    "month": "Do měsíce",
+    "quarter": "Tento kvartál",
+    "scoping": "Zatím jen rozsah"
+  },
+
+  "form": {
+    "standardsNote": "Standard, na který navrhujeme — ne tvrzení o minulých výsledcích",
+    "engagement": "Povaha práce",
+    "engagementHint": "Vyberte jednu",
+    "stage": "Fáze",
+    "budget": "Rozpočet",
+    "timeline": "Termín",
+    "identity": "Jméno / firma",
+    "identityHint": "Vše povinné",
+    "name": "Jméno",
+    "company": "Firma",
+    "email": "Pracovní e-mail",
+    "scope": "Rozsah",
+    "scopeHint": "Stačí jeden řádek",
+
+    "errName": "err: je potřeba jméno operátora.",
+    "errOrg": "err: je potřeba firma — odpověď závisí na tom, kdo ji řídí.",
+    "errEmail": "err: je potřeba funkční adresa, abychom mohli odpovědět.",
+    "errScope": "err: popište rozsah jedním řádkem — tenhle stůl odpovídá textem.",
+
+    "idle": "> inženýrský stůl, ne CRM sekvence.",
+    "sending": "> otevírám kanál {{flag}} …",
+    "submit": "Odeslat vysílání",
+    "submitting": "Vysílám…"
+  },
+
+  "receipt": {
+    "title": "Vysílání přijato",
+    "body": "Tohle čte inženýr dřív, než si někdo domluví hovor. Počítejte s písemnou odpovědí, obvykle do dvou pracovních dnů.",
+    "engagement": "Spolupráce",
+    "organisation": "Organizace",
+    "budget": "Rozpočet",
+    "channel": "Kanál odpovědi",
+    "amend": "Upravit vysílání"
+  },
+
+  "guild": {
+    "body": "Přihláška do cechu se ptá na nejtěžší věc, kterou jsi postavil, ne na životopis — proto má vlastní stránku, kde je místo odpovědět pořádně.",
+    "cta": "Otevřít přihlášku do cechu",
+    "note": "Čte inženýr · portfolio nad tituly"
+  }
+}

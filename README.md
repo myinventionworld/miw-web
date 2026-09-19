@@ -36,6 +36,9 @@ npm run start    # serve the production build
 
 Scroll slowly the first time. The runway is nine viewport heights.
 
+`/` redirects to a locale, so the first page you land on is `/en`, `/ru` or `/cs` depending on
+your `Accept-Language`. See [Languages](#languages).
+
 ### Dependencies
 
 | Package | Role |
@@ -47,7 +50,9 @@ Scroll slowly the first time. The runway is nine viewport heights.
 | `lenis` | Smooth scroll driving *real* window scroll, so `useScroll` still works |
 | `motion` | MotionValue-driven overlay animation that never re-renders React |
 | `clsx` + `tailwind-merge` | The `cn()` class merge helper |
-| `lucide-react` | Icons in the navbar, dock, and console |
+| `i18next` + `react-i18next` | Translation lookup, server and client |
+| `next-i18n-router` | Locale detection and the `/` → `/en` redirect, run from `proxy.ts` |
+| `@i18nexus/cli` | Pulls translated JSON down from i18nexus (dev dependency) |
 
 Tailwind v4 is configured entirely in `app/globals.css` via `@theme`. There is no
 `tailwind.config.*`.
@@ -57,10 +62,25 @@ Tailwind v4 is configured entirely in `app/globals.css` via `@theme`. There is n
 ## Project structure
 
 ```
+i18nConfig.ts              Locales, default, prefix policy — read by proxy.ts and i18n.ts
+i18n.ts                    initTranslations(): one i18next instance per render
+proxy.ts                   Locale detection and redirect (this Next version has no middleware)
+
+locales/
+  en|ru|cs/
+    common.json            Chrome: nav, HUD, hero, availability, standards
+    stations.json          The four stations, both copy modes, specs, programme
+    projects.json          Case studies: pitches, problems, decisions, metric notes, demo widgets
+    careers.json           The Guild page and its application form
+    console.json           The transmission console and its three tabs
+
 app/
-  layout.tsx               Geist Sans + Geist Mono via next/font, metadata
+  [locale]/
+    layout.tsx             Geist Sans + Geist Mono, TranslationsProvider, localized metadata
+    page.tsx               Renders <Experience />
+    work/                  Case study index and [slug]
+    careers/               The Guild page
   globals.css              @theme tokens, .panel / .drawer / .copy-scrim / .field / .range
-  page.tsx                 Renders <Experience />
 
 components/
   experience.tsx           Lenis root, scroll bridge, overlay stack, scroll runway
@@ -93,9 +113,53 @@ lib/
   utils.ts                 cn(), bindUniforms(), detectWebGL()
 ```
 
-Content lives in `lib/stations.ts`. Each station carries its copy, its scroll anchor, and its
-projects; the navbar, the dock, the HUD, and the no-WebGL fallback all render from that one
-array.
+Structure lives in `lib/stations.ts` and `data/projects.ts` — ids, scroll anchors, stack lists,
+diagram coordinates, metric figures. Every word lives in `locales/<lang>/`, keyed by those same
+ids. The navbar, the dock, the HUD and the no-WebGL fallback all read from both.
+
+---
+
+## Languages
+
+English, Russian and Czech. Every locale is prefixed, including the default: `/en/work/omnibus`,
+`/ru/work/omnibus`, `/cs/careers`. A bare `/work` is matched against `Accept-Language` and
+redirected, and the choice is remembered in the `NEXT_LOCALE` cookie so a reader who switched by
+hand is not overruled by their browser on the next page.
+
+The root layout loads all five namespaces for the requested language plus English as a fallback,
+then hands the resources to the client through `TranslationsProvider` — so the browser
+re-initialises from what the server already parsed rather than fetching the JSON again.
+
+**Tone is not uniform.** Client-facing surfaces — the four stations, the case studies, the
+engineering and audit tabs of the console — address the reader formally (*вы*, *vy*). The Guild
+surfaces — `/careers`, its application form, the Guild tab of the console — use the informal
+*ты* / *ty*. They are different audiences and the site is not pretending otherwise. Keep that
+split when adding strings.
+
+Stack names, codenames, metric figures and CLI flags stay in English in all three files: a
+`--architecture-audit` flag translated into Czech is a joke that does not land, and a budget
+range that reads `$10k – $25k` in one language and something else in another is a form nobody
+can read the replies to.
+
+### Translation workflow
+
+Translations are managed in [i18nexus](https://i18nexus.com) and committed to the repo, so a
+clone builds without network access or an API key.
+
+```bash
+cp .env.example .env.local   # then fill in the keys — .env.local is gitignored
+
+npm run i18n:pull      # download the latest translations into locales/
+npm run i18n:listen    # same, but live — run it alongside npm run dev
+npm run i18n:import    # push the English source strings up, one namespace at a time
+```
+
+`i18n:pull` needs only `I18NEXUS_API_KEY`. `i18n:import` also needs
+`I18NEXUS_PERSONAL_ACCESS_TOKEN`, because it writes.
+
+`build` deliberately does **not** pull. The committed JSON is the source of truth for a
+deployment, and a missing environment variable should not be able to take a production build
+down — or, worse, quietly ship a half-translated page.
 
 ---
 
@@ -160,8 +224,8 @@ it to a real endpoint is a `submit()` away in `overlay/transmission-console.tsx`
 
 Most of the direction lives in three files.
 
-- `lib/stations.ts` — copy, projects, and `anchor` per station. Moving an anchor retimes the
-  narrative; move the matching entry in `WAYPOINTS` with it.
+- `lib/stations.ts` — the `anchor` per station. Moving one retimes the narrative; move the
+  matching entry in `WAYPOINTS` with it. The words are in `locales/<lang>/stations.json`.
 - `lib/flight.ts` — `WAYPOINTS` (the camera spline), `warpAt` (when warp ramps), `BODY`
   (where each body sits and how big it is).
 - `components/webgl/effects.tsx` — bloom intensity and threshold, aberration, vignette, grain.

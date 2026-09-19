@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 import { flight } from "@/lib/flight";
 import { STATIONS, CONSOLE_ANCHOR } from "@/lib/stations";
@@ -24,6 +25,7 @@ const CONSOLE_FROM =
  * The navbar owns the top of the screen, so this is footer-only.
  */
 export function Hud({ visible }: { visible: boolean }) {
+  const { t } = useTranslation(["common", "stations"]);
   const status = useRef<HTMLSpanElement>(null);
   const transit = useRef<HTMLSpanElement>(null);
   const track = useRef<HTMLSpanElement>(null);
@@ -42,14 +44,16 @@ export function Hud({ visible }: { visible: boolean }) {
       const station = STATIONS[flight.station];
       const docked = flight.proximity > 0.62;
 
-      const next =
+      const state = docked
+        ? t("hud.docked")
+        : p >= CONSOLE_FROM
+          ? t("hud.approaching")
+          : t("hud.inTransit");
+      const target =
         p >= CONSOLE_FROM
-          ? docked
-            ? "Docked · Transmission console"
-            : "Approaching · Transmission console"
-          : docked
-            ? `Docked · ${station.index} ${station.nav}`
-            : `In transit · ${station.index} ${station.nav}`;
+          ? t("hud.console")
+          : `${station.index} ${t(`stations:${station.id}.nav`)}`;
+      const next = `${state} · ${target}`;
       if (status.current && next !== lastStatus) {
         status.current.textContent = next;
         lastStatus = next;
@@ -64,7 +68,7 @@ export function Hud({ visible }: { visible: boolean }) {
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [visible]);
+  }, [visible, t]);
 
   return (
     <div
@@ -95,18 +99,21 @@ export function Hud({ visible }: { visible: boolean }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-70" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
           </span>
-          <span ref={status}>Docked · 01 High-Load Backend</span>
+          <span ref={status}>
+            {t("hud.docked")} · {STATIONS[0].index}{" "}
+            {t(`stations:${STATIONS[0].id}.nav`)}
+          </span>
         </div>
 
         <div className="flex gap-6 text-zinc md:gap-10">
           <span className="hidden sm:inline">
-            Transit{" "}
+            {t("hud.transit")}{" "}
             <span ref={transit} className="text-platinum tabular-nums">
               0.00
             </span>
           </span>
           <span>
-            Track{" "}
+            {t("hud.track")}{" "}
             <span ref={track} className="text-white tabular-nums">
               000
             </span>

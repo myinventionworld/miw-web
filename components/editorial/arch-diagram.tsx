@@ -20,12 +20,19 @@ const KIND: Record<ArchNode["kind"], { stroke: string; text: string }> = {
   model: { stroke: "rgba(251,191,36,0.6)", text: "#ffffff" },
 };
 
+/**
+ * Labels arrive resolved. The grid is this component's, the language is the
+ * caller's — an edge with no annotation is an empty string here, not a flag in
+ * the data that someone has to keep in sync with the copy.
+ */
 export function ArchDiagram({
   nodes,
   edges,
+  label,
 }: {
-  nodes: ArchNode[];
-  edges: ArchEdge[];
+  nodes: (ArchNode & { label: string })[];
+  edges: (ArchEdge & { label?: string })[];
+  label: string;
 }) {
   const maxCol = Math.max(...nodes.map((n) => n.col));
   const width = PAD * 2 + maxCol * COL_W + NODE_W;
@@ -54,7 +61,7 @@ export function ArchDiagram({
         width={width}
         className="h-auto max-w-full min-w-[640px]"
         role="img"
-        aria-label="System architecture diagram"
+        aria-label={label}
       >
         <defs>
           <marker

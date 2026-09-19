@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "title": "Kariéra — inženýrský cech a inkubátor — MIW",
+    "description": "MIW bere ambiciózní studenty prvních a druhých ročníků, staví je na reálnou podnikovou práci pod dohledem na úrovni Principal a platí jim podíl z ní. Tři otevřené směry, zveřejněný proces náboru a přihláška, která se ptá na tvoji práci místo na životopis."
+  },
+
+  "eyebrow": "MIW Labs — cech a inkubátor",
+  "title": "Inženýrský cech MIW",
+  "lede": "Nejsme outsourcingová galéra. Jsme inženýrská laboratoř: ambiciózní studenti prvních a druhých ročníků na reálné produkční práci, pod dohledem na úrovni Principal, s podílem z toho, co ta práce vydělá.",
+  "body": "Tohle není stáž ani kurz. Přidáš se k posádce, která staví systém, na kterém závisí platící klient, tvoje práce prochází stejnou bránou review jako práce všech ostatních, a když projekt vydělá, dostaneš svůj podíl. Nejsilnější práce se stane produktem laboratoře a její autoři skončí na cap table.",
+  "cta": "Přihlásit se do cechu",
+  "seeDirections_one": "Zobrazit {{count}} otevřený směr",
+  "seeDirections_few": "Zobrazit {{count}} otevřené směry",
+  "seeDirections_other": "Zobrazit {{count}} otevřených směrů",
+
+  "tracks": [
+    {
+      "label": "Reálný podnikový stack",
+      "body": "Transakční rezervační platformy, platební pipeline a katalogové systémy pod skutečnou zátěží — ne todo aplikace."
+    },
+    {
+      "label": "Mentoring na úrovni Principal",
+      "body": "Týdenní design review s architektem, který ten systém vlastní, nad kódem, který jsi ten týden dodal."
+    },
+    {
+      "label": "Royalty, ne kapesné",
+      "body": "Podíl na tržbách z komerčních projektů, které stavíš, vyplácený ve chvíli, kdy dostane zaplaceno studio."
+    },
+    {
+      "label": "Spoluzaložené startupy",
+      "body": "Produkty laboratoře se vyčleňují s podíly pro lidi, kteří je postavili."
+    }
+  ],
+
+  "expectations": [
+    "Už teď stavíš věci, o které nikdo nežádal.",
+    "Dokážeš číst cizí kódovou základnu a nevzdat to.",
+    "Chceš review, které ti řekne, co je špatně, ne to, které řekne „pěkná práce“."
+  ],
+
+  "readiness": [
+    {
+      "label": "Stack, do kterého tě hodíme",
+      "body": "Go a Java na straně služeb, Next.js a TypeScript na povrchu, Kubernetes pod tím. Nečeká se, že přijdeš plynulý ve všem — čeká se, že budeš ochotný být začátečníkem na očích, každý týden."
+    },
+    {
+      "label": "Uvažování v událostech",
+      "body": "Fronty, opakování, doručení alespoň jednou a co to stojí. Pokud tě věta „tenhle handler se zavolá dvakrát“ zatím neznepokojuje, tohle je ta část práce, která tě naučí proč by měla."
+    },
+    {
+      "label": "Deterministický kód",
+      "body": "Stejný vstup, stejný výstup, stejný výsledek na cizím stroji. Kód, jehož chování závisí na časování, pořadí nebo lokálním stavu stroje, je přesně to, kvůli čemu brána review existuje."
+    }
+  ],
+
+  "openings": {
+    "backend": {
+      "label": "Backend a distribuované systémy",
+      "level": "Od studentů prvních ročníků po pracující inženýry",
+      "body": "Služby, které vydrží zátěž, a transakce, které vydrží souběh. Budeš dělat na zamykání, doménách selhání a topologii nasazení na platformě, která už obsluhuje požadavky.",
+      "work": [
+        "Vzít si endpoint od začátku do konce: kontrakt, hranici transakce, odpověď při selhání, runbook pro chvíli, kdy degraduje.",
+        "Napsat souběžný test, který dokáže, že dva požadavky na poslední sedadlo nemohou vyhrát oba, a pak ho rozchodit.",
+        "Dotáhnout regresi latence od grafu p99 až k dotazu, který ten rozpočet utratil."
+      ],
+      "signal": "Ukaž nám něco souběžného, co jsi napsal a u čeho umíš vysvětlit režimy selhání."
+    },
+    "commerce": {
+      "label": "Commerce, platby a propustnost",
+      "level": "Pro každého, kdo chce tu těžkou část checkoutu, ne UI",
+      "body": "Objednávkové pipeline stavěné na nejhorší hodinu: idempotentní zpracování plateb, vrstvy cache, dokumenty ve frontě. Sem taky přistává naše aplikovaná AI práce jako první, protože objednávková pipeline je místo, kde má automatizace něco měřitelného na práci.",
+      "work": [
+        "Udělat handler webhooku idempotentní a dokázat to přehráním reálného doručení dvakrát.",
+        "Zatěžkat katalogovou cestu a posunout strop vrstvou cache, ne větší instancí.",
+        "Odsunout něco pomalého z checkoutu na frontu, aniž bys ztratil signál o selhání."
+      ],
+      "signal": "Ukaž nám něco, co jsi postavil a co pracuje s penězi, opakováním nebo obojím, a řekni, co jsi napoprvé udělal špatně."
+    },
+    "frontend": {
+      "label": "Moderní frontend a systémové UI",
+      "level": "Pro každého, kdo udrží husté rozhraní rychlé",
+      "body": "Rozhraní nad velkými datovými sadami a hustými provozními výpisy. Výkon je na tomhle směru požadavek, ne průchod, který někdo udělá později.",
+      "work": [
+        "Udržet rozpočet změny route na stránce vykreslující katalog, se studenou cache.",
+        "Oříznout hydrataci na tu plochu, která na kliknutí skutečně reaguje, a změřit rozdíl.",
+        "Udělat přístupnou cestu tou výchozí, ne dodatečnou."
+      ],
+      "signal": "Ukaž nám rozhraní, kde tou těžkou částí byla data, ne styly."
+    }
+  },
+
+  "hiring": {
+    "01": {
+      "label": "Přihláška",
+      "body": "Pošleš odkaz na věc, kterou jsi postavil, a napíšeš, co na ní bylo těžké. Čte to Principal Architect — není před ním žádný recruiter ani parser životopisů.",
+      "meta": "Písemná odpověď tak či tak"
+    },
+    "02": {
+      "label": "Rozhovor nad kódem",
+      "body": "Čtyřicet pět minut nad tvým vlastním kódem. Proč má takový tvar, co jsi zkusil a nefungovalo, co bys teď změnil. Žádné hlavolamy na tabuli.",
+      "meta": "45 minut, vzdáleně"
+    },
+    "03": {
+      "label": "Párová změna",
+      "body": "Malá reálná změna v jednom z našich systémů, v páru s architektem, který ho vlastní. Uvidíš bránu review zevnitř dřív, než se k čemukoliv zavážeš.",
+      "meta": "Časově omezené, placené"
+    },
+    "04": {
+      "label": "Zařazení do posádky",
+      "body": "Přidáš se k posádce se jmenovaným architektem a týdenním design review. Podmínky podílu na tržbách máš písemně před prvním commitem, ne po něm.",
+      "meta": "Podmínky písemně"
+    }
+  },
+
+  "faq": {
+    "paid": {
+      "q": "Je to placené?",
+      "a": "Dostáváš podíl na tržbách z komerčních projektů, které stavíš, vyplácený ve chvíli, kdy dostane zaplaceno studio, a podíl v produktech laboratoře, které se vyčlení i s tebou. Není to kapesné ani neplacená stáž."
+    },
+    "experience": {
+      "q": "Potřebuju komerční zkušenost?",
+      "a": "Ne. Filtrem je práce, na kterou pošleš odkaz, ne místo, kde vznikla. Většina náboru jsou studenti prvních a druhých ročníků, kteří staví věci, o které je nikdo nežádal."
+    },
+    "university": {
+      "q": "Dá se to dělat vedle školy?",
+      "a": "Program je navržený kolem lidí, kteří ještě studují, takže ano. Napiš do přihlášky reálný počet hodin a my posádku postavíme kolem nich, místo abychom předstírali, že neexistují."
+    },
+    "fit": {
+      "q": "Ani jeden ze tří směrů mi nesedí.",
+      "a": "Jsou to směry, ne otevřené pozice. Přihlas se na ten nejbližší a napiš to do posledního pole — kolem silného kandidáta postavíme posádku."
+    },
+    "after": {
+      "q": "Co se stane s mojí přihláškou?",
+      "a": "Čte ji Principal Architect a dostaneš písemnou odpověď, obvykle do týdne. Pokud je to ne, odpověď říká, co by to změnilo."
+    }
+  },
+
+  "sections": {
+    "tracks": "Co dostaneš",
+    "openings": "Otevřené směry",
+    "openingsNote": "Jsou to směry, ne otevřené pozice. Neobsazujeme židli s pevným titulem — kolem silného kandidáta na kterémkoliv z nich postavíme posádku.",
+    "hiring": "Jak probíhá nábor",
+    "hiringNote": "Zveřejněné proto, že právě nevědomost lidi odrazuje od přihlášení. Každý krok je něco, co děláme s tvojí prací, ne test osobnosti.",
+    "expectations": "Co očekáváme",
+    "faq": "Otázky"
+  },
+
+  "opening": {
+    "crewOn": "Posádka na {{system}}",
+    "work": "Na čem bys reálně dělal",
+    "stack": "Stack",
+    "level": "Pro koho to je",
+    "apply": "Přihlásit se"
+  },
+
+  "apply": {
+    "title": "Pošli práci, ne životopis.",
+    "lede": "Pošli odkaz na něco, co jsi postavil, a napiš, co na tom bylo těžké. Čte to Principal Architect a písemnou odpověď dostaneš tak či tak."
+  },
+
+  "levels": {
+    "y1": "1. ročník",
+    "y2": "2. ročník",
+    "y3": "3. ročník a výš",
+    "self-taught": "Samouk",
+    "working": "Už pracuju"
+  },
+
+  "form": {
+    "direction": "Směr",
+    "name": "Jméno",
+    "contact": "Telegram / e-mail",
+    "contactPlaceholder": "@handle nebo ty@domena.cz",
+    "portfolio": "GitHub / portfolio / projekty",
+    "portfolioHint": "Povinné",
+    "portfolioPlaceholder": "github.com/ty — nebo odkaz přímo na tu věc",
+    "level": "Aktuální úroveň",
+    "background": "Škola / zkušenost",
+    "backgroundHint": "Nepovinné",
+    "backgroundPlaceholder": "Kde studuješ nebo co jsi už dodal",
+    "hardest": "Nejtěžší věc, kterou jsi kdy napsal nebo odladil",
+    "hardestPlaceholder": "Co na tom bylo těžké, co jsi zkusil a nefungovalo a jak jsi našel odpověď. Tohle se čte jako první.",
+
+    "errName": "err: jméno je povinné.",
+    "errContact": "err: pro odpověď je potřeba Telegram handle nebo e-mail.",
+    "errPortfolio": "err: pošli odkaz na něco, co jsi postavil. V tomhle je celý filtr.",
+    "errHardest": "err: odpověď na nejtěžší věc se čte jako první. Minimálně věta nebo dvě.",
+
+    "idle": "> čte Principal Architect. Žádný recruiter.",
+    "sending": "> zakládám přihlášku …",
+    "submit": "Odeslat přihlášku do cechu",
+    "submitting": "Odesílám…",
+
+    "receiptTitle": "Přihláška přijata",
+    "receiptBody": "Tohle čte Principal Architect, ne recruiter. Písemnou odpověď dostaneš tak či tak — obvykle do týdne.",
+    "amend": "Upravit přihlášku"
+  }
+}

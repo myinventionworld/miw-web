@@ -1,0 +1,319 @@
+{
+  "prototype": {
+    "booking": {
+      "seatsSold": "Seats sold {{sold}}/{{total}}",
+      "race": "Race a second passenger",
+      "seat": "Seat {{n}}",
+      "seatSold": "Seat {{n}} — sold",
+      "won": "> txn A: COMMIT seat {{seat}}",
+      "wonBlocked": "> txn B: 409 seat_taken — blocked at SELECT … FOR UPDATE. Double bookings: 0",
+      "held": "> txn A holds seat {{seat}}. Send the second passenger at it.",
+      "idle": "> pick a free seat, then race another passenger for the same one. The loser is refused by the database, not by a cleanup job."
+    },
+    "checkout": {
+      "cacheHit": "Catalogue cache · hit {{hit}}%",
+      "sale": "flash sale · 40× rps",
+      "baseline": "baseline traffic",
+      "l1": "L1 · process memory",
+      "l1Legend": "L1 memory {{pct}}%",
+      "l2Legend": "L2 redis {{pct}}%",
+      "dbLegend": "postgres {{pct}}%",
+      "charges": "Charges {{charges}} · deliveries {{deliveries}}",
+      "deliver": "Deliver stripe webhook",
+      "idle": "> gateways retry by design. Deliver the same event twice and watch the second one settle to the order that already exists.",
+      "first": "> pi_3Nk…9Qa → order #10482 created. 1 charge captured.",
+      "duplicate": "> pi_3Nk…9Qa → duplicate ×{{n}}, unique constraint held. Still order #10482, still 1 charge."
+    },
+    "streaming": {
+      "budget": "Route change budget",
+      "warm": "edge cache warm",
+      "cold": "edge cache cold",
+      "perViewer": "> {{path}} is per-viewer, so it reads Postgres either way — {{data}} ms of its {{total}} ms. The cache cannot help here and does not pretend to.",
+      "servedWarm": "> {{path}} served from ISR at the edge: {{edge}} ms edge + {{render}} ms render, no origin data call.",
+      "servedCold": "> {{path}} cold: {{data}} ms waiting on the catalogue upstream. Revalidation is what keeps this off the viewer's path."
+    }
+  },
+
+  "status": {
+    "live": "Live",
+    "beta": "Public beta",
+    "build": "In build",
+    "internal": "Internal MVP"
+  },
+
+  "environment": {
+    "production": "Production",
+    "staging": "Staging",
+    "internal": "Internal",
+    "source": "Source available"
+  },
+
+  "basis": {
+    "observed": {
+      "label": "Measured",
+      "note": "Observed on the build linked from this page"
+    },
+    "target": {
+      "label": "Design budget",
+      "note": "Design budget — tested against, not a client result"
+    }
+  },
+
+  "index": {
+    "metaTitle": "Work — MIW",
+    "metaDescription": "Three systems MIW designed and built: a transactional booking platform, a high-throughput commerce pipeline and an edge-cached media catalogue. Architecture, decisions and the budgets each one holds.",
+    "eyebrow": "Work",
+    "title": "Three systems, written up the way we would hand them over.",
+    "lede": "Not a client logo wall. Each of these is a system we designed and built, described the way we would brief a new engineer onto it: the problem it exists to solve, the shape it ended up, the decisions that were argued about, and the budget it has to hold.",
+    "body": "Client engagements are under NDA and are not listed here. What we publish instead is evidence you can check yourself — one of these has an address you can open right now, and one has source you can read."
+  },
+
+  "case": {
+    "back": "← All work",
+    "launch": "Launch live app",
+    "readSource": "Read the source",
+    "diagramAlt": "System architecture diagram",
+    "sections": {
+      "problem": "The problem",
+      "design": "System design",
+      "solutions": "Engineering solutions",
+      "solutionsNote": "Each of these was a choice with an alternative, and the alternative is named. A decision log without the road not taken is a feature list.",
+      "results": "Results & metrics"
+    },
+    "table": {
+      "figure": "Figure",
+      "measures": "Measures",
+      "basis": "Basis"
+    },
+    "cta": {
+      "title": "Need a similar high-performance solution?",
+      "body": "Tell us what breaks, what it costs when it breaks, and when you need it to stop. An engineer answers — not a sales sequence.",
+      "action": "Contact engineering"
+    }
+  },
+
+  "omnibus_nss": {
+    "category": "ENTERPRISE INFRASTRUCTURE // TRANSIT CORE",
+    "headline": "Two passengers, one seat, and a database that refuses to blink",
+    "pitch": {
+      "executive": "A fault-tolerant booking and route-management platform. The seat map is live, the hold is transactional, and peak demand cannot oversell the vehicle — so the last seat on a full route stops being a support ticket.",
+      "telemetry": "Concurrency-safe reservations: the ACID boundary is drawn at the hold, contested rows are taken with SELECT … FOR UPDATE, RBAC is enforced per endpoint and the client is generated from the OpenAPI contract. Ships as containers onto a Kubernetes cluster."
+    },
+    "callouts": ["Row-level seat locks", "No overbooking", "k8s deploy"],
+    "demoHint": "Send two passengers at the same seat — the second request loses at the lock, not at a nightly reconciliation job.",
+    "metrics": {
+      "integrity": {
+        "label": "Transaction integrity",
+        "note": "A reservation either holds a seat or fails loudly. There is no partial booking state for support to unpick afterwards."
+      },
+      "overbooking": {
+        "label": "Overbooking",
+        "note": "Enforced by the lock and covered by a concurrent-request test, rather than detected by reconciliation after the passenger has paid."
+      },
+      "mesh": {
+        "label": "k8s mesh",
+        "note": "Runs as containers on a Kubernetes cluster behind one ingress — the deployment you can open from this page."
+      }
+    },
+    "problem": {
+      "lede": "Booking systems fail in a specific, expensive way: they are correct right up to the moment two people want the same thing at the same time, which is also the moment the business makes its money.",
+      "points": [
+        "Read-then-write seat selection is a race. Two requests both see the seat as free, both write, and the second passenger finds out at the door.",
+        "Overbooking gets treated as a reconciliation problem — a nightly job and an apology — rather than as a constraint the write path should never have been allowed to violate.",
+        "Route, fleet and schedule data drifts apart because each surface reads it slightly differently, so the seat map and the timetable disagree at peak.",
+        "Access control arrives as an afterthought: the dispatcher endpoint and the passenger endpoint are the same endpoint with a different UI in front of it."
+      ]
+    },
+    "design": {
+      "lede": "One service owns the reservation and nothing else is allowed to write a seat. Everything contested funnels through a single transactional path that is short enough to hold a row lock without hurting throughput.",
+      "nodes": {
+        "ingress": "k8s ingress",
+        "api": "Spring REST API",
+        "rbac": "RBAC / JWT",
+        "booking": "Booking service",
+        "routes": "Routes & fleet",
+        "pg": "Postgres · row locks",
+        "ledger": "Ticket ledger"
+      },
+      "edges": {
+        "rbac-booking": "scoped token",
+        "api-booking": "reserve",
+        "booking-pg": "FOR UPDATE"
+      }
+    },
+    "solutions": [
+      {
+        "choice": "SELECT … FOR UPDATE on the contested seat row",
+        "why": "The second writer blocks instead of overwriting, and the transaction it blocks on is measured in milliseconds because the hold is the only work inside it. Optimistic retries were the alternative and they turn a full route into a retry storm exactly when the route is full."
+      },
+      {
+        "choice": "A single write path for reservations",
+        "why": "Every other surface — dispatcher, timetable, seat map — reads. One writer is what makes the invariant checkable at all; two writers make it a policy nobody can enforce."
+      },
+      {
+        "choice": "OpenAPI as the contract, not as documentation",
+        "why": "The client is generated from the spec, so a breaking field change fails a build instead of surfacing as a blank seat map in production."
+      },
+      {
+        "choice": "RBAC at the endpoint, deployed per container",
+        "why": "Roles are resolved before the handler runs and the same image serves every environment. A dispatcher capability cannot be reached by guessing a passenger URL."
+      }
+    ],
+    "results": {
+      "lede": "Omnibus is deployed and open — the link above is the running system, not a staging mirror. The figures below are its design budgets, and the environment badge tells you which of them we have watched in production."
+    }
+  },
+
+  "miw_eshop": {
+    "category": "HIGH-THROUGHPUT COMMERCE // ORDER PIPELINES",
+    "headline": "A checkout that survives the flash sale it was built for",
+    "pitch": {
+      "executive": "A headless storefront built for the day the traffic actually arrives. Checkout completes in one pass, stock stays truthful while a sale is running, and a payment confirmed twice still bills once.",
+      "telemetry": "Idempotent webhook handling keyed on the payment intent, a two-tier cache in front of the catalogue, and invoice generation pushed onto a distributed queue so the checkout path never waits on a PDF."
+    },
+    "callouts": [
+      "Idempotent payment hooks",
+      "Two-tier Redis cache",
+      "Queued invoicing"
+    ],
+    "demoHint": "Deliver the same Stripe webhook twice — the second delivery settles to the same order id and charges nothing.",
+    "metrics": {
+      "commit": {
+        "label": "Checkout commit",
+        "note": "Budget for the path from submit to a confirmed order. Invoicing and email are queued out of it precisely so they cannot spend it."
+      },
+      "hooks": {
+        "label": "Payment hooks",
+        "note": "Gateways retry by design. Deduplication on the payment-intent id makes redelivery a no-op instead of a second charge."
+      },
+      "cache": {
+        "label": "Cache hit ratio",
+        "note": "Catalogue reads served from process memory then Redis, so a sale spike lands on cache rather than on Postgres."
+      }
+    },
+    "problem": {
+      "lede": "Commerce platforms are tested by their worst hour, not their average one. A flash sale finds every place where the checkout path does more work than it needs to and every place where a retry is treated as a new intent.",
+      "points": [
+        "Payment gateways retry webhooks. A handler without a dedupe key turns that guarantee into duplicate orders, duplicate invoices and a refund queue.",
+        "Catalogue reads hit the database on every render, so the traffic spike the marketing team worked for is the thing that takes the shop down.",
+        "Invoice and receipt generation sits inline in the checkout request, which means the slowest possible dependency is on the critical path to taking money.",
+        "Stock is decremented optimistically in application code, so two concurrent orders can both succeed against the last unit."
+      ]
+    },
+    "design": {
+      "lede": "Two entry points, one order pipeline. A shopper's checkout and a gateway's webhook are different traffic with different failure modes, and they converge only at the point where the order is settled.",
+      "nodes": {
+        "shopper": "Shopper",
+        "stripe": "Stripe webhook",
+        "storefront": "Next.js storefront",
+        "hooks": "Idempotent handler",
+        "orders": "Order service",
+        "cache": "Redis · two-tier",
+        "queue": "Invoice queue",
+        "pg": "Postgres · orders"
+      },
+      "edges": {
+        "stripe-hooks": "delivery ×N",
+        "storefront-orders": "checkout",
+        "orders-cache": "catalogue",
+        "orders-queue": "invoice job",
+        "orders-pg": "reserve stock",
+        "hooks-pg": "settle once"
+      }
+    },
+    "solutions": [
+      {
+        "choice": "Dedupe on the payment-intent id, inside the settling transaction",
+        "why": "An insert with a unique constraint on the intent is what makes redelivery safe — a cache of seen ids is a race with a shorter window, not a fix."
+      },
+      {
+        "choice": "Two-tier cache: process memory in front of Redis",
+        "why": "The hot path for a sale is a handful of product pages read thousands of times. The in-process tier absorbs that without a network hop; Redis keeps the tiers coherent across instances."
+      },
+      {
+        "choice": "Invoices and receipts on a queue, not in the request",
+        "why": "Document generation is slow and occasionally fails. Off the critical path it is a retry; on it, it is a customer watching a spinner after their card was charged."
+      },
+      {
+        "choice": "Stock reserved by the database, not by the application",
+        "why": "The decrement and the order insert are the same transaction, so the last unit is sold once. Anything else is an eventual-consistency story told to a customer who already paid."
+      }
+    ],
+    "results": {
+      "lede": "Commerce Core runs internally and has no public deployment yet, so there is nothing here to click and nothing here we are asking you to take on trust. These are the budgets it is being built against."
+    }
+  },
+
+  "wovie_next": {
+    "category": "CONSUMER WEB // STREAMING & DX",
+    "headline": "A media catalogue that never makes you wait to decide",
+    "pitch": {
+      "executive": "A high-velocity streaming portal and media catalogue. Browsing, search and personal libraries land instantly, so the viewer spends their attention choosing something to watch rather than waiting to find out what exists.",
+      "telemetry": "SSR with ISR revalidation at the Vercel edge, typed schemas end to end through Prisma, hydration limited to the interactive surface, and client-side routing under 100ms because the next route's payload is already in flight."
+    },
+    "callouts": ["Edge ISR cache", "Typed end to end", "Sub-100ms routing"],
+    "demoHint": "Flip the edge cache cold and warm — the route budget changes, the payload shape does not.",
+    "metrics": {
+      "route": {
+        "label": "p99 route change",
+        "note": "Budget for a client-side navigation with the edge cache warm. Prefetch is what pays for it, not a faster server."
+      },
+      "cost": {
+        "label": "Cloud cost",
+        "note": "Runs inside free-tier edge and serverless limits. An architecture constraint with teeth: nothing can be solved by provisioning."
+      },
+      "types": {
+        "label": "Type-safe data path",
+        "note": "Generated Prisma types and typed API boundaries, with no escape hatch between the database row and the rendered component."
+      }
+    },
+    "problem": {
+      "lede": "Catalogue interfaces are latency problems wearing a content costume. The library is large, the data is third-party, and every millisecond between a click and a poster is a viewer deciding to do something else.",
+      "points": [
+        "Fetching a third-party catalogue on every request makes an upstream API's bad day your interface's bad day.",
+        "Rendering the whole page on the client puts the slowest device in the audience on the critical path to the first poster.",
+        "Untyped API responses let a renamed upstream field ship as a blank card, and it is always spotted by a user rather than by CI.",
+        "Personal libraries need real per-user reads, which is exactly the traffic a naive cache strategy cannot serve and a naive database strategy cannot afford."
+      ]
+    },
+    "design": {
+      "lede": "Everything that can be static is static at the edge; only what belongs to a specific viewer touches the database. The split is drawn once, at the routing layer, rather than negotiated per feature.",
+      "nodes": {
+        "visitor": "Visitor",
+        "edge": "Edge middleware",
+        "rsc": "RSC render",
+        "isr": "ISR cache",
+        "prisma": "Prisma client",
+        "pg": "Postgres · libraries",
+        "tmdb": "TMDB catalogue"
+      },
+      "edges": {
+        "edge-rsc": "cache miss",
+        "rsc-isr": "revalidate",
+        "prisma-pg": "per-viewer",
+        "prisma-tmdb": "catalogue"
+      }
+    },
+    "solutions": [
+      {
+        "choice": "ISR at the edge for everything catalogue-shaped",
+        "why": "The catalogue is the same for every viewer, so it should be rendered once per revalidation window rather than once per visit. An upstream outage then degrades to stale data instead of to an error page."
+      },
+      {
+        "choice": "Server components by default, hydration by exception",
+        "why": "The poster grid ships as markup. Only the controls that actually respond to a click carry JavaScript, which is what keeps a large page cheap on a mid-range phone."
+      },
+      {
+        "choice": "Generated types across the whole data path",
+        "why": "A schema change becomes a type error at the boundary it broke. The alternative is a runtime check per call site, which is the same work done worse and later."
+      },
+      {
+        "choice": "Route prefetch on intent, not on viewport",
+        "why": "Prefetching everything visible spends the free-tier budget on routes nobody opens. Prefetching on hover and focus buys the same perceived speed for a fraction of the requests."
+      }
+    ],
+    "results": {
+      "lede": "Wovie's source is public; there is no deployment on this page because the one we run is not open to strangers. The budgets below are the ones the build is held to."
+    }
+  }
+}

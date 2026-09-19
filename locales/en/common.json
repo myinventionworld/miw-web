@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "title": "MIW — Engineering & AI Systems",
+    "description": "Architecture-first engineering studio and product lab. We design fault-tolerant enterprise systems, agentic AI pipelines and developer tools."
+  },
+
+  "brand": {
+    "tagline": "MIW Labs — Venture Studio & Engineering Guild",
+    "logoAria": "MIW — go to station 01",
+    "deckAria": "MIW — back to the flight deck"
+  },
+
+  "availability": {
+    "prefix": "Status",
+    "status": "Accepting 2 client projects for Q3/Q4",
+    "scope": "Avg scope: 4–8 weeks"
+  },
+
+  "standards": [
+    { "value": "99.99%", "label": "Uptime target" },
+    { "value": "<120ms", "label": "p99 budget" },
+    { "value": "DevSecOps", "label": "Every pipeline" }
+  ],
+  "standardsNote": "The standard we design to — not a claim about past results",
+
+  "nav": {
+    "work": "Work",
+    "careers": "Careers",
+    "bookCall": "Book Architecture Call",
+    "contact": "Contact",
+    "menu": "Menu",
+    "caseStudies": "Case studies",
+    "openDirections": "Open directions",
+    "telemetryToggle": "Toggle telemetry readout",
+    "modeLabel": "Mode",
+    "modeGroup": "Copy mode",
+    "business": "Business",
+    "businessSub": "Impact",
+    "telemetry": "Telemetry",
+    "telemetrySub": "Code",
+    "language": "Language"
+  },
+
+  "footer": {
+    "back": "Back to the flight deck"
+  },
+
+  "hud": {
+    "docked": "Docked",
+    "approaching": "Approaching",
+    "inTransit": "In transit",
+    "console": "Transmission console",
+    "transit": "Transit",
+    "track": "Track"
+  },
+
+  "project": {
+    "caseStudy": "Case study",
+    "readCaseStudy": "Read case study",
+    "readCaseStudyLong": "Read the case study →",
+    "liveApp": "Live app",
+    "liveAppOut": "Live app ↗",
+    "source": "Source",
+    "sourceOut": "Source ↗",
+    "budget": "budget",
+    "measured": "measured"
+  },
+
+  "home": {
+    "titleTop": "High-Performance",
+    "titleBottom": "Software Architecture.",
+    "lede": "Engineered for scale, resilience and autonomy. We build systems that don't fail under load — from the architecture diagram through to the thing running in production with a pager attached.",
+    "ctaContact": "Initiate Technical Discovery",
+    "ctaStations": "Enter Transit Stations",
+    "ownProducts": "We don't just build for hire — we operate our own SaaS products under the same uptime standard we sell.",
+    "scrollHint": "Four stations ahead · Scroll to depart",
+    "ctaWork": "Read the case studies",
+    "ctaGuild": "Apply to the Guild",
+    "flightDeckOff": "Flight deck off — this device gets the document",
+    "transmissionTitle": "Ready to build something that holds?",
+    "transmissionBody": "Bring the architecture of your platform, the system you want audited, or — if you write code — yourself. An engineer reads the brief before anyone books a call: it goes to the engineering desk, not a CRM sequence."
+  }
+}

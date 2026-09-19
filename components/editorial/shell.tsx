@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
 import { Arrow } from "@/components/glyph";
+import { LocaleSwitch } from "@/components/locale-switch";
+import { initTranslations } from "@/i18n";
+import { localeHref } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,13 +15,16 @@ import { cn } from "@/lib/utils";
  * typography and a scrollbar that behaves, and a case study rendered behind a
  * camera flight is a case study nobody finishes.
  */
-export function EditorialShell({
+export async function EditorialShell({
   children,
   active,
 }: {
   children: ReactNode;
   active?: "work" | "careers";
 }) {
+  const locale = await currentLocale();
+  const { t } = await initTranslations(locale, ["common"]);
+
   /**
    * The padding is the tap target, not decoration. Bare 13px anchors measured
    * 20px tall, under the 24px WCAG 2.5.8 floor — and these two links are the
@@ -31,7 +38,7 @@ export function EditorialShell({
    */
   const link = (href: string, label: string, id: "work" | "careers") => (
     <Link
-      href={href}
+      href={localeHref(locale, href)}
       className={cn(
         "-my-2 rounded-md px-2 py-2 text-[13px] font-medium",
         active === id
@@ -58,9 +65,9 @@ export function EditorialShell({
             up unreadable on the device it was supposedly fixed for. */}
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 md:px-8">
           <Link
-            href="/"
+            href={localeHref(locale, "/")}
             className="group -my-2 flex items-center gap-2.5 py-2"
-            aria-label="MIW — back to the flight deck"
+            aria-label={t("brand.deckAria")}
           >
             <span className="relative flex size-4 items-center justify-center">
               <span className="absolute inset-0 rounded-full border border-white/35" />
@@ -72,14 +79,14 @@ export function EditorialShell({
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
-            {link("/work", "Work", "work")}
-            {link("/careers", "Careers", "careers")}
+            {link("/work", t("nav.work"), "work")}
+            {link("/careers", t("nav.careers"), "careers")}
             <Link
-              href="/#transmission"
+              href={localeHref(locale, "/#transmission")}
               className="flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200 sm:ml-2 sm:px-3.5"
             >
-              <span className="hidden sm:inline">Book Architecture Call</span>
-              <span className="sm:hidden">Contact</span>
+              <span className="hidden sm:inline">{t("nav.bookCall")}</span>
+              <span className="sm:hidden">{t("nav.contact")}</span>
               {/* Measured: with the arrow in, the row fits 320px with 3.6px to
                   spare — one font fallback or one longer translation from
                   scrolling sideways again. The arrow is also the weakest mark in
@@ -100,17 +107,25 @@ export function EditorialShell({
         {children}
       </main>
 
+      {/* The language switcher lives down here rather than in the header, and
+          that is a measurement not a preference: the header row clears 320px by
+          3.6px, so a third control up there is the thing that puts every
+          editorial route back into horizontal scroll. The footer row already
+          wraps, so it can carry one more item for free. */}
       <footer className="border-t border-white/10">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-8 sm:px-6 md:px-8">
           <p className="font-mono text-[10px] tracking-telemetry text-steel uppercase">
-            MIW Labs — Venture Studio &amp; Engineering Guild
+            {t("brand.tagline")}
           </p>
-          <Link
-            href="/"
-            className="-my-2 rounded-md py-2 font-mono text-[10px] tracking-telemetry text-zinc uppercase transition-colors hover:text-white"
-          >
-            Back to the flight deck
-          </Link>
+          <div className="flex flex-wrap items-center gap-5">
+            <LocaleSwitch />
+            <Link
+              href={localeHref(locale, "/")}
+              className="-my-2 rounded-md py-2 font-mono text-[10px] tracking-telemetry text-zinc uppercase transition-colors hover:text-white"
+            >
+              {t("footer.back")}
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

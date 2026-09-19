@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "motion/react";
 import { Tick } from "@/components/glyph";
 
@@ -46,6 +47,7 @@ function Field({
  * résumé.
  */
 export function GuildApplicationForm() {
+  const { t } = useTranslation("careers");
   const [track, setTrack] = useState<string>(GUILD_OPENINGS[0].id);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -70,37 +72,25 @@ export function GuildApplicationForm() {
     if (sending) return;
 
     if (name.trim().length < 2) {
-      setStatus({ kind: "error", message: "err: name required." });
+      setStatus({ kind: "error", message: t("form.errName") });
       return;
     }
     if (contact.trim().length < 3) {
-      setStatus({
-        kind: "error",
-        message: "err: a Telegram handle or email is required to reply.",
-      });
+      setStatus({ kind: "error", message: t("form.errContact") });
       return;
     }
     if (portfolio.trim().length < 4) {
-      setStatus({
-        kind: "error",
-        message: "err: link something you built. This is the whole filter.",
-      });
+      setStatus({ kind: "error", message: t("form.errPortfolio") });
       return;
     }
     if (hardest.trim().length < 40) {
-      setStatus({
-        kind: "error",
-        message:
-          "err: the hardest-thing answer is what gets read first. A sentence or two, minimum.",
-      });
+      setStatus({ kind: "error", message: t("form.errHardest") });
       return;
     }
 
     setStatus({ kind: "sending" });
     timer.current = setTimeout(() => setStatus({ kind: "sent" }), 620);
   }
-
-  const selected = GUILD_OPENINGS.find((o) => o.id === track)!;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -117,18 +107,17 @@ export function GuildApplicationForm() {
             <Tick className="text-[19px] text-signal" />
           </div>
           <h3 className="mt-6 text-[28px] font-semibold tracking-[-0.03em] text-white">
-            Application received
+            {t("form.receiptTitle")}
           </h3>
           <p className="mx-auto mt-3 max-w-md text-[14.5px] leading-relaxed text-platinum">
-            A Principal Architect reads this, not a recruiter. You get a written
-            answer either way — usually inside a week.
+            {t("form.receiptBody")}
           </p>
           <button
             type="button"
             onClick={() => setStatus({ kind: "idle" })}
             className="mt-8 font-mono text-[10px] tracking-telemetry text-zinc uppercase underline-offset-4 transition-colors hover:text-white hover:underline"
           >
-            Amend the application
+            {t("form.amend")}
           </button>
         </motion.div>
       ) : (
@@ -144,7 +133,7 @@ export function GuildApplicationForm() {
         >
           <fieldset>
             <legend className="mb-3 font-mono text-[10px] tracking-[0.14em] text-white uppercase">
-              Direction
+              {t("form.direction")}
             </legend>
             <div className="flex flex-wrap gap-2">
               {GUILD_OPENINGS.map((o) => {
@@ -162,18 +151,18 @@ export function GuildApplicationForm() {
                         : "border-white/22 text-platinum hover:border-white/55 hover:bg-white/8 hover:text-white",
                     )}
                   >
-                    {o.label}
+                    {t(`openings.${o.id}.label`)}
                   </button>
                 );
               })}
             </div>
             <p aria-live="polite" className="mt-3 text-[13px] text-zinc">
-              {selected.signal}
+              {t(`openings.${track}.signal`)}
             </p>
           </fieldset>
 
           <div className="mt-7 grid gap-4 sm:grid-cols-2">
-            <Field label="Name">
+            <Field label={t("form.name")}>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -182,11 +171,11 @@ export function GuildApplicationForm() {
                 className="field w-full rounded-lg px-4 py-3 text-[13.5px]"
               />
             </Field>
-            <Field label="Telegram / Email">
+            <Field label={t("form.contact")}>
               <input
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
-                placeholder="@handle or you@domain.com"
+                placeholder={t("form.contactPlaceholder")}
                 required
                 className="field w-full rounded-lg px-4 py-3 text-[13.5px]"
               />
@@ -194,11 +183,11 @@ export function GuildApplicationForm() {
           </div>
 
           <div className="mt-4">
-            <Field label="GitHub / portfolio / projects" hint="Required">
+            <Field label={t("form.portfolio")} hint={t("form.portfolioHint")}>
               <input
                 value={portfolio}
                 onChange={(e) => setPortfolio(e.target.value)}
-                placeholder="github.com/you — or a link to the thing itself"
+                placeholder={t("form.portfolioPlaceholder")}
                 inputMode="url"
                 required
                 className="field w-full rounded-lg px-4 py-3 text-[13.5px]"
@@ -207,7 +196,7 @@ export function GuildApplicationForm() {
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label="Current level">
+            <Field label={t("form.level")}>
               <select
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
@@ -215,28 +204,28 @@ export function GuildApplicationForm() {
               >
                 {GUILD_LEVELS.map((l) => (
                   <option key={l} value={l} className="bg-carbon">
-                    {l}
+                    {t(`levels.${l}`)}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label="University / experience" hint="Optional">
+            <Field label={t("form.background")} hint={t("form.backgroundHint")}>
               <input
                 value={background}
                 onChange={(e) => setBackground(e.target.value)}
-                placeholder="Where you study or what you have shipped"
+                placeholder={t("form.backgroundPlaceholder")}
                 className="field w-full rounded-lg px-4 py-3 text-[13.5px]"
               />
             </Field>
           </div>
 
           <div className="mt-4">
-            <Field label="The hardest thing you have ever written or debugged">
+            <Field label={t("form.hardest")}>
               <textarea
                 value={hardest}
                 onChange={(e) => setHardest(e.target.value)}
                 rows={5}
-                placeholder="What was hard about it, what you tried that did not work, and how you found the answer. This is the part that gets read first."
+                placeholder={t("form.hardestPlaceholder")}
                 required
                 className="field thin-scroll w-full resize-none rounded-lg px-4 py-3 text-[13.5px] leading-relaxed"
               />
@@ -259,15 +248,15 @@ export function GuildApplicationForm() {
               {status.kind === "error"
                 ? status.message
                 : status.kind === "sending"
-                  ? "> filing application …"
-                  : "> read by a Principal Architect. No recruiter screen."}
+                  ? t("form.sending")
+                  : t("form.idle")}
             </p>
             <button
               type="submit"
               disabled={sending}
               className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-[13.5px] font-semibold text-black transition-colors hover:bg-zinc-200 disabled:cursor-wait disabled:bg-zinc-400"
             >
-              {sending ? "Submitting…" : "Submit Guild Application"}
+              {sending ? t("form.submitting") : t("form.submit")}
             </button>
           </div>
         </motion.form>

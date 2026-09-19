@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { LocaleLink } from "@/components/locale-link";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 import { Arrow } from "@/components/glyph";
 import type { ProjectCase } from "@/data/projects";
@@ -26,6 +27,10 @@ export function ShowcaseFrame({
   className?: string;
 }) {
   const reduced = useReducedMotion();
+  const { t } = useTranslation("projects");
+  const callouts = t(`${project.id}.callouts`, {
+    returnObjects: true,
+  }) as string[];
 
   return (
     <div className={className}>
@@ -55,7 +60,7 @@ export function ShowcaseFrame({
             )}
           >
             <span className="size-1.5 rounded-full bg-current" />
-            {project.environment}
+            {t(`environment.${project.environment}`)}
           </span>
         </div>
 
@@ -65,7 +70,7 @@ export function ShowcaseFrame({
             feature list floating next to it, so they sit inside the frame. */}
         <div className="border-t border-white/10 bg-white/4 px-3 py-2 deck-short:py-1.5">
           <div className="flex flex-wrap gap-1.5">
-            {project.callouts.map((c, i) => (
+            {callouts.map((c, i) => (
               <motion.span
                 key={c}
                 initial={reduced ? false : { opacity: 0, y: 6 }}
@@ -87,7 +92,7 @@ export function ShowcaseFrame({
               so it is the first thing to go. The same sentence is on
               `/work/[slug]`, which is where a curious reader ends up anyway. */}
           <p className="mt-2 hidden font-mono text-[10px] leading-relaxed text-zinc deck-wide:block">
-            {project.demoHint}
+            {t(`${project.id}.demoHint`)}
           </p>
         </div>
       </div>
@@ -112,6 +117,8 @@ const ACTION =
  * of controls stops distinguishing between them.
  */
 export function ProjectActions({ project }: { project: ProjectCase }) {
+  const { t } = useTranslation("common");
+
   return (
     <>
       {project.liveUrl && (
@@ -121,7 +128,7 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           rel="noopener noreferrer"
           className={ACTION}
         >
-          Live app
+          {t("project.liveApp")}
           <Arrow dir="up-right" className="text-[11px]" />
         </a>
       )}
@@ -133,14 +140,14 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           rel="noopener noreferrer"
           className={ACTION}
         >
-          Source
+          {t("project.source")}
           <Arrow dir="up-right" className="text-[11px]" />
         </a>
       )}
 
-      <Link href={`/work/${project.slug}`} className={ACTION}>
-        Read case study
-      </Link>
+      <LocaleLink href={`/work/${project.slug}`} className={ACTION}>
+        {t("project.readCaseStudy")}
+      </LocaleLink>
     </>
   );
 }

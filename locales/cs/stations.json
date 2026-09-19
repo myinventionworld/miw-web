@@ -1,0 +1,207 @@
+{
+  "backend": {
+    "pillar": "Jádro systémů",
+    "nav": "Vysoká zátěž",
+    "title": "Vysoce zatížený a kritický backend",
+    "cta": "Vyžádat audit architektury",
+    "business": {
+      "headline": "Váš nejvytíženější den přestane být rizikem v kalendáři.",
+      "lede": "Špičky provozu se pohltí, místo aby složily frontu, a release jde ven bez servisního okna.",
+      "problem": "Služby padají přesně ve chvíli, kdy provoz konečně dorazí, a roky zamotaného kódu znamenají, že každý release je hod mincí. Účet přijde dvakrát — tržby ztracené během výpadku a inženýrský tým, který přestal dodávat cokoliv jiného.",
+      "solution": "Přestavíme nosnou cestu. Práce se izoluje tak, aby jedna porucha nestáhla zbytek s sebou, špičky se pohltí místo kolapsu fronty a release jde ven bez servisního okna.",
+      "proof": [
+        "Cílová dostupnost 99,99 %",
+        "Špičky pohlcené, ne eskalované",
+        "Nasazení bez výpadku"
+      ]
+    },
+    "telemetry": {
+      "headline": "Distribuované záměrně. Konzistentní i při rozdělení sítě.",
+      "lede": "Domény selhání se kreslí dřív, než vznikne první endpoint, a zápisová cesta se týdně zkouší proti ztrátě brokeru.",
+      "problem": "Synchronní fan-out nad sdíleným měnitelným stavem, neomezené fronty, žádné domény selhání. p99 se složí ve chvíli, kdy jedna závislost zpomalí, a zpětně není z čeho vyvozovat — žádný replay.",
+      "solution": "Služby s přepážkami na asynchronní událostní páteři: idempotence na straně konzumenta, backpressure s ohledem na partitions, omezený replay. Domény selhání se kreslí dřív, než vznikne první endpoint.",
+      "proof": [
+        "Cílová dostupnost 99,99 %",
+        "Rozpočet p99 < 120 ms",
+        "Go · Java · Kafka · k8s"
+      ]
+    },
+    "specs": [
+      { "label": "Stack", "value": "Java · Spring Boot · Go · Postgres · k8s" },
+      { "label": "Latence", "value": "p99 < 120 ms, rozpočítáno po skocích" },
+      {
+        "label": "Vzor",
+        "value": "ACID na sporném řádku · služby s přepážkami"
+      },
+      {
+        "label": "Autonomie",
+        "value": "Agentní integrace, stejná brána review"
+      }
+    ]
+  },
+
+  "commerce": {
+    "pillar": "Propustnost",
+    "nav": "Commerce",
+    "title": "Commerce a objednávkové pipeline s vysokou propustností",
+    "cta": "Zatěžkat mi checkout",
+    "business": {
+      "headline": "Prodej, na který jste dali rozpočet, je prodej, který dokážete obsloužit.",
+      "lede": "Checkout projde napoprvé, sklad zůstane pravdivý po celou dobu kampaně a dvakrát potvrzená platba stejně strhne peníze jednou.",
+      "problem": "Akce zabere, provoz dorazí — a obchod si vybere zrovna tuhle hodinu, aby zpomalil. Košíky se opouštějí u platby, dva zákazníci koupí poslední kus a znovu doručený webhook strhne peníze dvakrát. Každá z těch věcí stojí víc, než kampaň vydělala.",
+      "solution": "Objednávkovou pipeline přestavíme kolem nejhorší hodiny, ne kolem průměrné. Cesta ke commitu je krátká, katalog se servíruje z cache, dokumenty a e-maily odcházejí z kritické cesty a duplicitní platební události se srovnají na jednu objednávku.",
+      "proof": [
+        "Checkout vydrží špičku",
+        "Jedna platba na objednávku",
+        "Sklad zůstává pravdivý"
+      ]
+    },
+    "telemetry": {
+      "headline": "Idempotence na hranici. Cache ve dvou vrstvách. Fronta mimo horkou cestu.",
+      "lede": "Brány opakují doručení záměrně, takže handler webhooku deduplikuje podle payment intentu uvnitř zúčtovací transakce, místo aby doufal v jedinečnost doručení.",
+      "problem": "Sklad se snižuje v kódu aplikace, čtení katalogu jde do Postgresu při každém renderu, generování faktury běží přímo v požadavku checkoutu a handler webhooku bere opakované doručení jako nový záměr.",
+      "solution": "Rezervace a zúčtování v jedné transakci, vrstva v paměti procesu před Redisem pro čtení katalogu, fakturace na distribuované frontě a unikátní omezení na payment intentu, které dělá deduplikaci.",
+      "proof": [
+        "Zúčtování právě jednou",
+        "Cíl zásahu cache > 94 %",
+        "Rozpočet commitu pod sekundu"
+      ]
+    },
+    "specs": [
+      {
+        "label": "Stack",
+        "value": "Next.js · Node / Go · Postgres · Redis · Stripe"
+      },
+      {
+        "label": "Latence",
+        "value": "odeslání → potvrzená objednávka < 1 s"
+      },
+      {
+        "label": "Vzor",
+        "value": "Idempotentní hooky · dvouvrstvá cache · dokumenty ve frontě"
+      }
+    ]
+  },
+
+  "labs": {
+    "pillar": "Venture R&D",
+    "nav": "Labs",
+    "title": "Venture R&D a interní produkty",
+    "cta": "Vyžádat předběžný přístup",
+    "business": {
+      "headline": "Vlastní produkty dodáváme na standardu, který prodáváme vám.",
+      "lede": "Klientská práce financuje stálý R&D rozpočet. Nástroje, které nám chyběly, postavíme, provozujeme je sami v produkci, a ty, které si získají používání, se stanou produkty.",
+      "problem": "O produktovém myšlení mluví skoro každé studio. Málokteré provozuje produkty, o kterých mluví — takže nic z toho, co dodalo, nikdy nemuselo přežít vlastní uživatele.",
+      "solution": "Klientská práce financuje stálý R&D rozpočet. Stavíme vývojářské nástroje a analytiku, které nám chyběly, sami je provozujeme, a ty, které si získají používání, se stanou produkty.",
+      "proof": [
+        "Postaveno u nás",
+        "Běží v produkci",
+        "Laboratoř financuje klientská práce"
+      ]
+    },
+    "telemetry": {
+      "headline": "Postaveno v laboratoři. Na laťce, která platí pro klientskou práci.",
+      "lede": "Produkty laboratoře jedou na vlastní pipeline studia: deterministické buildy, cache adresovaná obsahem, SLO a pohotovost.",
+      "problem": "Interní nástroje obvykle dostanou zbytky: žádné SLO, žádný release proces a žádný vlastník ve chvíli, kdy autor přejde na něco jiného.",
+      "solution": "Každý produkt laboratoře jede na vlastní pipeline studia — deterministické buildy, cache adresovaná obsahem, SLO a pohotovost. Co tu laťku neudrží, nedostane veřejnou stránku.",
+      "proof": [
+        "První výsledek pod 100 ms",
+        "Deterministické buildy",
+        "Stejná pipeline jako klientské systémy"
+      ]
+    },
+    "specs": [
+      {
+        "label": "Stack",
+        "value": "Next.js · TypeScript · Prisma · Vercel Edge"
+      },
+      { "label": "Latence", "value": "p99 změny route < 90 ms" },
+      {
+        "label": "Vzor",
+        "value": "Edge ISR · typy end-to-end · hosting bez nákladů"
+      }
+    ]
+  },
+
+  "guild": {
+    "pillar": "Inkubátor",
+    "nav": "Cech",
+    "title": "Inženýrský cech",
+    "cta": "Přihlásit se do cechu",
+    "business": {
+      "headline": "Za váš systém odpovídá konkrétní inženýr. Ne „lavička“.",
+      "lede": "Principal Architect vlastní návrh i merge bránu a pod ním staví malá posádka — do vašeho systému se nedostane nic nepřečteného.",
+      "problem": "Agentura vám na projekt nasadí toho, kdo je zrovna tenhle měsíc volný. Platíte senior sazby za práci, kterou žádný senior nikdy nečetl.",
+      "solution": "MIW funguje jako cech. Principal Architect vlastní návrh i merge bránu a pod ním staví malá posádka. Všechno, co se dostane do vašeho systému, prošlo přes někoho, kdo u podobného držel pohotovost.",
+      "proof": [
+        "Návrh vlastní Principal",
+        "Každá změna prošla review",
+        "Za prací stojí jmenovaný inženýr"
+      ]
+    },
+    "telemetry": {
+      "headline": "Inženýrský cech pod dohledem Principal Architecture.",
+      "lede": "Rozhodnutí končí v architecture decision record dřív, než vznikne kód, a posádka staví proti tomu záznamu pod review.",
+      "problem": "Staff augmentation vám předá lidi a žádnou architekturu. Rozhodnutí padají v komentářích u ticketů, nikdo je nezapisuje a systém driftuje, až je přepsání jediná zbývající možnost.",
+      "solution": "Jeden Principal Architect vlastní návrh i merge bránu. Rozhodnutí končí v architecture decision record dřív, než vznikne kód, a posádka staví proti tomu záznamu pod review.",
+      "proof": [
+        "ADR před implementací",
+        "Brána review před mergem",
+        "Jmenovaný vlastník každého subsystému"
+      ]
+    },
+    "specs": [
+      { "label": "Metoda", "value": "ADR · brána review · párování" },
+      { "label": "Kadence", "value": "Design review, týdně" },
+      { "label": "Vzor", "value": "Merge brána vlastněná Principalem" }
+    ],
+    "program": [
+      {
+        "label": "Dohled Principala",
+        "body": "Jeden architekt vlastní návrh i merge bránu po celou dobu spolupráce."
+      },
+      {
+        "label": "Produkční standardy",
+        "body": "Ambiciózní vývojáři trénují na reálné podnikové práci, která se čte řádek po řádku."
+      },
+      {
+        "label": "Podíl na tržbách",
+        "body": "Royalty z komerčních projektů, ne stážistické kapesné."
+      },
+      {
+        "label": "Spoluzaložené produkty",
+        "body": "Nejsilnější práce se stane produktem laboratoře a její autoři skončí na cap table."
+      }
+    ]
+  },
+
+  "sections": {
+    "studio": {
+      "label": "Studio",
+      "blurb": "Odolné backendy, commerce pipeline a audity architektury pro týmy, které už mají provoz."
+    },
+    "labs": {
+      "label": "Labs",
+      "blurb": "Produkty, které studio staví nejdřív pro sebe a pak je otevře."
+    },
+    "guild": {
+      "label": "Cech",
+      "blurb": "Inkubátor: produkční standardy, dohled Principala, podíl na tržbách."
+    },
+    "transmission": {
+      "label": "Vysílání",
+      "blurb": "Přímý kanál k inženýrům, kteří tu práci budou dělat."
+    }
+  },
+
+  "ui": {
+    "station": "Stanice {{index}}",
+    "programme": "Program",
+    "programmeName": "CECH",
+    "intakeOpen": "Nábor otevřen",
+    "problem": "Problém",
+    "solution": "Co stavíme",
+    "docked": "Zadokováno",
+    "inTransit": "V přeletu"
+  }
+}

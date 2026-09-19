@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
 import { Arrow } from "@/components/glyph";
 import { EditorialShell } from "@/components/editorial/shell";
-import { BASIS_NOTE, PROJECTS, projectBySlug } from "@/data/projects";
+import { PROJECTS, projectBySlug } from "@/data/projects";
+import { initTranslations } from "@/i18n";
 import { STATUS_TONE } from "@/lib/stations";
+import { alternates, localeHref } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 /**
@@ -13,25 +15,27 @@ import { cn } from "@/lib/utils";
  * studio is running a checklist whether they say so or not: what is it, what was
  * hard, how is it shaped, what did you decide, what does it hold.
  *
- * Statically rendered from `data/projects.ts` — there are three of these and they
- * change when the systems change, so a build is the right cache.
+ * Statically rendered from `data/projects.ts` and `projects:<id>` — there are
+ * three of these in three languages and they change when the systems change, so
+ * a build is the right cache.
  */
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata(
+  props: PageProps<"/[locale]/work/[slug]">,
+) {
+  const { locale, slug } = await props.params;
   const project = projectBySlug(slug);
   if (!project) return {};
 
+  const { t } = await initTranslations(locale, ["projects"]);
+
   return {
-    title: `${project.codename} — ${project.headline} — MIW`,
-    description: project.pitch.executive,
+    title: `${project.codename} — ${t(`${project.id}.headline`)} — MIW`,
+    description: t(`${project.id}.pitch.executive`),
+    alternates: alternates(locale, `/work/${slug}`),
   };
 }
 
@@ -55,18 +59,39 @@ function SectionLabel({ n, children }: { n: string; children: string }) {
   );
 }
 
-export default async function WorkCasePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function WorkCasePage(
+  props: PageProps<"/[locale]/work/[slug]">,
+) {
+  const { slug } = await props.params;
   const project = projectBySlug(slug);
   if (!project) notFound();
+
+  const locale = await currentLocale();
+  const { t } = await initTranslations(locale, ["projects", "common"]);
 
   // Only print the half of the legend the table actually uses. A "measured"
   // footnote under three budgets is a footnote that reads as a hedge.
   const bases = Array.from(new Set(project.metrics.map((m) => m.basis)));
+
+  const points = t(`${project.id}.problem.points`, {
+    returnObjects: true,
+  }) as string[];
+  const solutions = t(`${project.id}.solutions`, {
+    returnObjects: true,
+  }) as { choice: string; why: string }[];
+
+  // The diagram is a pure renderer: it owns the grid and knows nothing about
+  // languages, so the labels are resolved here and handed to it.
+  const nodes = project.design.nodes.map((n) => ({
+    ...n,
+    label: t(`${project.id}.design.nodes.${n.id}`),
+  }));
+  const edges = project.design.edges.map((e) => ({
+    ...e,
+    label: t(`${project.id}.design.edges.${e.from}-${e.to}`, {
+      defaultValue: "",
+    }),
+  }));
 
   return (
     <EditorialShell active="work">
@@ -76,10 +101,10 @@ export default async function WorkCasePage({
             cancelled vertical margin buys 29px of height without moving the
             baseline the heading below is spaced from. */}
         <Link
-          href="/work"
+          href={localeHref(locale, "/work")}
           className="-my-2 inline-block rounded-md py-2 font-mono text-[10px] tracking-telemetry text-steel uppercase transition-colors hover:text-white"
         >
-          ← All work
+          {t("case.back")}
         </Link>
 
         <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -93,21 +118,21 @@ export default async function WorkCasePage({
             )}
           >
             <span className="size-1.5 rounded-full bg-current" />
-            {project.environment}
+            {t(`environment.${project.environment}`)}
           </span>
           <span className="font-mono text-[10px] tracking-[0.14em] text-steel uppercase">
-            {project.category}
+            {t(`${project.id}.category`)}
           </span>
         </div>
 
         <h1 className="mt-5 max-w-3xl text-[clamp(1.9rem,4.4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.04em] text-white">
-          {project.headline}
+          {t(`${project.id}.headline`)}
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-platinum">
-          {project.pitch.executive}
+          {t(`${project.id}.pitch.executive`)}
         </p>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-zinc">
-          {project.pitch.telemetry}
+          {t(`${project.id}.pitch.telemetry`)}
         </p>
 
         {/* Links, labelled for what they open. A repository behind a button that
@@ -120,7 +145,7 @@ export default async function WorkCasePage({
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200"
             >
-              Launch live app
+              {t("case.launch")}
               <Arrow dir="up-right" className="text-[13px]" weight={1.7} />
             </a>
           )}
@@ -131,7 +156,7 @@ export default async function WorkCasePage({
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-md border border-white/25 px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
             >
-              Read the source
+              {t("case.readSource")}
               <Arrow dir="up-right" className="text-[13px]" weight={1.7} />
             </a>
           )}
@@ -141,24 +166,24 @@ export default async function WorkCasePage({
         </div>
 
         <dl className="mt-8 flex flex-wrap gap-1.5">
-          {project.stack.map((t) => (
+          {project.stack.map((s) => (
             <dd
-              key={t}
+              key={s}
               className="rounded-sm border border-white/15 px-2 py-1 font-mono text-[10px] tracking-[0.1em] text-zinc"
             >
-              {t}
+              {s}
             </dd>
           ))}
         </dl>
       </header>
 
       <section className="mt-20">
-        <SectionLabel n="01">The problem</SectionLabel>
+        <SectionLabel n="01">{t("case.sections.problem")}</SectionLabel>
         <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          {project.problem.lede}
+          {t(`${project.id}.problem.lede`)}
         </p>
         <ul className="mt-6 max-w-2xl space-y-3">
-          {project.problem.points.map((p) => (
+          {points.map((p) => (
             <li key={p} className="flex gap-3.5">
               <span className="mt-[9px] size-1 shrink-0 rounded-full bg-white/35" />
               <span className="text-[14.5px] leading-relaxed text-zinc">
@@ -170,9 +195,9 @@ export default async function WorkCasePage({
       </section>
 
       <section className="mt-20">
-        <SectionLabel n="02">System design</SectionLabel>
+        <SectionLabel n="02">{t("case.sections.design")}</SectionLabel>
         <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          {project.design.lede}
+          {t(`${project.id}.design.lede`)}
         </p>
 
         {/* Hand-laid SVG rather than a rendered Mermaid graph: the diagram is
@@ -180,20 +205,20 @@ export default async function WorkCasePage({
             not a layout engine's opinion. */}
         <div className="mt-8 rounded-xl border border-white/12 bg-white/3 p-6 md:p-8">
           <ArchDiagram
-            nodes={project.design.nodes}
-            edges={project.design.edges}
+            nodes={nodes}
+            edges={edges}
+            label={t("case.diagramAlt")}
           />
         </div>
       </section>
 
       <section className="mt-20">
-        <SectionLabel n="03">Engineering solutions</SectionLabel>
+        <SectionLabel n="03">{t("case.sections.solutions")}</SectionLabel>
         <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          Each of these was a choice with an alternative, and the alternative is
-          named. A decision log without the road not taken is a feature list.
+          {t("case.sections.solutionsNote")}
         </p>
         <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-white/12 bg-white/10 md:grid-cols-2">
-          {project.solutions.map((s) => (
+          {solutions.map((s) => (
             <div key={s.choice} className="bg-carbon p-6">
               <p className="text-[14.5px] leading-snug font-semibold text-white">
                 {s.choice}
@@ -207,9 +232,9 @@ export default async function WorkCasePage({
       </section>
 
       <section className="mt-20">
-        <SectionLabel n="04">Results &amp; metrics</SectionLabel>
+        <SectionLabel n="04">{t("case.sections.results")}</SectionLabel>
         <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
-          {project.results.lede}
+          {t(`${project.id}.results.lede`)}
         </p>
 
         {/* A table rather than three hero numbers, because the basis column is
@@ -221,34 +246,31 @@ export default async function WorkCasePage({
             <thead>
               <tr className="border-b border-white/12 bg-white/4">
                 <th className="px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase">
-                  Figure
+                  {t("case.table.figure")}
                 </th>
                 <th className="px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase">
-                  Measures
+                  {t("case.table.measures")}
                 </th>
                 <th className="hidden px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase sm:table-cell">
-                  Basis
+                  {t("case.table.basis")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {project.metrics.map((m) => (
-                <tr
-                  key={m.label}
-                  className="border-b border-white/8 last:border-0"
-                >
+                <tr key={m.id} className="border-b border-white/8 last:border-0">
                   <td className="px-5 py-4 align-top">
                     <span className="font-mono text-[17px] leading-none font-semibold tracking-[-0.02em] text-white tabular-nums">
                       {m.value}
                     </span>
                     <span className="mt-2 block font-mono text-[9px] tracking-[0.14em] text-signal uppercase">
-                      {m.label}
+                      {t(`${project.id}.metrics.${m.id}.label`)}
                     </span>
                   </td>
                   <td className="px-5 py-4 align-top text-[13.5px] leading-relaxed text-zinc">
-                    {m.note}
+                    {t(`${project.id}.metrics.${m.id}.note`)}
                     <span className="mt-2 block font-mono text-[9px] tracking-[0.12em] text-steel uppercase sm:hidden">
-                      {m.basis === "target" ? "Design budget" : "Measured"}
+                      {t(`basis.${m.basis}.label`)}
                     </span>
                   </td>
                   <td className="hidden px-5 py-4 align-top sm:table-cell">
@@ -260,7 +282,7 @@ export default async function WorkCasePage({
                           : "border-white/20 bg-white/5 text-zinc",
                       )}
                     >
-                      {m.basis === "target" ? "Design budget" : "Measured"}
+                      {t(`basis.${m.basis}.label`)}
                     </span>
                   </td>
                 </tr>
@@ -273,10 +295,10 @@ export default async function WorkCasePage({
           {bases.map((b) => (
             <div key={b} className="flex gap-2">
               <dt className="font-mono text-[9.5px] tracking-[0.12em] text-steel uppercase">
-                {b === "target" ? "Design budget" : "Measured"}
+                {t(`basis.${b}.label`)}
               </dt>
               <dd className="font-mono text-[9.5px] leading-[1.6] text-steel">
-                — {BASIS_NOTE[b]}
+                — {t(`basis.${b}.note`)}
               </dd>
             </div>
           ))}
@@ -285,17 +307,16 @@ export default async function WorkCasePage({
 
       <section className="mt-20 rounded-xl border border-white/12 bg-white/3 p-8 md:p-10">
         <h2 className="max-w-xl text-[clamp(1.4rem,2.6vw,1.9rem)] leading-[1.12] font-semibold tracking-[-0.03em] text-white">
-          Need a similar high-performance solution?
+          {t("case.cta.title")}
         </h2>
         <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-zinc">
-          Tell us what breaks, what it costs when it breaks, and when you need it
-          to stop. An engineer answers — not a sales sequence.
+          {t("case.cta.body")}
         </p>
         <Link
-          href="/#transmission"
+          href={localeHref(locale, "/#transmission")}
           className="mt-7 inline-flex items-center gap-1.5 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200"
         >
-          Contact engineering
+          {t("case.cta.action")}
           <Arrow className="text-[13px]" weight={1.7} />
         </Link>
       </section>

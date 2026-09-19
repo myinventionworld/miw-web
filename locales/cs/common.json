@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "title": "MIW — inženýrské a AI systémy",
+    "description": "Inženýrské studio a produktová laboratoř, která začíná architekturou. Navrhujeme odolné podnikové systémy, agentní AI pipeline a nástroje pro vývojáře."
+  },
+
+  "brand": {
+    "tagline": "MIW Labs — venture studio a inženýrský cech",
+    "logoAria": "MIW — na stanici 01",
+    "deckAria": "MIW — zpět na letovou palubu"
+  },
+
+  "availability": {
+    "prefix": "Stav",
+    "status": "Přijímáme 2 klientské projekty na Q3/Q4",
+    "scope": "Průměrný rozsah: 4–8 týdnů"
+  },
+
+  "standards": [
+    { "value": "99.99%", "label": "Cílová dostupnost" },
+    { "value": "<120ms", "label": "Rozpočet p99" },
+    { "value": "DevSecOps", "label": "V každé pipeline" }
+  ],
+  "standardsNote": "Standard, na který navrhujeme — ne tvrzení o minulých výsledcích",
+
+  "nav": {
+    "work": "Práce",
+    "careers": "Kariéra",
+    "bookCall": "Domluvit architektonický hovor",
+    "contact": "Kontakt",
+    "menu": "Menu",
+    "caseStudies": "Případové studie",
+    "openDirections": "Otevřené směry",
+    "telemetryToggle": "Přepnout telemetrický výpis",
+    "modeLabel": "Režim",
+    "modeGroup": "Režim textu",
+    "business": "Byznys",
+    "businessSub": "Dopad",
+    "telemetry": "Telemetrie",
+    "telemetrySub": "Kód",
+    "language": "Jazyk"
+  },
+
+  "footer": {
+    "back": "Zpět na letovou palubu"
+  },
+
+  "hud": {
+    "docked": "Zadokováno",
+    "approaching": "Přiblížení",
+    "inTransit": "V přeletu",
+    "console": "Vysílací konzole",
+    "transit": "Přelet",
+    "track": "Dráha"
+  },
+
+  "project": {
+    "caseStudy": "Případová studie",
+    "readCaseStudy": "Číst případovou studii",
+    "readCaseStudyLong": "Číst případovou studii →",
+    "liveApp": "Živá aplikace",
+    "liveAppOut": "Živá aplikace ↗",
+    "source": "Zdrojový kód",
+    "sourceOut": "Zdrojový kód ↗",
+    "budget": "rozpočet",
+    "measured": "naměřeno"
+  },
+
+  "home": {
+    "titleTop": "Vysoce výkonná",
+    "titleBottom": "softwarová architektura.",
+    "lede": "Navrženo pro zátěž, odolnost a autonomii. Stavíme systémy, které pod zátěží nepadají — od architektonického schématu až po to, co běží v produkci s připojeným pagerem.",
+    "ctaContact": "Zahájit technickou analýzu",
+    "ctaStations": "Vstoupit do tranzitních stanic",
+    "ownProducts": "Nestavíme jen na zakázku — vlastní SaaS produkty provozujeme podle stejného standardu dostupnosti, jaký prodáváme.",
+    "scrollHint": "Před vámi čtyři stanice · Scrollujte a vyrazte",
+    "ctaWork": "Číst případové studie",
+    "ctaGuild": "Přihlásit se do cechu",
+    "flightDeckOff": "Letová paluba vypnuta — tomuto zařízení posíláme dokument",
+    "transmissionTitle": "Chcete postavit něco, co vydrží?",
+    "transmissionBody": "Přineste architekturu své platformy, systém, který chcete prověřit, nebo — pokud píšete kód — sami sebe. Zadání čte inženýr dřív, než si někdo domluví hovor: jde na inženýrský stůl, ne do CRM sekvence."
+  }
+}
