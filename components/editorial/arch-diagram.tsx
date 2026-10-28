@@ -63,7 +63,9 @@ export function ArchDiagram({
   }
 
   return (
-    <div className="thin-scroll -mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
+    // The page frame is px-4 on phones and px-6 from `sm`; the bleed matches it,
+    // or the scroller pokes 8px past a 390px screen and the page scrolls sideways.
+    <div className="thin-scroll -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         width={width}

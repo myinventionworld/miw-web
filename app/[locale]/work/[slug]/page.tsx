@@ -174,7 +174,7 @@ export default async function WorkCasePage(
           demo where we do not. */}
       {hasScreens(project) ? (
         <div className="mt-16">
-          <ProductShots project={project} t={(key: string) => t(key)} />
+          <ProductShots project={project} t={(key: string) => t(key)} gallery />
         </div>
       ) : (
         project.variant && (

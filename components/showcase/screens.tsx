@@ -5,6 +5,10 @@ import boowiePlayer from "@/data/screens/boowie-player.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
+import wovieFilm from "@/data/screens/wovie-film.webp";
+import wovieHome from "@/data/screens/wovie-home.webp";
+import wovieSignup from "@/data/screens/wovie-signup.webp";
+import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +37,10 @@ const SHOTS = {
   boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
   boowiePlayer: boowiePlayer,
+  wovieHome: wovieHome,
+  wovieFilm: wovieFilm,
+  wovieTrailer: wovieTrailer,
+  wovieSignup: wovieSignup,
 } as const;
 
 type ShotId = keyof typeof SHOTS;
@@ -42,10 +50,21 @@ const shot = (id: ShotId, t: Translate): Shot => ({
   alt: t(`projects:screens.${id}`),
 });
 
-/** Which screenshots each project has. A project missing here shows none. */
-const BY_PROJECT: Record<string, { desktop?: ShotId; phones: ShotId[] }> = {
+/**
+ * Which screenshots each project has. A project missing here shows none.
+ * `windows` are further desktop screens, for a project with no phone shots.
+ */
+const BY_PROJECT: Record<
+  string,
+  { desktop?: ShotId; phones: ShotId[]; windows?: ShotId[] }
+> = {
   omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
   boowie: { phones: ["boowieLibrary", "boowieStore", "boowiePlayer"] },
+  wovie: {
+    desktop: "wovieHome",
+    phones: [],
+    windows: ["wovieFilm", "wovieTrailer", "wovieSignup"],
+  },
 };
 
 export function hasScreens(project: ProjectCase) {
@@ -117,16 +136,39 @@ function PhoneRow({ shots }: { shots: Shot[] }) {
   );
 }
 
+/** Browser windows you swipe through: desktop-only projects on a phone. */
+function WindowRow({ shots, host }: { shots: Shot[]; host: string }) {
+  return (
+    <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pt-2 pb-12 sm:-mx-6 sm:px-6">
+      {shots.map((s) => (
+        <BrowserFrame
+          key={s.alt}
+          shot={s}
+          host={host}
+          className="w-[86%] shrink-0 snap-center"
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
- * One project's screenshots. With a desktop shot: the browser window with the
- * phone leaning on its corner (large screens), the phone alone (small).
+ * One project's screenshots. With a desktop shot and a phone shot: the
+ * browser window with the phone leaning on its corner (large screens), the
+ * phone alone (small). With desktop shots only: a second window overlapping
+ * the first (large), a row of windows to swipe (small).
  */
 export function ProductShots({
   project,
   t,
+  gallery = false,
 }: {
   project: ProjectCase;
   t: Translate;
+  /** Case studies: on large screens, the windows that do not fit the
+   *  composition follow it as a row. Small screens swipe through all of
+   *  them anyway. */
+  gallery?: boolean;
 }) {
   const set = BY_PROJECT[project.slug];
   if (!set) return null;
@@ -135,6 +177,35 @@ export function ProductShots({
   if (!set.desktop) return <PhoneRow shots={phones} />;
 
   const desktop = shot(set.desktop, t);
+
+  if (phones.length === 0) {
+    const windows = (set.windows ?? []).map((id) => shot(id, t));
+    return (
+      <>
+        <div className="relative mx-auto hidden max-w-[1000px] pb-[16%] text-left md:block">
+          <BrowserFrame shot={desktop} host={project.host} className="w-[80%]" />
+          {windows[0] && (
+            <BrowserFrame
+              shot={windows[0]}
+              host={project.host}
+              className="absolute right-0 bottom-0 w-[50%]"
+            />
+          )}
+        </div>
+        {gallery && windows.length > 1 && (
+          <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
+            {windows.slice(1).map((w) => (
+              <BrowserFrame key={w.alt} shot={w} host={project.host} />
+            ))}
+          </div>
+        )}
+        <div className="md:hidden">
+          <WindowRow shots={[desktop, ...windows]} host={project.host} />
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
