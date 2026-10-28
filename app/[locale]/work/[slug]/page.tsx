@@ -2,9 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
-import { Arrow } from "@/components/glyph";
 import { Device } from "@/components/showcase/device";
-import { ProductShots, hasScreens } from "@/components/showcase/screens";
+import {
+  BuiltShot,
+  ProductShots,
+  hasBuiltShot,
+  hasScreens,
+} from "@/components/showcase/screens";
 import { EditorialShell } from "@/components/editorial/shell";
 import { PROJECTS, projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
@@ -146,7 +150,6 @@ export default async function WorkCasePage(
               className="flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover"
             >
               {t("case.launch")}
-              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
           {project.repoUrl && (
@@ -157,7 +160,6 @@ export default async function WorkCasePage(
               className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
             >
               {t("case.readSource")}
-              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
           <span className="text-label text-steel">
@@ -209,10 +211,17 @@ export default async function WorkCasePage(
 
         {/* With screenshots at the top, the working demo moves here: it is the
             mechanism this section describes. */}
-        {hasScreens(project) && project.variant && (
-          <div className="mt-10">
-            <Device project={project} compact />
+        {hasBuiltShot(project) ? (
+          <div className="mt-12">
+            <BuiltShot project={project} t={(key: string) => t(key)} />
           </div>
+        ) : (
+          hasScreens(project) &&
+          project.variant && (
+            <div className="mt-10">
+              <Device project={project} compact />
+            </div>
+          )
         )}
 
         {/* Hand-laid SVG rather than a rendered Mermaid graph: the diagram is
@@ -330,7 +339,6 @@ export default async function WorkCasePage(
           className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-action px-6 py-3 text-lead font-medium text-on-action transition-colors hover:bg-action-hover"
         >
           {t("case.cta.action")}
-          <Arrow className="text-body" weight={1.7} />
         </Link>
       </section>
     </EditorialShell>

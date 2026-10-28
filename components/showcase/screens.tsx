@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 
 import boowieLibrary from "@/data/screens/boowie-library.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
+import boowieReader from "@/data/screens/boowie-reader.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
@@ -10,6 +11,7 @@ import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
+import type { CycleFrame } from "./screen-cycle";
 import { cn } from "@/lib/utils";
 
 /**
@@ -37,6 +39,7 @@ const SHOTS = {
   boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
   boowiePlayer: boowiePlayer,
+  boowieReader: boowieReader,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
   wovieTrailer: wovieTrailer,
@@ -56,10 +59,19 @@ const shot = (id: ShotId, t: Translate): Shot => ({
  */
 const BY_PROJECT: Record<
   string,
-  { desktop?: ShotId; phones: ShotId[]; windows?: ShotId[] }
+  {
+    desktop?: ShotId;
+    phones: ShotId[];
+    windows?: ShotId[];
+    /** Shown under "How it is built" in place of the working demo. */
+    built?: ShotId;
+  }
 > = {
   omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
-  boowie: { phones: ["boowieLibrary", "boowieStore", "boowiePlayer"] },
+  boowie: {
+    phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
+    built: "boowieReader",
+  },
   wovie: {
     desktop: "wovieHome",
     phones: [],
@@ -249,5 +261,120 @@ export function HeroShots({
         <PhoneFrame shot={player} className="w-[46%] max-w-[220px]" />
       </div>
     </>
+  );
+}
+
+/**
+ * The header menu's project cards: each product's screens in turn.
+ */
+export const THUMBS: Record<string, CycleFrame[]> = {
+  omnibus: [
+    { src: omnibusDesktop, kind: "window" },
+    { src: omnibusMobile, kind: "phone" },
+  ],
+  boowie: [
+    { src: boowieLibrary, kind: "phone" },
+    { src: boowieStore, kind: "phone" },
+    { src: boowieReader, kind: "phone" },
+    { src: boowiePlayer, kind: "phone" },
+  ],
+  wovie: [
+    { src: wovieHome, kind: "window" },
+    { src: wovieFilm, kind: "window" },
+    { src: wovieTrailer, kind: "window" },
+    { src: wovieSignup, kind: "window" },
+  ],
+};
+
+/**
+ * The station card on the 3D home: the product's screenshots sized for a
+ * panel that has to fit a 13" screen next to the planet. A browser window with
+ * the phone leaning on it, or a row of phones at a fixed height.
+ */
+export function DockShots({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const set = BY_PROJECT[project.slug];
+  if (!set) return null;
+  const phones = set.phones.map((id) => shot(id, t));
+
+  if (set.desktop) {
+    const desktop = shot(set.desktop, t);
+    const phone = phones[0];
+    return (
+      <div className={cn("relative", phone && "pb-[6%]")}>
+        <div
+          className={cn(
+            "overflow-hidden rounded-lg border border-white/15 bg-black",
+            phone && "w-[84%]",
+          )}
+        >
+          <div className="flex h-7 items-center gap-1.5 border-b border-white/12 bg-white/5 px-3" aria-hidden>
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="ml-2 truncate text-label text-zinc">{project.host}</span>
+          </div>
+          <Image
+            src={desktop.src}
+            alt={desktop.alt}
+            sizes="460px"
+            className="block h-auto w-full"
+          />
+        </div>
+        {phone && (
+          <div className="absolute right-0 bottom-0 w-[22%] overflow-hidden rounded-[16px] border-[3px] border-[#1c1c20] bg-black">
+            <Image
+              src={phone.src}
+              alt={phone.alt}
+              sizes="120px"
+              className="block h-auto w-full"
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center gap-3">
+      {phones.map((p) => (
+        <div
+          key={p.alt}
+          className="overflow-hidden rounded-[18px] border-[3px] border-[#1c1c20] bg-black"
+        >
+          <Image
+            src={p.src}
+            alt={p.alt}
+            sizes="130px"
+            className="block h-[230px] w-auto deck-short:h-[170px]"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function hasBuiltShot(project: ProjectCase) {
+  return Boolean(BY_PROJECT[project.slug]?.built);
+}
+
+/** The screen that shows the mechanism a case study's "How it is built" is
+ *  about: Boowie's reader, where the same parsed book is read and listened. */
+export function BuiltShot({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const id = BY_PROJECT[project.slug]?.built;
+  if (!id) return null;
+  return (
+    <PhoneFrame shot={shot(id, t)} className="mx-auto w-[64%] max-w-[300px]" />
   );
 }

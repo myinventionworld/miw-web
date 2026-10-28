@@ -264,6 +264,7 @@
     "wovieHome": "Wovie home page: a featured film with rating, genres and a Continue where you left off button",
     "wovieFilm": "Wovie film page: poster, TMDB score, Rotten Tomatoes rating, genres and running time",
     "wovieTrailer": "Wovie trailer player on a film page",
-    "wovieSignup": "Wovie sign-up: avatar, username, email and password, with Google and Apple sign-in"
+    "wovieSignup": "Wovie sign-up: avatar, username, email and password, with Google and Apple sign-in",
+    "boowieReader": "Boowie reader: the first page of A Christmas Carol, with the chapter title and page counter"
   }
 }
