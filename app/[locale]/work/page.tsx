@@ -3,6 +3,7 @@ import { locale as currentLocale } from "next/root-params";
 
 import { EditorialShell } from "@/components/editorial/shell";
 import { Device } from "@/components/showcase/device";
+import { ProductShots, hasScreens } from "@/components/showcase/screens";
 import { PROJECTS } from "@/data/projects";
 import { initTranslations } from "@/i18n";
 import { alternates, localeHref } from "@/lib/locale";
@@ -30,6 +31,7 @@ const FRAME = "mx-auto max-w-5xl px-4 sm:px-6 md:px-8";
 export default async function WorkIndexPage() {
   const locale = await currentLocale();
   const { t } = await initTranslations(locale, ["projects", "common"]);
+  const tr = (key: string) => t(key);
 
   return (
     <EditorialShell active="work" bleed>
@@ -96,10 +98,16 @@ export default async function WorkIndexPage() {
               </Link>
             </div>
 
-            {p.variant && (
+            {hasScreens(p) ? (
               <div className="mt-14">
-                <Device project={p} />
+                <ProductShots project={p} t={tr} />
               </div>
+            ) : (
+              p.variant && (
+                <div className="mt-14">
+                  <Device project={p} />
+                </div>
+              )
             )}
           </div>
         </section>

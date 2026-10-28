@@ -254,5 +254,12 @@
     "results": {
       "lede": "Wovie je ve vývoji, má veřejné demo a otevřený zdrojový kód."
     }
+  },
+  "screens": {
+    "omnibusDesktop": "Úvodní stránka Omnibusu: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
+    "omnibusMobile": "Omnibus v telefonu: detail cesty na lince 501 z Prahy do Brna",
+    "boowieLibrary": "Knihovna Boowie: rozečtené knihy a kolik je z nich přečteno",
+    "boowieStore": "Obchod Boowie: výběr redakce a nové klasiky zdarma",
+    "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku"
   }
 }

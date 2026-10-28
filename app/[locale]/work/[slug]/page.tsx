@@ -4,6 +4,7 @@ import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
 import { Arrow } from "@/components/glyph";
 import { Device } from "@/components/showcase/device";
+import { ProductShots, hasScreens } from "@/components/showcase/screens";
 import { EditorialShell } from "@/components/editorial/shell";
 import { PROJECTS, projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
@@ -169,11 +170,18 @@ export default async function WorkCasePage(
         </p>
       </header>
 
-      {/* The working demo, in the device it runs on. */}
-      {project.variant && (
+      {/* The product itself: real screenshots where we have them, the working
+          demo where we do not. */}
+      {hasScreens(project) ? (
         <div className="mt-16">
-          <Device project={project} />
+          <ProductShots project={project} t={(key: string) => t(key)} />
         </div>
+      ) : (
+        project.variant && (
+          <div className="mt-16">
+            <Device project={project} />
+          </div>
+        )
       )}
 
       <section className="mt-20">
@@ -198,6 +206,14 @@ export default async function WorkCasePage(
         <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
           {t(`${project.id}.design.lede`)}
         </p>
+
+        {/* With screenshots at the top, the working demo moves here: it is the
+            mechanism this section describes. */}
+        {hasScreens(project) && project.variant && (
+          <div className="mt-10">
+            <Device project={project} compact />
+          </div>
+        )}
 
         {/* Hand-laid SVG rather than a rendered Mermaid graph: the diagram is
             part of the argument, so which box sits next to which is a decision,

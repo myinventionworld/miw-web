@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { Device } from "@/components/showcase/device";
+import { ProductShots, hasScreens } from "@/components/showcase/screens";
 
 import {
   STATIONS,
@@ -149,10 +150,16 @@ export function Fallback() {
                       {t("project.readCaseStudy")} ›
                     </LocaleLink>
                   </div>
-                  {project.variant && (
+                  {hasScreens(project) ? (
                     <div className="mt-10">
-                      <Device project={project} />
+                      <ProductShots project={project} t={(key: string) => t(key)} />
                     </div>
+                  ) : (
+                    project.variant && (
+                      <div className="mt-10">
+                        <Device project={project} />
+                      </div>
+                    )
                   )}
                 </div>
               )}

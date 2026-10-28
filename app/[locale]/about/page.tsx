@@ -2,6 +2,7 @@ import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
 import { EditorialShell } from "@/components/editorial/shell";
+import { HeroShots } from "@/components/showcase/screens";
 import { PROJECTS } from "@/data/projects";
 import { TEAM, initials } from "@/data/team";
 import { initTranslations } from "@/i18n";
@@ -156,6 +157,12 @@ export default async function AboutPage() {
           >
             {t("work.action")} ›
           </Link>
+        </div>
+        <div className="mt-14 md:mt-16">
+          <HeroShots
+            t={(key: string) => t(key)}
+            omnibusHost={PROJECTS.find((p) => p.slug === "omnibus")?.host ?? ""}
+          />
         </div>
         <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
           {PROJECTS.map((p) => (

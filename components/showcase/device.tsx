@@ -35,8 +35,16 @@ function PhoneDevice({ project }: { project: ProjectCase }) {
   );
 }
 
-export function Device({ project }: { project: ProjectCase }) {
-  if (project.variant === "reader") return <PhoneDevice project={project} />;
+export function Device({
+  project,
+  compact = false,
+}: {
+  project: ProjectCase;
+  /** Always the browser frame: for a demo set inside running text. */
+  compact?: boolean;
+}) {
+  if (project.variant === "reader" && !compact) return <PhoneDevice project={project} />;
+  if (compact && project.variant) return <BrowserDevice project={project} />;
   if (project.variant === "booking") return <BrowserDevice project={project} />;
   return null;
 }

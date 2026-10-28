@@ -254,5 +254,12 @@
     "results": {
       "lede": "Wovie is a work in progress with a public demo, and its source is open."
     }
+  },
+  "screens": {
+    "omnibusDesktop": "Omnibus home page: route search over an illustration of a coach driving past Prague",
+    "omnibusMobile": "Omnibus on a phone: journey details for route 501 from Prague to Brno",
+    "boowieLibrary": "Boowie library: the books in progress, with how much of each is read",
+    "boowieStore": "Boowie store: an editor's pick and new free classics",
+    "boowiePlayer": "Boowie audiobook player with chapter progress, playback speed and a sleep timer"
   }
 }
