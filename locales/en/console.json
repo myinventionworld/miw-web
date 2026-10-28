@@ -1,105 +1,88 @@
 {
-  "title": "Transmission console",
-  "subtitle": "Direct to engineering",
-  "tablist": "Transmission type",
-
+  "tablist": "Who is this for",
   "tabs": {
-    "engineering": {
-      "label": "Client Engineering",
-      "heading": "Ready to build something that holds?",
-      "note": "A new build, an MVP, or an AI integration on top of a system you already run."
+    "business": {
+      "label": "Small business",
+      "heading": "What does your business need?",
+      "note": "A website, an online store, booking, or a tool for stock and orders."
     },
-    "audit": {
-      "label": "Architecture Audit",
-      "heading": "Find out what breaks first — before it does.",
-      "note": "The system works and the growth curve says it will not. We read it and write down what breaks first."
-    },
-    "guild": {
-      "label": "Join the Guild",
-      "heading": "Not an internship. A crew, a review gate and a cut of the work.",
-      "note": "You write code and want to build under Principal-level supervision."
+    "startup": {
+      "label": "Startup or tech team",
+      "heading": "What are you building?",
+      "note": "An MVP, an AI feature, or a second opinion on what you already have."
     }
   },
-
   "engagements": {
-    "mvp": {
-      "label": "New build / MVP",
-      "prompt": "What are you building, who is it for, and what has to hold once it grows?"
+    "website": {
+      "label": "Website",
+      "prompt": "What do you do, and what should the website help with?"
     },
-    "rescue": {
-      "label": "Architecture rescue",
-      "prompt": "What breaks today, how often, and what has already been tried to fix it?"
+    "eshop": {
+      "label": "Online store",
+      "prompt": "What do you sell, roughly how many products, and do you sell online already?"
+    },
+    "automation": {
+      "label": "Stock, orders, booking",
+      "prompt": "What do you keep track of today, and how — paper, Excel, something else?"
+    },
+    "mvp": {
+      "label": "MVP",
+      "prompt": "What are you building, who is it for, and what must the first version do?"
     },
     "ai": {
-      "label": "AI integration",
-      "prompt": "Which process are you trying to take off people, and what data does it need to touch?"
+      "label": "AI feature",
+      "prompt": "Which task should AI take off people, and what data does it need?"
     },
-    "audit": {
-      "label": "Architecture audit",
-      "prompt": "What is the load-bearing part of the system, and what breaks first when it grows?"
+    "review": {
+      "label": "Code review",
+      "prompt": "What exists today, and what worries you about it?"
     }
   },
-
   "budgets": {
-    "5-10k": "$5k – $10k",
-    "10-25k": "$10k – $25k",
-    "25k-plus": "$25k+",
+    "upto-2k": "Up to €2,000",
+    "2-5k": "€2,000 – €5,000",
+    "5-15k": "€5,000 – €15,000",
+    "15k-plus": "€15,000+",
     "unsure": "Not sure yet"
   },
-
   "stages": {
-    "pre-seed": "Pre-seed / idea",
-    "seed": "Seed / first traction",
-    "series-a": "Series A+",
-    "established": "Established business"
+    "small-business": "Small business",
+    "idea": "An idea",
+    "startup": "Startup",
+    "company": "Company"
   },
-
   "timelines": {
-    "now": "Starting now",
+    "now": "Right away",
     "month": "Within a month",
-    "quarter": "This quarter",
-    "scoping": "Scoping only"
+    "quarter": "In 3 months",
+    "scoping": "Just exploring"
   },
-
   "form": {
-    "standardsNote": "The standard we design to — not a claim about past results",
-    "engagement": "Nature of the work",
-    "engagementHint": "Pick one",
-    "stage": "Stage",
+    "engagement": "What do you need",
+    "engagementHint": "",
+    "stage": "You are",
     "budget": "Budget",
-    "timeline": "Timeline",
-    "identity": "Name / Company",
-    "identityHint": "All required",
+    "timeline": "When",
+    "identity": "Your details",
+    "identityHint": "",
     "name": "Name",
-    "company": "Company",
-    "email": "Work email",
-    "scope": "Scope",
-    "scopeHint": "One line is enough",
-
-    "errName": "err: operator name required.",
-    "errOrg": "err: company required — the answer depends on who runs it.",
-    "errEmail": "err: a reachable address is required to reply.",
-    "errScope": "err: describe the scope in a line — this desk replies in prose.",
-
-    "idle": "> engineering desk, not a CRM sequence.",
-    "sending": "> opening channel {{flag}} …",
-    "submit": "Execute Transmission",
-    "submitting": "Transmitting…"
+    "company": "Company or project",
+    "email": "Email",
+    "scope": "About the task",
+    "scopeHint": "",
+    "errName": "Please add your name.",
+    "errOrg": "Please add a company or project name.",
+    "errEmail": "Please add an email we can reply to.",
+    "errScope": "Please describe the task in a sentence or two.",
+    "idle": "This opens your email app with the message ready to send to {{email}}.",
+    "submit": "Continue in email"
   },
-
   "receipt": {
-    "title": "Transmission received",
-    "body": "An engineer reads this before anyone books a call. Expect a written response, usually inside two working days.",
-    "engagement": "Engagement",
-    "organisation": "Organisation",
-    "budget": "Budget",
-    "channel": "Reply channel",
-    "amend": "Amend the transmission"
-  },
-
-  "guild": {
-    "body": "The guild application asks for the hardest thing you have built rather than a CV, so it lives on its own page with room to answer properly.",
-    "cta": "Open the Guild application",
-    "note": "Read by an engineer · portfolio over credentials"
+    "title": "Almost done",
+    "body": "Your email app should open with the message ready. Press Send there — until then nothing reaches us. If nothing opened, copy the message and send it to {{email}}.",
+    "reopen": "Open email again",
+    "copy": "Copy message",
+    "copied": "Copied",
+    "amend": "Edit the message"
   }
 }

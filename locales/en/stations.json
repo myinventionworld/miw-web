@@ -1,201 +1,66 @@
 {
   "backend": {
-    "pillar": "Core Systems",
-    "nav": "High-Load Backend",
-    "title": "High-Load & Critical Backend",
-    "cta": "Request Architecture Audit",
+    "nav": "For startups",
+    "cta": "Discuss your MVP",
     "business": {
-      "headline": "Your busiest day stops being a risk on the calendar.",
-      "lede": "Traffic spikes get absorbed instead of collapsing the queue, and releases go out without a maintenance window.",
-      "problem": "Services fall over when the traffic actually arrives, and years of tangled code mean every release is a coin flip. The bill lands twice — revenue lost during the outage, and an engineering team that has stopped shipping anything else.",
-      "solution": "We rebuild the load-bearing path. Work is isolated so one failure cannot pull the rest down with it, spikes get absorbed instead of collapsing the queue, and releases go out without a maintenance window.",
-      "proof": [
-        "99.99% uptime target",
-        "Spikes absorbed, not escalated",
-        "Releases without downtime"
-      ]
-    },
-    "telemetry": {
-      "headline": "Distributed by design. Consistent under partition.",
-      "lede": "Failure domains get drawn before the first endpoint exists, and the write path is rehearsed against broker loss weekly.",
-      "problem": "Synchronous fan-out over shared mutable state, unbounded queues, no failure domains. p99 collapses the moment one dependency slows down, and there is no replay to reason about afterwards.",
-      "solution": "Bulkheaded services on an asynchronous event backbone: consumer-side idempotency, partition-aware backpressure, bounded replay. Failure domains get drawn before the first endpoint exists.",
-      "proof": [
-        "99.99% uptime target",
-        "p99 < 120ms budget",
-        "Go · Java · Kafka · k8s"
-      ]
-    },
-    "specs": [
-      { "label": "Stack", "value": "Java · Spring Boot · Go · Postgres · k8s" },
-      { "label": "Latency", "value": "p99 < 120ms, allocated per hop" },
-      {
-        "label": "Pattern",
-        "value": "ACID at the contested row · bulkheaded services"
-      },
-      { "label": "Autonomy", "value": "Agent integrations, same review gate" }
-    ]
-  },
-
-  "commerce": {
-    "pillar": "Throughput",
-    "nav": "Commerce",
-    "title": "High-Throughput Commerce & Order Pipelines",
-    "cta": "Stress-Test My Checkout",
-    "business": {
-      "headline": "The sale you spent the budget on is the sale you can serve.",
-      "lede": "Checkout completes in one pass, stock stays truthful while the campaign is running, and a payment confirmed twice still bills the customer once.",
-      "problem": "A promotion works, traffic arrives, and the shop picks that hour to get slow. Carts are abandoned at the payment step, two customers buy the last unit, and a retried webhook charges someone twice — every one of which costs more than the campaign made.",
-      "solution": "We rebuild the order pipeline around the worst hour rather than the average one. The commit path is short, the catalogue is served from cache, documents and email leave the critical path, and duplicate payment events settle to one order.",
-      "proof": [
-        "Checkout holds at peak",
-        "One charge per order",
-        "Stock stays truthful"
-      ]
-    },
-    "telemetry": {
-      "headline": "Idempotent at the boundary. Cached in two tiers. Queued off the hot path.",
-      "lede": "Gateways retry by design, so the webhook handler dedupes on the payment intent inside the settling transaction rather than hoping delivery is unique.",
-      "problem": "Stock decremented in application code, catalogue reads going to Postgres on every render, invoice generation inline in the checkout request, and a webhook handler that treats redelivery as a new intent.",
-      "solution": "Reservation and settlement in one transaction, a process-memory tier in front of Redis for catalogue reads, invoicing on a distributed queue, and a unique constraint on the payment intent doing the deduplication.",
-      "proof": [
-        "Exactly-once settlement",
-        "Cache hit > 94% target",
-        "Sub-second commit budget"
-      ]
-    },
-    "specs": [
-      {
-        "label": "Stack",
-        "value": "Next.js · Node / Go · Postgres · Redis · Stripe"
-      },
-      { "label": "Latency", "value": "submit → confirmed order < 1s" },
-      {
-        "label": "Pattern",
-        "value": "Idempotent hooks · two-tier cache · queued docs"
-      }
-    ]
-  },
-
-  "labs": {
-    "pillar": "Venture R&D",
-    "nav": "Labs",
-    "title": "Venture R&D & Internal Products",
-    "cta": "Request Early Access",
-    "business": {
-      "headline": "We ship our own products, on the standard we sell you.",
-      "lede": "Client work funds a standing R&D budget. The tools we were missing get built, run by us in production, and the ones that earn usage become products.",
-      "problem": "Most studios talk about product thinking. Very few operate the products they talk about, so nothing they ship has ever had to survive its own users.",
-      "solution": "Client work funds a standing R&D budget. We build the developer tools and analytics we were missing, run them ourselves, and the ones that earn usage become products.",
-      "proof": [
-        "Built in-house",
-        "Run in production",
-        "Client work funds the lab"
-      ]
-    },
-    "telemetry": {
-      "headline": "Built in the lab. Held to the bar the client work is held to.",
-      "lede": "Lab products ship on the studio's own pipeline: deterministic builds, a content-addressed cache, an SLO and a pager.",
-      "problem": "Internal tooling normally gets the leftovers: no SLO, no release process, and no owner once the author moves on to something else.",
-      "solution": "Every lab product ships on the studio's own pipeline — deterministic builds, content-addressed cache, an SLO and a pager. Anything that cannot hold that bar does not get a public listing.",
-      "proof": [
-        "Sub-100ms first result",
-        "Deterministic builds",
-        "Same pipeline as client systems"
-      ]
-    },
-    "specs": [
-      {
-        "label": "Stack",
-        "value": "Next.js · TypeScript · Prisma · Vercel Edge"
-      },
-      { "label": "Latency", "value": "p99 route change < 90ms" },
-      {
-        "label": "Pattern",
-        "value": "Edge ISR · typed end to end · zero-cost hosting"
-      }
-    ]
-  },
-
-  "guild": {
-    "pillar": "Incubator",
-    "nav": "Guild",
-    "title": "The Engineering Guild",
-    "cta": "Apply to the Guild",
-    "business": {
-      "headline": "A named engineer owns your system. Not a bench.",
-      "lede": "A Principal Architect owns the design and the merge gate, and a small crew builds underneath it — nothing reaches your system unread.",
-      "problem": "An agency staffs your project with whoever is on the bench this month. You pay senior rates for work that nobody senior ever read.",
-      "solution": "MIW runs as a guild. A Principal Architect owns the design and the merge gate, and a small crew builds underneath it. Everything that reaches your system passed someone who has carried the pager for one like it.",
-      "proof": [
-        "Principal owns the design",
-        "Every change reviewed",
-        "Named engineer on the work"
-      ]
-    },
-    "telemetry": {
-      "headline": "Engineering Guild under Principal Architecture Supervision.",
-      "lede": "Decisions land in an architecture decision record before the code exists, and the crew builds against that record under review.",
-      "problem": "Staff augmentation hands you headcount and no architecture. Decisions get made in ticket comments, nobody writes them down, and the system drifts until a rewrite is the only option left.",
-      "solution": "One Principal Architect owns the design and the merge gate. Decisions land in an architecture decision record before the code exists, and the crew builds against that record under review.",
-      "proof": [
-        "ADR before implementation",
-        "Review gate before merge",
-        "Named owner per subsystem"
-      ]
-    },
-    "specs": [
-      { "label": "Method", "value": "ADR · review gate · pairing" },
-      { "label": "Cadence", "value": "Design review, weekly" },
-      { "label": "Pattern", "value": "Principal-owned merge gate" }
-    ],
-    "program": [
-      {
-        "label": "Principal supervision",
-        "body": "One architect owns the design and the merge gate for the whole engagement."
-      },
-      {
-        "label": "Production standards",
-        "body": "Ambitious developers train on real enterprise work, reviewed line by line."
-      },
-      {
-        "label": "Revenue share",
-        "body": "Royalties on commercial projects, not an internship stipend."
-      },
-      {
-        "label": "Co-founded products",
-        "body": "The strongest work becomes a lab product with its builders on the cap table."
-      }
-    ]
-  },
-
-  "sections": {
-    "studio": {
-      "label": "Studio",
-      "blurb": "Fault-tolerant backends, commerce pipelines and architecture audits for teams that already have traffic."
-    },
-    "labs": {
-      "label": "Labs",
-      "blurb": "Products the studio builds for itself first, then opens up."
-    },
-    "guild": {
-      "label": "Guild",
-      "blurb": "The incubator: production standards, Principal supervision, revenue share."
-    },
-    "transmission": {
-      "label": "Transmission",
-      "blurb": "Direct channel to the engineers who would do the work."
+      "headline": "From idea to a first version people can use.",
+      "lede": "MVPs, backends and AI features for startups and tech teams. Omnibus is one our team built — try to book the same seat twice."
     }
   },
-
-  "ui": {
-    "station": "Station {{index}}",
-    "programme": "Programme",
-    "programmeName": "THE GUILD",
-    "intakeOpen": "Intake open",
-    "problem": "The problem",
-    "solution": "What we build",
-    "docked": "Docked",
-    "inTransit": "In transit"
+  "commerce": {
+    "nav": "For small businesses",
+    "cta": "Get a website or store",
+    "business": {
+      "headline": "A website, a store, or a tool that saves you hours.",
+      "lede": "For shops, workshops and local services: a clear website, online orders and booking, or a simple system for stock instead of a paper notebook."
+    },
+    "program": [
+      {
+        "label": "Website",
+        "body": "Clear pages, contacts and a map. Works on phones."
+      },
+      {
+        "label": "Online store",
+        "body": "Catalogue, cart and orders in one place."
+      },
+      {
+        "label": "Stock and booking",
+        "body": "Track goods, orders or appointments instead of a paper notebook."
+      }
+    ]
+  },
+  "labs": {
+    "nav": "Our products",
+    "cta": "Talk to us",
+    "business": {
+      "headline": "We build our own products too.",
+      "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live — open them."
+    }
+  },
+  "guild": {
+    "nav": "Team",
+    "cta": "Meet the team",
+    "business": {
+      "headline": "Seven people, one team.",
+      "lede": "Engineers, an analyst and a designer in Prague. You talk directly to the people who build your project."
+    }
+  },
+  "sections": {
+    "studio": {
+      "label": "Services",
+      "blurb": "Websites and stores for small businesses. MVPs and AI features for startups."
+    },
+    "labs": {
+      "label": "Products",
+      "blurb": "Things we built for ourselves first."
+    },
+    "guild": {
+      "label": "Team",
+      "blurb": "Seven people in Prague."
+    },
+    "transmission": {
+      "label": "Contact",
+      "blurb": "Write to the team directly."
+    }
   }
 }

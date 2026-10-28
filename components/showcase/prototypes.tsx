@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { Variant } from "@/data/projects";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * only demo format that survives a sceptical engineer.
  *
  * Each one demonstrates the single mechanism its case study is actually about —
- * the seat lock, the idempotency key, the edge cache. An abstract that merely
+ * the seat lock, the read-and-listen position. An abstract that merely
  * looks technical would be the same decoration the video was, in fewer bytes.
  *
  * Nothing here animates on its own. The old canvas teaser ran a second 60Hz rAF
@@ -41,16 +41,14 @@ function ProtoHead({
 }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
-      <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-        {label}
-      </span>
+      <span className="text-meta text-zinc">{label}</span>
       {children}
     </div>
   );
 }
 
 const TOGGLE =
-  "shrink-0 rounded-sm border px-2 py-1 font-mono text-[9px] tracking-telemetry uppercase transition-colors";
+  "shrink-0 rounded-sm border px-2 py-1 text-meta transition-colors";
 
 /** Terminal line under each demo. Mono, one fact, no exclamation marks. */
 function Readout({
@@ -64,7 +62,7 @@ function Readout({
     <p
       aria-live="polite"
       className={cn(
-        "mt-2 font-mono text-[10px] leading-[1.5]",
+        "mt-2 font-mono text-label leading-[1.5]",
         tone === "good" && "text-signal",
         tone === "warn" && "text-amber-300",
         tone === "neutral" && "text-platinum",
@@ -141,7 +139,7 @@ function BookingProto() {
               )}
               onClick={() => setAttempt({ kind: "held", seat: i })}
               className={cn(
-                "h-5 rounded-sm border font-mono text-[8px] transition-colors",
+                "h-5 rounded-sm border font-mono text-label transition-colors",
                 taken
                   ? "cursor-not-allowed border-white/10 bg-white/8 text-steel"
                   : mine
@@ -172,198 +170,131 @@ function BookingProto() {
   );
 }
 
-/* ── checkout: redelivery is a no-op, cache absorbs the sale ───────────── */
+/* ── reader: one book, read or listened, same place ─────────────────── */
 
-function CheckoutProto() {
-  const { t } = useTranslation("projects");
-  const [deliveries, setDeliveries] = useState(0);
-  const [sale, setSale] = useState(false);
-
-  // Two tiers plus the floor that reaches Postgres. The sale does not change the
-  // ratio much — that is the whole claim being demonstrated.
-  const tiers = sale
-    ? { l1: 71, l2: 24, db: 5 }
-    : { l1: 58, l2: 37, db: 5 };
-  const hit = tiers.l1 + tiers.l2;
-
-  return (
-    <ProtoShell>
-      <ProtoHead label={t("prototype.checkout.cacheHit", { hit })}>
-        <button
-          type="button"
-          onClick={() => setSale((v) => !v)}
-          className={cn(
-            TOGGLE,
-            sale
-              ? "border-amber-400/70 bg-amber-400/15 text-amber-300"
-              : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
-          )}
-        >
-          {t(
-            sale ? "prototype.checkout.sale" : "prototype.checkout.baseline",
-          )}
-        </button>
-      </ProtoHead>
-
-      <div className="flex h-4 overflow-hidden rounded-sm border border-white/15">
-        <div
-          style={{ width: `${tiers.l1}%` }}
-          className="h-full bg-white/85"
-          title={t("prototype.checkout.l1")}
-        />
-        <div
-          style={{ width: `${tiers.l2}%` }}
-          className="h-full bg-beam/70"
-          title="L2 · Redis"
-        />
-        <div
-          style={{ width: `${tiers.db}%` }}
-          className="h-full bg-white/12"
-          title="Postgres"
-        />
-      </div>
-      <div className="mt-1.5 flex justify-between font-mono text-[9px] text-steel">
-        <span>{t("prototype.checkout.l1Legend", { pct: tiers.l1 })}</span>
-        <span>{t("prototype.checkout.l2Legend", { pct: tiers.l2 })}</span>
-        <span>{t("prototype.checkout.dbLegend", { pct: tiers.db })}</span>
-      </div>
-
-      <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
-        <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-          {t("prototype.checkout.charges", {
-            charges: Math.min(deliveries, 1),
-            deliveries,
-          })}
-        </span>
-        <button
-          type="button"
-          onClick={() => setDeliveries((d) => d + 1)}
-          className={cn(
-            TOGGLE,
-            "border-white/25 text-white hover:bg-white hover:text-black",
-          )}
-        >
-          {t("prototype.checkout.deliver")}
-        </button>
-      </div>
-
-      {deliveries === 0 ? (
-        <Readout>{t("prototype.checkout.idle")}</Readout>
-      ) : deliveries === 1 ? (
-        <Readout tone="good">{t("prototype.checkout.first")}</Readout>
-      ) : (
-        <Readout tone="good">
-          {t("prototype.checkout.duplicate", { n: deliveries - 1 })}
-        </Readout>
-      )}
-    </ProtoShell>
-  );
-}
-
-/* ── streaming: where the route budget goes, warm and cold ────────────── */
-
-const ROUTES = [
-  { id: "home", path: "/", warm: [6, 8, 0], cold: [6, 41, 26] },
-  { id: "browse", path: "/browse", warm: [7, 11, 0], cold: [7, 58, 38] },
-  { id: "title", path: "/title/[id]", warm: [6, 9, 0], cold: [6, 47, 31] },
-  // Per-viewer data cannot be cached at the edge, and pretending otherwise
-  // would be the one dishonest row in the table.
-  { id: "library", path: "/library", warm: [7, 22, 19], cold: [7, 24, 21] },
+/**
+ * Boowie's "Read / Listen" switch. A book with a companion audio edition keeps
+ * one position: switching maps it by chapter and by the fraction read, so the
+ * listener starts where the reader stopped. That mapping is the whole demo —
+ * the page and the timeline are drawn, not real text or audio.
+ */
+const CHAPTERS = [
+  { pages: 14, seconds: 700 },
+  { pages: 12, seconds: 680 },
 ] as const;
 
-const LEGS = ["edge", "render", "data"] as const;
-const LEG_TONE = ["bg-white/85", "bg-beam/70", "bg-signal/70"];
+const clock = (s: number) =>
+  `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
 
-function StreamingProto() {
+function ReaderProto() {
   const { t } = useTranslation("projects");
-  const [warm, setWarm] = useState(true);
-  const [route, setRoute] = useState<(typeof ROUTES)[number]["id"]>("browse");
+  const [mode, setMode] = useState<"read" | "listen">("read");
+  const [chapter, setChapter] = useState(0);
+  const [fraction, setFraction] = useState(0.4);
+  const [switched, setSwitched] = useState(false);
 
-  const rows = useMemo(
-    () =>
-      ROUTES.map((r) => {
-        // Widened out of the `as const` literal union: the tuple's element type
-        // is the set of millisecond values that happen to appear in the table,
-        // and a sum of them is not a member of it.
-        const legs: number[] = [...(warm ? r.warm : r.cold)];
-        return { ...r, legs, total: legs.reduce((a, b) => a + b, 0) };
-      }),
-    [warm],
-  );
+  const ch = CHAPTERS[chapter];
+  const page = Math.max(1, Math.round(fraction * ch.pages));
+  const at = fraction * ch.seconds;
 
-  const worst = Math.max(...rows.map((r) => r.total));
-  const active = rows.find((r) => r.id === route)!;
+  const flip = (next: "read" | "listen") => {
+    if (next === mode) return;
+    setMode(next);
+    setSwitched(true);
+  };
 
   return (
     <ProtoShell>
-      <ProtoHead label={t("prototype.streaming.budget")}>
-        <button
-          type="button"
-          onClick={() => setWarm((v) => !v)}
-          className={cn(
-            TOGGLE,
-            warm
-              ? "border-signal/70 bg-signal/12 text-signal"
-              : "border-amber-400/70 bg-amber-400/15 text-amber-300",
-          )}
-        >
-          {t(
-            warm ? "prototype.streaming.warm" : "prototype.streaming.cold",
-          )}
-        </button>
-      </ProtoHead>
-
-      <div className="space-y-1">
-        {rows.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            onClick={() => setRoute(r.id)}
-            className={cn(
-              "flex w-full items-center gap-2 rounded-sm px-1.5 py-[3px] text-left transition-colors",
-              route === r.id ? "bg-white/10" : "hover:bg-white/6",
-            )}
-          >
-            <span
+      <ProtoHead label={t("prototype.reader.book", { n: chapter + 1 })}>
+        <div className="flex gap-1">
+          {(["read", "listen"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => flip(m)}
+              aria-pressed={mode === m}
               className={cn(
-                "w-[74px] shrink-0 truncate font-mono text-[9.5px]",
-                route === r.id ? "text-white" : "text-zinc",
+                TOGGLE,
+                mode === m
+                  ? "border-signal/70 bg-signal/12 text-signal"
+                  : "border-white/20 text-zinc hover:border-white/50 hover:text-white",
               )}
             >
-              {r.path}
-            </span>
-            <span className="flex h-2 flex-1 overflow-hidden rounded-sm bg-white/8">
-              {r.legs.map((ms, i) => (
-                <span
-                  key={LEGS[i]}
-                  style={{ width: `${(ms / worst) * 100}%` }}
-                  className={cn("h-full", LEG_TONE[i])}
-                />
-              ))}
-            </span>
-            <span className="w-[42px] shrink-0 text-right font-mono text-[9.5px] text-platinum tabular-nums">
-              {r.total} ms
-            </span>
+              {t(`prototype.reader.${m}`)}
+            </button>
+          ))}
+        </div>
+      </ProtoHead>
+
+      {mode === "read" ? (
+        <div className="rounded-sm border border-white/10 bg-[#f6f1e9]/[0.06] px-3 py-2.5" aria-hidden>
+          {[92, 100, 96, 88, 64].map((w, i) => (
+            <span
+              key={i}
+              style={{ width: `${w}%` }}
+              className="mb-1.5 block h-1.5 rounded-full bg-white/20 last:mb-0"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-sm border border-white/10 bg-white/4 px-3 py-3" aria-hidden>
+          <span className="block h-1.5 overflow-hidden rounded-full bg-white/10">
+            <span
+              style={{ width: `${fraction * 100}%` }}
+              className="block h-full bg-signal/70"
+            />
+          </span>
+          <span className="mt-2 flex justify-between font-mono text-label text-zinc tabular-nums">
+            <span>{clock(at)}</span>
+            <span>{clock(ch.seconds)}</span>
+          </span>
+        </div>
+      )}
+
+      <div className="mt-2 flex items-center gap-2">
+        {CHAPTERS.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setChapter(i)}
+            aria-pressed={chapter === i}
+            className={cn(
+              TOGGLE,
+              chapter === i
+                ? "border-white/60 text-white"
+                : "border-white/15 text-zinc hover:text-white",
+            )}
+          >
+            {t("prototype.reader.chapter", { n: i + 1 })}
           </button>
         ))}
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(fraction * 100)}
+          onChange={(e) => setFraction(Number(e.target.value) / 100)}
+          aria-label={t("prototype.reader.position")}
+          className="range flex-1"
+        />
       </div>
 
-      <Readout>
-        {active.id === "library"
-          ? t("prototype.streaming.perViewer", {
-              path: active.path,
-              data: active.legs[2],
-              total: active.total,
-            })
-          : warm
-            ? t("prototype.streaming.servedWarm", {
-                path: active.path,
-                edge: active.legs[0],
-                render: active.legs[1],
+      <Readout tone={switched ? "good" : "neutral"}>
+        {!switched
+          ? t("prototype.reader.idle")
+          : mode === "listen"
+            ? t("prototype.reader.toListen", {
+                n: chapter + 1,
+                page,
+                pages: ch.pages,
+                at: clock(at),
+                total: clock(ch.seconds),
               })
-            : t("prototype.streaming.servedCold", {
-                path: active.path,
-                data: active.legs[2],
+            : t("prototype.reader.toRead", {
+                n: chapter + 1,
+                page,
+                pages: ch.pages,
+                at: clock(at),
               })}
       </Readout>
     </ProtoShell>
@@ -372,6 +303,5 @@ function StreamingProto() {
 
 export function Prototype({ variant }: { variant: Variant }) {
   if (variant === "booking") return <BookingProto />;
-  if (variant === "checkout") return <CheckoutProto />;
-  return <StreamingProto />;
+  return <ReaderProto />;
 }

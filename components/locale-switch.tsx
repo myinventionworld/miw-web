@@ -46,7 +46,7 @@ export function LocaleSwitch({ className }: { className?: string }) {
           // Bare 10px text measured 13px tall. `py-2` against the cancelled
           // margin lifts each one over the 24px floor without moving the row.
           className={cn(
-            "-my-2 rounded-md px-1.5 py-2 font-mono text-[10px] tracking-telemetry uppercase transition-colors",
+            "-my-2 rounded-md px-1.5 py-2 text-label transition-colors",
             locale === active
               ? "text-white"
               : "text-steel hover:text-white",

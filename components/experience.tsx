@@ -19,7 +19,6 @@ import { detectWebGL, prefersFlatDeck } from "@/lib/utils";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./overlay/fallback";
-import { Hud } from "./overlay/hud";
 import { Stage } from "./overlay/stage";
 import { TransmissionConsole } from "./overlay/transmission-console";
 
@@ -50,12 +49,7 @@ function Hero({
       lift={40}
     >
       <div className="mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 md:px-10">
-        <div className="flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-signal uppercase">
-          <span className="h-px w-9 bg-signal/55" />
-          {t("brand.tagline")}
-        </div>
-
-        <h1 className="text-lift mt-6 text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.94] font-semibold tracking-[-0.045em] text-white">
+        <h1 className="text-lift text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.96] font-bold tracking-[-0.05em] text-white">
           {t("home.titleTop")}
           <br className="hidden sm:block" /> {t("home.titleBottom")}
         </h1>
@@ -64,7 +58,7 @@ function Hero({
             carry itself, and washing the whole block would flatten the planet
             the hero is framed against. */}
         <div className="copy-scrim mt-6 max-w-xl">
-          <p className="text-lift relative text-[16px] leading-relaxed text-platinum">
+          <p className="text-lift relative text-copy-lg leading-relaxed text-platinum">
             {t("home.lede")}
           </p>
         </div>
@@ -73,31 +67,21 @@ function Hero({
           <button
             type="button"
             onClick={onDiscovery}
-            className="flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[14px] font-semibold text-black transition-colors hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-full bg-action px-6 py-3 text-lead font-semibold text-on-action transition-colors hover:bg-action-hover"
           >
             {t("home.ctaContact")}
-            <Arrow dir="up-right" className="text-[15px]" weight={1.7} />
+            <Arrow dir="up-right" className="text-copy" weight={1.7} />
           </button>
           <button
             type="button"
             onClick={onExplore}
-            className="flex items-center gap-2 rounded-lg border border-white/30 bg-black/40 px-6 py-3 text-[14px] font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
+            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
           >
             {t("home.ctaStations")}
-            <Arrow dir="down" className="text-[15px]" weight={1.6} />
+            <Arrow dir="down" className="text-copy" weight={1.6} />
           </button>
         </div>
 
-        <div className="copy-scrim mt-5 max-w-xl">
-          <p className="text-lift relative text-[13px] leading-relaxed text-platinum">
-            {t("home.ownProducts")}
-          </p>
-        </div>
-
-        <div className="mt-10 flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-steel uppercase">
-          <Arrow dir="down" className="animate-bounce text-[13px]" weight={1.4} />
-          {t("home.scrollHint")}
-        </div>
       </div>
     </Stage>
   );
@@ -109,10 +93,9 @@ function Hero({
  * scroller and the browser fight each other for the same scrollTop.
  */
 function Deck({ webgl }: { webgl: boolean }) {
-  const [telemetry, setTelemetry] = useState(true);
-  // Business first: the visitor who has to be convinced is the one holding the
-  // budget, not the one who already reads p99 charts for a living.
-  const [mode, setMode] = useState<Mode>("business");
+  // One copy mode. The old Business / Telemetry toggle doubled every station's
+  // text for a distinction most visitors never looked for.
+  const mode: Mode = "business";
 
   /**
    * One scroll position, read by everything.
@@ -185,10 +168,6 @@ function Deck({ webgl }: { webgl: boolean }) {
       <Navbar
         onNavigate={goStation}
         onLaunch={() => travel(CONSOLE_ANCHOR)}
-        telemetry={telemetry}
-        onToggleTelemetry={() => setTelemetry((v) => !v)}
-        mode={mode}
-        onModeChange={setMode}
       />
 
       <Hero
@@ -202,7 +181,6 @@ function Deck({ webgl }: { webgl: boolean }) {
         onAction={() => travel(CONSOLE_ANCHOR)}
       />
       <TransmissionConsole progress={progress} />
-      <Hud visible={telemetry} />
 
       {/* The only element with real height — everything else is fixed. */}
       <div aria-hidden className={`${RUNWAY} w-full`} />
