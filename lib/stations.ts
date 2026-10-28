@@ -2,13 +2,18 @@
  * The shape of the journey. The navbar, the mega-drawer, the floating dock, the
  * console, the /careers route and the 3D scene all read from here.
  *
- * Four stations carry the two engines: 01–02 are the studio's client work,
- * 03 is the product lab it funds, 04 is the guild model both run on. The
- * transmission console is the fifth and final parking point.
+ * Four stations: 01 is work for startups and tech teams, 02 is work for small
+ * businesses, 03 is the team's own products, 04 introduces the team and links
+ * to `/about`, where the people are listed. The contact
+ * console is the fifth and final parking point.
+ *
+ * The ids are older than that split (`backend`, `commerce`, `guild`) and are
+ * kept because the camera spline, the 3D bodies and every locale key are
+ * addressed by them. What a station is about lives in the locale files.
  *
  * What is left in this file is structure — ids, scroll anchors, which options
- * belong to which tab. The words moved to `locales/<lang>/stations.json`,
- * `careers.json` and `console.json` when the site went trilingual, because
+ * belong to which tab. The words moved to `locales/<lang>/stations.json` and
+ * `console.json` when the site went trilingual, because
  * three copies of this file kept in step by hand is not a content model. Every
  * id below is a key over there; the interfaces near each export describe what
  * the JSON is expected to hold.
@@ -18,32 +23,26 @@
 
 export type StationId = "backend" | "commerce" | "labs" | "guild";
 
-/** Business reads outcomes, telemetry reads mechanism. Same station either way. */
-export type Mode = "business" | "telemetry";
+/**
+ * Copy mode. There used to be two (business and telemetry) behind a toggle;
+ * there is one now, and the type stays so the locale shape does not change.
+ */
+export type Mode = "business";
 
 /** Ids, not labels. The badge text is at `projects:status.<id>`. */
 export type ProjectStatus = "live" | "beta" | "build" | "internal";
 
 /**
- * Value first, tech proof second. `headline` is the biggest text on the
- * station and states an outcome; everything under it is the argument for why
- * that outcome is credible. Read from `stations:<id>.<mode>`.
+ * A headline and two sentences. `headline` is the biggest text on the station
+ * and states what the visitor gets; the lede says for whom and points at the
+ * work. Read from `stations:<id>.business`.
  */
 export interface StationCopy {
   headline: string;
   lede: string;
-  problem: string;
-  solution: string;
-  proof: string[];
 }
 
-/** `stations:<id>.specs` — the engineering readout, shown in both modes. */
-export interface Spec {
-  label: string;
-  value: string;
-}
-
-/** `stations:guild.program` — station 04 sells a way of working, not an artifact. */
+/** `stations:<id>.program` — a label and a line per item (the services at 02). */
 export interface ProgramPoint {
   label: string;
   body: string;
@@ -59,7 +58,7 @@ export interface Station {
    * the camera to the console instead.
    */
   ctaHref?: string;
-  /** Station 04 shows the programme card in place of a product frame. */
+  /** Shows a list card (`stations:<id>.program`) in place of a product frame. */
   program?: true;
 }
 
@@ -75,17 +74,19 @@ export interface Station {
  */
 export const STATIONS: Station[] = [
   { id: "backend", index: "01", anchor: 0.06 },
-  { id: "commerce", index: "02", anchor: 0.3 },
+  // No finished small-business project to show yet, so this station lists
+  // what is on offer instead of a product frame.
+  { id: "commerce", index: "02", anchor: 0.3, program: true },
   { id: "labs", index: "03", anchor: 0.54 },
-  { id: "guild", index: "04", anchor: 0.78, ctaHref: "/careers", program: true },
+  { id: "guild", index: "04", anchor: 0.78, ctaHref: "/about" },
 ];
 
 /* ── navigation ───────────────────────────────────────────────────────── */
 
 /**
- * The top bar sells four things, which is not the same as four stations:
- * "Studio" is the client engine and spans two stations, and "Transmission"
- * is the console rather than a station at all.
+ * The top bar has four items, which is not the same as four stations:
+ * "Services" spans the two client stations, and "Contact" is the console
+ * rather than a station at all.
  *
  * Label and blurb are at `stations:sections.<id>`.
  */
@@ -100,7 +101,7 @@ export interface NavSection {
 export const NAV_SECTIONS: NavSection[] = [
   { id: "studio", stations: ["backend", "commerce"], go: "backend" },
   { id: "labs", stations: ["labs"], go: "labs" },
-  { id: "guild", stations: ["guild"], go: "guild" },
+  { id: "guild", stations: [], go: "guild" },
   { id: "transmission", stations: [], go: "console" },
 ];
 
@@ -109,137 +110,80 @@ export const CONSOLE_ANCHOR = 0.97;
 /* ── commercial availability ──────────────────────────────────────────── */
 
 /**
- * `common:availability` is scarcity that is checkable rather than manufactured,
- * and `common:standards` is the bar delivered architecture is designed to — not
- * a claim about past client results. Both are prose and live in the locale
- * files; keep the count honest there, in all three languages at once.
+ * `common:availability` says whether the team is taking work, and nothing it
+ * cannot back up: no invented slot counts, no average scope without a history
+ * to average. `common:facts` are checkable facts about the team. Both are prose
+ * and live in the locale files; change them in all three languages at once.
  */
 export interface Availability {
   status: string;
   scope: string;
 }
 
-export interface Standard {
+export interface Fact {
   value: string;
   label: string;
 }
 
-/* ── transmission console ─────────────────────────────────────────────── */
+/* ── contact console ──────────────────────────────────────────────── */
 
 /**
- * Three intents, three forms. Mixing a developer's portfolio link into the same
- * field set as a budget range is what made the old single form ask everyone for
- * things that did not apply to them.
- *
- * "Hire the studio" used to be one tab covering both a greenfield build and a
- * look at a system that already exists. They are different conversations: one
- * starts from what you want, the other from what already breaks, and the second
- * is the cheaper first step for most of the people who arrive here.
+ * Two audiences, two forms. A shop owner who needs a website and a founder who
+ * needs an MVP answer different questions, and one form asking both of them
+ * everything is a form neither finishes.
  *
  * The flag stays here rather than in the locale files: it is a command-line
- * argument, and `--audit-architektury` would be a joke that does not land in any
- * language.
+ * argument, and a translated flag would be a joke that does not land.
  */
 export const CONSOLE_TABS = [
-  { id: "engineering", flag: "--client-engineering" },
-  { id: "audit", flag: "--architecture-audit" },
-  { id: "guild", flag: "--join-guild" },
+  { id: "business", flag: "--small-business" },
+  { id: "startup", flag: "--startup" },
 ] as const;
 
 export type ConsoleTab = (typeof CONSOLE_TABS)[number]["id"];
 
-/** What the engagement actually is. Drives the scope prompt in the form. */
-export const ENGAGEMENTS = ["mvp", "rescue", "ai", "audit"] as const;
+/** What the work actually is. Drives the scope prompt in the form. */
+export const ENGAGEMENTS = [
+  "website",
+  "eshop",
+  "automation",
+  "mvp",
+  "ai",
+  "review",
+] as const;
 
 export type EngagementId = (typeof ENGAGEMENTS)[number];
 
 /**
  * Which engagements each console tab offers. The tab has already told us
- * roughly why the reader is here, so asking them to pick from all four again
- * would be asking the same question twice in two different wordings.
+ * roughly why the reader is here, so asking them to pick from all six again
+ * would be asking the same question twice.
  */
 export const TAB_ENGAGEMENTS: Record<ConsoleTab, readonly EngagementId[]> = {
-  engineering: ["mvp", "ai"],
-  audit: ["audit", "rescue"],
-  guild: [],
+  business: ["website", "eshop", "automation"],
+  startup: ["mvp", "ai", "review"],
 };
 
 /**
- * Asked up front rather than discovered on call three. A range that rules the
- * studio out is worth ten minutes of everyone's time, not ten days of it.
+ * The visitor's budget, asked up front. These are their answers, not our
+ * prices.
  *
  * Ids rather than the labels themselves, because the label is also the value
- * that gets submitted — and a form whose payload changes meaning depending on
- * which language the visitor read it in is a form nobody can read the replies
- * to. The figures stay in dollars in every language for the same reason.
+ * that gets sent — and a message whose meaning changes depending on which
+ * language the visitor read the form in is a message nobody can act on. The
+ * figures stay in euros in every language for the same reason.
  */
-export const BUDGETS = ["5-10k", "10-25k", "25k-plus", "unsure"] as const;
-
-export const STAGES = [
-  "pre-seed",
-  "seed",
-  "series-a",
-  "established",
+export const BUDGETS = [
+  "upto-2k",
+  "2-5k",
+  "5-15k",
+  "15k-plus",
+  "unsure",
 ] as const;
+
+export const STAGES = ["small-business", "idea", "startup", "company"] as const;
 
 export const TIMELINES = ["now", "month", "quarter", "scoping"] as const;
-
-/* ── guild ────────────────────────────────────────────────────────────── */
-
-/**
- * Directions rather than headcount. We are not filling a seat with a fixed
- * title — a strong applicant on any of these gets a crew built around them.
- *
- * Each one names the system you would actually be put on, and all three are
- * systems in `data/projects.ts` that a reader can go and inspect. A track
- * advertising work on something we do not run is how an incubator turns into a
- * course. Codename and stack are proper nouns, so they stay here; the pitch is
- * at `careers:openings.<id>`.
- */
-export const GUILD_OPENINGS = [
-  {
-    id: "backend",
-    system: "OMNIBUS",
-    stack: ["Java", "Spring Boot", "Go", "Kubernetes", "Postgres"],
-  },
-  {
-    id: "commerce",
-    system: "COMMERCE CORE",
-    stack: ["Go", "Node.js", "Redis", "Postgres", "Stripe"],
-  },
-  {
-    id: "frontend",
-    system: "WOVIE",
-    stack: ["Next.js", "TypeScript", "Tailwind", "Prisma", "WebGL"],
-  },
-] as const;
-
-export type OpeningId = (typeof GUILD_OPENINGS)[number]["id"];
-
-/**
- * Published because the unknown is what stops people applying. Every step is
- * something we do to their work, not a personality screen. Copy at
- * `careers:hiring.<step>`.
- */
-export const HIRING_STEPS = ["01", "02", "03", "04"] as const;
-
-/** Answers the questions that otherwise arrive by DM. Nothing invented. */
-export const CAREERS_FAQ = [
-  "paid",
-  "experience",
-  "university",
-  "fit",
-  "after",
-] as const;
-
-/** Extended intake. Deliberately asks for work, not for a CV. */
-export const GUILD_LEVELS = [
-  "y1",
-  "y2",
-  "y3",
-  "self-taught",
-  "working",
-] as const;
 
 /* ── lookups ──────────────────────────────────────────────────────────── */
 
@@ -262,8 +206,8 @@ export function nearestStation(p: number): Station {
 }
 
 export const STATUS_TONE: Record<ProjectStatus, string> = {
-  live: "border-signal/60 text-signal",
-  beta: "border-beam/60 text-beam",
-  build: "border-amber-400/60 text-amber-300",
-  internal: "border-white/35 text-platinum",
+  live: "border-accent/60 text-accent",
+  beta: "border-accent/40 text-accent",
+  build: "border-white/30 text-platinum",
+  internal: "border-white/30 text-platinum",
 };

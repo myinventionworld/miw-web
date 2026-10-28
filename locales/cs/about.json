@@ -1,0 +1,59 @@
+{
+  "metaTitle": "O nás — MIW",
+  "metaDescription": "MIW je sedmičlenný tým v Praze: inženýři, analytik a designér. Kdo jsme, co děláme a jak pracujeme.",
+  "eyebrow": "O nás",
+  "title": "Malý tým, který dotahuje věci do konce.",
+  "lede": "Sedm lidí v Praze. Pracujeme pro malé firmy a startupy a děláme i vlastní produkty — takže víme, co stojí dostat se od nápadu k lidem, kteří to používají.",
+  "what": {
+    "title": "Co děláme",
+    "items": [
+      {
+        "label": "Pro malé firmy",
+        "body": "Weby, e-shopy, rezervace a jednoduchou evidenci zboží a objednávek."
+      },
+      {
+        "label": "Pro startupy",
+        "body": "MVP, backendy a AI funkce — od první verze dál."
+      }
+    ]
+  },
+  "team": {
+    "title": "Tým",
+    "lede": "Mluvíte přímo s lidmi, kteří váš projekt staví.",
+    "roles": {
+      "mykhailo": "Zakladatel · full-stack a AI inženýr",
+      "ivan": "IT analytik · návrh systémů, UML, BPMN, Spring Boot",
+      "denis": "Full-stack inženýr",
+      "mykola": "Embedded a AI inženýr",
+      "illia": "Senior C# inženýr · 10 let praxe",
+      "rosztiszlav": "AI/ML inženýr",
+      "andrei": "Grafický designér"
+    }
+  },
+  "values": {
+    "title": "Jak pracujeme",
+    "items": [
+      {
+        "label": "Srozumitelně",
+        "body": "Rozumíte tomu, za co platíte a proč."
+      },
+      {
+        "label": "Hotové, ne demo",
+        "body": "Práci posuzujeme podle toho, co lidé skutečně používají."
+      },
+      {
+        "label": "Na rovinu o stavu",
+        "body": "Co je hotové, co ne a v čem si zatím nejsme jistí."
+      }
+    ]
+  },
+  "work": {
+    "title": "Co jsme postavili",
+    "action": "Všechny práce"
+  },
+  "cta": {
+    "title": "Postavme něco užitečného",
+    "body": "Popište zadání pár řádky. Odpoví člověk z týmu.",
+    "action": "Probrat projekt"
+  }
+}

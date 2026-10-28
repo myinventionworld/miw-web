@@ -5,14 +5,13 @@ import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { AnimatePresence, motion } from "motion/react";
-import { Arrow, Bars, Cross, Trace } from "@/components/glyph";
+import { Arrow, Bars, Cross } from "@/components/glyph";
 
 import { projectsForStations, type ProjectCase } from "@/data/projects";
 import {
   NAV_SECTIONS,
   STATUS_TONE,
   stationById,
-  type Mode,
   type NavSection,
   type ProgramPoint,
   type StationId,
@@ -81,7 +80,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
                   cx={n.x}
                   cy={n.y}
                   r={2.6}
-                  fill="#34d399"
+                  fill="#9db4ff"
                   opacity={0.85}
                 />
               ))}
@@ -99,7 +98,7 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
               y={86 - h}
               width="6"
               height={h}
-              fill="#22d3ee"
+              fill="#9db4ff"
               opacity={0.35 + rnd(i + 2) * 0.55}
             />
           );
@@ -150,78 +149,6 @@ function ProjectThumb({ station, code }: { station: StationId; code: string }) {
 
 /* ── mode toggle ──────────────────────────────────────────────────────── */
 
-/**
- * Two readers arrive at this page: the one who signs and the one who has to
- * maintain it. Rather than averaging the copy into something neither trusts,
- * the toggle picks which one is being spoken to.
- *
- * Both halves of each label are shown from `sm` up — `Business / Impact` says
- * what the mode is *for*, which one word could not. Below `sm` the second word
- * is dropped rather than wrapped: the status line shares this row and it is the
- * more important of the two.
- */
-export function ModeToggle({
-  mode,
-  onChange,
-  className,
-}: {
-  mode: Mode;
-  onChange: (m: Mode) => void;
-  className?: string;
-}) {
-  const { t } = useTranslation("common");
-
-  return (
-    <div className={cn("flex shrink-0 items-center gap-2", className)}>
-      <span
-        aria-hidden
-        className="hidden font-mono text-[9px] tracking-telemetry text-steel uppercase lg:inline"
-      >
-        {t("nav.modeLabel")}
-      </span>
-      <div
-        role="group"
-        aria-label={t("nav.modeGroup")}
-        className="flex items-center rounded-full border border-white/15 bg-black/50 p-0.5 backdrop-blur"
-      >
-        {(
-          [
-            ["business", "nav.business", "nav.businessSub"],
-            ["telemetry", "nav.telemetry", "nav.telemetrySub"],
-          ] as const
-        ).map(([id, label, sub]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onChange(id)}
-            aria-pressed={mode === id}
-            // `py-1.5` rather than `py-1`: the buttons measured 22px tall,
-            // under the 24px floor, and they sit flush against each other so
-            // the spacing exception does not apply. The pill is `inset-0`, so
-            // this is the one target here whose hit area cannot grow invisibly
-            // — 3px of extra chrome is the cheapest honest price.
-            className={cn(
-              "relative rounded-full px-2.5 py-1.5 font-mono text-[9px] tracking-telemetry whitespace-nowrap uppercase transition-colors",
-              mode === id ? "text-black" : "text-zinc hover:text-white",
-            )}
-          >
-            {mode === id && (
-              <motion.span
-                layoutId="mode-pill"
-                className="absolute inset-0 rounded-full bg-white"
-                transition={{ type: "spring", stiffness: 480, damping: 36 }}
-              />
-            )}
-            <span className="relative">
-              {t(label)}
-              <span className="hidden sm:inline"> / {t(sub)}</span>
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ── mega drawer ──────────────────────────────────────────────────────── */
 
@@ -250,36 +177,31 @@ function ProjectCard({
         <ProjectThumb station={project.station} code={project.codename} />
         <span
           className={cn(
-            "absolute top-2 left-2 border bg-black/70 px-1.5 py-0.5 font-mono text-[8px] tracking-[0.16em] uppercase backdrop-blur",
+            "absolute top-2 left-2 rounded-full border bg-black/70 px-2 py-0.5 text-meta font-medium backdrop-blur",
             STATUS_TONE[project.status],
           )}
         >
           {t(`status.${project.status}`)}
         </span>
-        <span className="absolute right-2 bottom-2 flex items-center gap-1 border border-white/25 bg-black/75 px-1.5 py-0.5 font-mono text-[8px] tracking-[0.16em] text-white uppercase backdrop-blur">
+        <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full border border-white/25 bg-black/75 px-2 py-0.5 text-meta font-medium text-white backdrop-blur">
           {t("common:project.caseStudy")}
-          <Arrow className="text-[9px]" weight={1.8} />
+          <Arrow className="text-label" weight={1.8} />
         </span>
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="font-mono text-[9px] tracking-[0.18em] text-zinc">
-          {project.codename}
-        </span>
-        <span className="text-[15px] font-semibold tracking-[-0.01em] text-white">
-          {project.name}
-        </span>
+      <div className="mt-3 text-copy font-semibold tracking-[-0.01em] text-white">
+        {project.name}
       </div>
 
-      <p className="mt-1.5 text-[12.5px] leading-relaxed text-platinum/80">
-        {t(`${project.id}.pitch.executive`)}
+      <p className="mt-1.5 text-small leading-relaxed text-platinum/80">
+        {t(`${project.id}.pitch`)}
       </p>
 
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {project.stack.map((name) => (
           <span
             key={name}
-            className="border border-white/15 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.1em] text-zinc"
+            className="rounded-full border border-white/15 px-2 py-0.5 text-meta text-zinc"
           >
             {name}
           </span>
@@ -313,11 +235,7 @@ function MegaDrawer({
       <div className="mx-auto max-w-[1400px] px-6 py-9 md:px-10 md:py-11">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
-            <span className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-              {stations.map((s) => s.index).join(" · ")} /{" "}
-              {t(`sections.${section.id}.label`)}
-            </span>
-            <h3 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
+            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-white">
               {t(`sections.${section.id}.blurb`)}
             </h3>
           </div>
@@ -327,10 +245,10 @@ function MegaDrawer({
                 key={s.id}
                 type="button"
                 onClick={() => onNavigate(s.id)}
-                className="flex items-center gap-2 border border-white/25 px-4 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black"
+                className="flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
               >
-                {s.index} {t(`${s.id}.nav`)}
-                <Arrow className="text-[13px]" />
+                {t(`${s.id}.nav`)}
+                <Arrow className="text-body" />
               </button>
             ))}
           </div>
@@ -359,10 +277,10 @@ function MegaDrawer({
               )
               .map((p) => (
                 <div key={p.label} className="border-t border-white/12 pt-3">
-                  <dt className="font-mono text-[9.5px] tracking-telemetry text-white uppercase">
+                  <dt className="text-body font-semibold text-white">
                     {p.label}
                   </dt>
-                  <dd className="mt-1.5 text-[12.5px] leading-relaxed text-platinum/80">
+                  <dd className="mt-1.5 text-small leading-relaxed text-platinum/80">
                     {p.body}
                   </dd>
                 </div>
@@ -379,18 +297,10 @@ function MegaDrawer({
 export function Navbar({
   onNavigate,
   onLaunch,
-  telemetry,
-  onToggleTelemetry,
-  mode,
-  onModeChange,
 }: {
   onNavigate: (id: StationId) => void;
   /** Jumps to the transmission console at the end of the runway. */
   onLaunch: () => void;
-  telemetry: boolean;
-  onToggleTelemetry: () => void;
-  mode: Mode;
-  onModeChange: (m: Mode) => void;
 }) {
   const { t } = useTranslation(["common", "stations"]);
   const [open, setOpen] = useState<string | null>(null);
@@ -484,7 +394,7 @@ export function Navbar({
             writes a brief is whether the studio is even taking work. */}
         <div className="relative border-b border-white/10 bg-black/45 backdrop-blur">
           <div className="mx-auto flex h-8 max-w-[1400px] items-center justify-between gap-4 px-5 md:px-8">
-            <p className="flex min-w-0 items-center gap-2 font-mono text-[9.5px] tracking-telemetry text-platinum uppercase">
+            <p className="flex min-w-0 items-center gap-2 text-meta text-platinum">
               <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-signal" />
               <span className="truncate">
                 {t("availability.prefix")}: {t("availability.status")}
@@ -500,7 +410,6 @@ export function Navbar({
                 status text that truncates, so it can give up the width. */}
             <div className="flex shrink-0 items-center gap-3">
               <LocaleSwitch />
-              <ModeToggle mode={mode} onChange={onModeChange} />
             </div>
           </div>
         </div>
@@ -519,7 +428,7 @@ export function Navbar({
               <span className="absolute inset-0 rounded-full border border-white/35" />
               <span className="absolute size-1 rounded-full bg-white transition-transform duration-500 group-hover:translate-x-[5px]" />
             </span>
-            <span className="text-[13px] font-semibold tracking-[0.36em] text-white">
+            <span className="text-body font-semibold tracking-[0.36em] text-white">
               MIW
             </span>
           </button>
@@ -543,7 +452,7 @@ export function Navbar({
                 aria-expanded={
                   s.stations.length > 0 ? open === s.id : undefined
                 }
-                className="relative px-4 py-2 text-[13px] font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
+                className="relative px-4 py-2 text-body font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
               >
                 {active === s.id && (
                   <motion.span
@@ -572,33 +481,18 @@ export function Navbar({
             <LocaleLink
               href="/work"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-[12.5px] font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
             >
               {t("nav.work")}
             </LocaleLink>
 
             <LocaleLink
-              href="/careers"
+              href="/about"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-[12.5px] font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
             >
-              {t("nav.careers")}
+              {t("nav.about")}
             </LocaleLink>
-
-            <button
-              type="button"
-              onClick={onToggleTelemetry}
-              aria-pressed={telemetry}
-              aria-label={t("nav.telemetryToggle")}
-              className={cn(
-                "hidden size-9 items-center justify-center rounded-md border transition-colors sm:flex",
-                telemetry
-                  ? "border-white/30 bg-white/10 text-white"
-                  : "border-white/15 text-zinc hover:border-white/30 hover:text-white",
-              )}
-            >
-              <Trace className="text-[17px]" />
-            </button>
 
             <button
               type="button"
@@ -606,10 +500,10 @@ export function Navbar({
                 dismiss();
                 onLaunch();
               }}
-              className="hidden items-center gap-2 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200 sm:flex"
+              className="hidden items-center gap-2 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover sm:flex"
             >
               {t("nav.bookCall")}
-              <Arrow dir="up-right" className="text-[14px]" weight={1.7} />
+              <Arrow dir="up-right" className="text-lead" weight={1.7} />
             </button>
 
             <button
@@ -620,9 +514,9 @@ export function Navbar({
               className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white lg:hidden"
             >
               {mobile ? (
-                <Cross className="text-[16px]" />
+                <Cross className="text-copy-lg" />
               ) : (
-                <Bars className="text-[16px]" />
+                <Bars className="text-copy-lg" />
               )}
             </button>
           </div>
@@ -656,10 +550,10 @@ export function Navbar({
                     onClick={() => go(s)}
                     className="flex w-full items-baseline justify-between gap-4 border-b border-white/10 py-4 text-left last:border-0"
                   >
-                    <span className="text-[15px] font-medium text-white">
+                    <span className="text-copy font-medium text-white">
                       {t(`stations:sections.${s.id}.label`)}
                     </span>
-                    <span className="truncate font-mono text-[9px] tracking-telemetry text-zinc">
+                    <span className="truncate text-meta text-zinc">
                       {s.stations
                         .map((id) => stationById(id).index)
                         .join(" · ")}
@@ -672,24 +566,24 @@ export function Navbar({
                   onClick={dismiss}
                   className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
                 >
-                  <span className="text-[15px] font-medium text-white">
+                  <span className="text-copy font-medium text-white">
                     {t("nav.work")}
                   </span>
-                  <span className="font-mono text-[9px] tracking-telemetry text-zinc">
+                  <span className="text-meta text-zinc">
                     {t("nav.caseStudies")}
                   </span>
                 </LocaleLink>
 
                 <LocaleLink
-                  href="/careers"
+                  href="/about"
                   onClick={dismiss}
                   className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
                 >
-                  <span className="text-[15px] font-medium text-white">
-                    {t("nav.careers")}
+                  <span className="text-copy font-medium text-white">
+                    {t("nav.about")}
                   </span>
-                  <span className="font-mono text-[9px] tracking-telemetry text-zinc">
-                    {t("nav.openDirections")}
+                  <span className="text-meta text-zinc">
+                    {t("stations:sections.guild.blurb")}
                   </span>
                 </LocaleLink>
 
@@ -699,10 +593,10 @@ export function Navbar({
                     dismiss();
                     onLaunch();
                   }}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-[13px] font-semibold text-black"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-action px-4 py-3 text-body font-semibold text-on-action transition-colors hover:bg-action-hover"
                 >
                   {t("nav.bookCall")}
-                  <Arrow dir="up-right" className="text-[14px]" weight={1.7} />
+                  <Arrow dir="up-right" className="text-lead" weight={1.7} />
                 </button>
               </div>
             </motion.div>

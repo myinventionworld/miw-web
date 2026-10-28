@@ -1,105 +1,88 @@
 {
-  "title": "Vysílací konzole",
-  "subtitle": "Přímo k inženýrům",
-  "tablist": "Typ vysílání",
-
+  "tablist": "Pro koho",
   "tabs": {
-    "engineering": {
-      "label": "Klientský vývoj",
-      "heading": "Chcete postavit něco, co vydrží?",
-      "note": "Nová stavba, MVP nebo AI integrace nad systémem, který už provozujete."
+    "business": {
+      "label": "Malá firma",
+      "heading": "Co vaše firma potřebuje?",
+      "note": "Web, e-shop, rezervace nebo evidenci zboží a objednávek."
     },
-    "audit": {
-      "label": "Audit architektury",
-      "heading": "Zjistěte, co se rozbije první — než se to stane.",
-      "note": "Systém funguje a křivka růstu říká, že nebude. Přečteme ho a sepíšeme, co se rozbije první."
-    },
-    "guild": {
-      "label": "Do cechu",
-      "heading": "Není to stáž. Je to posádka, brána review a podíl z práce.",
-      "note": "Píšeš kód a chceš stavět pod dohledem na úrovni Principal."
+    "startup": {
+      "label": "Startup nebo tech tým",
+      "heading": "Co stavíte?",
+      "note": "MVP, AI funkci, nebo nezávislý pohled na to, co už máte."
     }
   },
-
   "engagements": {
-    "mvp": {
-      "label": "Nová stavba / MVP",
-      "prompt": "Co stavíte, pro koho to je a co musí vydržet, až to poroste?"
+    "website": {
+      "label": "Web",
+      "prompt": "Čím se zabýváte a s čím má web pomáhat?"
     },
-    "rescue": {
-      "label": "Záchrana architektury",
-      "prompt": "Co se dnes rozbíjí, jak často a co už jste zkusili, abyste to spravili?"
+    "eshop": {
+      "label": "E-shop",
+      "prompt": "Co prodáváte, kolik zhruba produktů a prodáváte už online?"
+    },
+    "automation": {
+      "label": "Sklad, objednávky, rezervace",
+      "prompt": "Co dnes evidujete a jak — sešit, Excel, něco jiného?"
+    },
+    "mvp": {
+      "label": "MVP",
+      "prompt": "Co stavíte, pro koho a co musí umět první verze?"
     },
     "ai": {
-      "label": "AI integrace",
-      "prompt": "Který proces chcete sejmout z lidí a jakých dat se musí dotknout?"
+      "label": "AI funkce",
+      "prompt": "Jakou práci má AI převzít a s jakými daty pracuje?"
     },
-    "audit": {
-      "label": "Audit architektury",
-      "prompt": "Co je v systému nosné a co se rozbije první, až to poroste?"
+    "review": {
+      "label": "Revize kódu",
+      "prompt": "Co už existuje a co vás na tom znepokojuje?"
     }
   },
-
   "budgets": {
-    "5-10k": "$5k – $10k",
-    "10-25k": "$10k – $25k",
-    "25k-plus": "$25k+",
+    "upto-2k": "Do 2 000 €",
+    "2-5k": "2 000 – 5 000 €",
+    "5-15k": "5 000 – 15 000 €",
+    "15k-plus": "15 000 € a víc",
     "unsure": "Zatím nevím"
   },
-
   "stages": {
-    "pre-seed": "Pre-seed / nápad",
-    "seed": "Seed / první trakce",
-    "series-a": "Series A+",
-    "established": "Zavedený byznys"
+    "small-business": "Malá firma",
+    "idea": "Nápad",
+    "startup": "Startup",
+    "company": "Firma"
   },
-
   "timelines": {
-    "now": "Začínáme hned",
+    "now": "Hned",
     "month": "Do měsíce",
-    "quarter": "Tento kvartál",
-    "scoping": "Zatím jen rozsah"
+    "quarter": "Za 3 měsíce",
+    "scoping": "Zatím se rozhlížím"
   },
-
   "form": {
-    "standardsNote": "Standard, na který navrhujeme — ne tvrzení o minulých výsledcích",
-    "engagement": "Povaha práce",
-    "engagementHint": "Vyberte jednu",
-    "stage": "Fáze",
+    "engagement": "Co potřebujete",
+    "engagementHint": "",
+    "stage": "Jste",
     "budget": "Rozpočet",
-    "timeline": "Termín",
-    "identity": "Jméno / firma",
-    "identityHint": "Vše povinné",
+    "timeline": "Kdy",
+    "identity": "Vaše údaje",
+    "identityHint": "",
     "name": "Jméno",
-    "company": "Firma",
-    "email": "Pracovní e-mail",
-    "scope": "Rozsah",
-    "scopeHint": "Stačí jeden řádek",
-
-    "errName": "err: je potřeba jméno operátora.",
-    "errOrg": "err: je potřeba firma — odpověď závisí na tom, kdo ji řídí.",
-    "errEmail": "err: je potřeba funkční adresa, abychom mohli odpovědět.",
-    "errScope": "err: popište rozsah jedním řádkem — tenhle stůl odpovídá textem.",
-
-    "idle": "> inženýrský stůl, ne CRM sekvence.",
-    "sending": "> otevírám kanál {{flag}} …",
-    "submit": "Odeslat vysílání",
-    "submitting": "Vysílám…"
+    "company": "Firma nebo projekt",
+    "email": "E-mail",
+    "scope": "O zadání",
+    "scopeHint": "",
+    "errName": "Doplňte prosím jméno.",
+    "errOrg": "Doplňte prosím firmu nebo projekt.",
+    "errEmail": "Doplňte prosím e-mail, na který odpovíme.",
+    "errScope": "Popište prosím zadání jednou dvěma větami.",
+    "idle": "Otevře se vaše pošta s připravenou zprávou na {{email}}.",
+    "submit": "Pokračovat v e-mailu"
   },
-
   "receipt": {
-    "title": "Vysílání přijato",
-    "body": "Tohle čte inženýr dřív, než si někdo domluví hovor. Počítejte s písemnou odpovědí, obvykle do dvou pracovních dnů.",
-    "engagement": "Spolupráce",
-    "organisation": "Organizace",
-    "budget": "Rozpočet",
-    "channel": "Kanál odpovědi",
-    "amend": "Upravit vysílání"
-  },
-
-  "guild": {
-    "body": "Přihláška do cechu se ptá na nejtěžší věc, kterou jsi postavil, ne na životopis — proto má vlastní stránku, kde je místo odpovědět pořádně.",
-    "cta": "Otevřít přihlášku do cechu",
-    "note": "Čte inženýr · portfolio nad tituly"
+    "title": "Skoro hotovo",
+    "body": "Měla by se otevřít vaše pošta s připravenou zprávou. Klikněte tam na Odeslat — do té doby k nám nic nedorazí. Pokud se nic neotevřelo, zkopírujte zprávu a pošlete ji na {{email}}.",
+    "reopen": "Otevřít poštu znovu",
+    "copy": "Zkopírovat zprávu",
+    "copied": "Zkopírováno",
+    "amend": "Upravit zprávu"
   }
 }

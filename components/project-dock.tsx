@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -15,7 +15,6 @@ import {
   STATIONS,
   type Mode,
   type ProgramPoint,
-  type Spec,
   type Station,
   type StationCopy,
   type StationId,
@@ -31,8 +30,8 @@ import { cn } from "@/lib/utils";
  * it slides each celestial body to the opposite side so the card is never parked
  * on top of its own subject.
  *
- * Station 04 sells a way of working rather than an artifact, so it closes the
- * flight centred and full-width instead of taking a side.
+ * Station 04 is the team rather than an artifact, so it closes the flight
+ * centred and full-width instead of taking a side.
  */
 const DOCK_SIDE: Record<StationId, "left" | "right" | "center"> = {
   backend: "left",
@@ -67,150 +66,35 @@ const BANDS: Record<StationId, [number, number]> = {
   guild: [0.73, 0.83],
 };
 
-/** Proof beats, rendered as chips so they read as facts rather than prose. */
-function Proof({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-4 flex flex-wrap gap-1.5">
-      {items.map((p) => (
-        <li
-          key={p}
-          className="rounded-sm border border-signal/35 bg-signal/10 px-2 py-1 font-mono text-[9.5px] tracking-[0.1em] text-signal uppercase"
-        >
-          {p}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Beat({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <div className="font-mono text-[9px] tracking-telemetry text-steel uppercase">
-        {label}
-      </div>
-      <p className="text-lift mt-1.5 text-[13.5px] leading-relaxed text-platinum">
-        {children}
-      </p>
-    </div>
-  );
-}
-
 /**
- * Level two, always on. The mode toggle decides which prose a visitor reads,
- * but a CTO who lands mid-scroll should never have to find a control to learn
- * what the thing is built out of.
- */
-function SpecStrip({ station }: { station: Station }) {
-  const { t } = useTranslation("stations");
-  const specs = t(`${station.id}.specs`, { returnObjects: true }) as Spec[];
-
-  return (
-    <dl className="mt-5 border-t border-white/12 pt-3.5">
-      {specs.map((s) => (
-        <div key={s.label} className="flex gap-3 py-[3px]">
-          <dt className="w-[62px] shrink-0 font-mono text-[9px] tracking-[0.14em] text-steel uppercase">
-            {s.label}
-          </dt>
-          <dd className="font-mono text-[10.5px] leading-[1.5] text-zinc">
-            {s.value}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-/**
- * The metrics the case study is going to have to defend, stated on the card.
- *
- * Telemetry mode only. In Business mode the same three numbers would be the
- * fourth restatement of the station's claim on one card; a reader in that mode
- * wants the outcome, and the outcome is the sentence above. `basis` is rendered
- * as a suffix rather than dropped: a design budget and a measured number look
- * identical in a monospace row, which is exactly how a page starts lying.
- *
- * Every dimension here is load-bearing. The label wraps to two lines at this
- * width whatever we do, so the only height left to give back is padding — and
- * the card it sits on has none spare on a 13" deck.
- */
-function MetricStrip({ project }: { project: ProjectCase }) {
-  const { t } = useTranslation(["projects", "common"]);
-
-  // Telemetry-only, and the block that made Telemetry the taller of the two
-  // modes — so it is where the last 12px of a short deck come from. Trimming the
-  // chips' own padding keeps all three metrics and their basis labels, which is
-  // the whole point of the mode.
-  return (
-    <dl className="mt-2.5 grid grid-cols-3 gap-2 deck-short:mt-2 deck-short:gap-1.5">
-      {project.metrics.map((m) => (
-        <div
-          key={m.id}
-          title={t(`${project.id}.metrics.${m.id}.note`)}
-          className="rounded-md border border-white/12 bg-white/4 px-2.5 py-1.5 deck-short:py-1"
-        >
-          <dt className="font-mono text-[12px] leading-none text-white tabular-nums">
-            {m.value}
-          </dt>
-          <dd className="mt-1 font-mono text-[8.5px] leading-[1.25] tracking-[0.08em] text-steel uppercase">
-            {t(`${project.id}.metrics.${m.id}.label`)}
-            <span className="text-steel/70">
-              {" · "}
-              {m.basis === "target"
-                ? t("common:project.budget")
-                : t("common:project.measured")}
-            </span>
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-/**
- * Two levels of the same artifact, chosen by the toggle: Business gets the
- * outcome a buyer is paying for, Telemetry gets the mechanism and the numbers.
- * Both always get the codename, the stack and the running frame — the stack line
- * is not a mode, it is the reason to believe either sentence.
+ * The artifact: its name, one sentence on what it is, and the running frame.
+ * Everything else — stack, decisions, figures — is one click away on the case
+ * study, which is where a reader who wants it goes anyway.
  */
 function ArtifactBody({
-  station,
   project,
-  mode,
 }: {
-  station: Station;
   project: ProjectCase;
-  mode: Mode;
 }) {
   const { t } = useTranslation(["stations", "projects"]);
 
   return (
     <>
-      <div className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-        {t("ui.station", { index: station.index })} · {project.name}
-      </div>
-      <div className="mt-1.5 flex items-baseline justify-between gap-3">
-        <h3 className="font-mono text-xl leading-none font-semibold text-white">
-          {project.codename}
-        </h3>
-        <span className="shrink-0 font-mono text-[9px] tracking-telemetry text-steel uppercase">
-          {project.stack.slice(0, 3).join(" · ")}
-        </span>
-      </div>
+      <h3 className="flex items-center gap-2.5 text-title leading-tight font-semibold text-white">
+        <span
+          className="size-2.5 shrink-0 rounded-full"
+          style={{ background: project.color }}
+        />
+        {project.name}
+      </h3>
 
       {/* The artifact's own pitch is what a short deck gives up. On a window too
           short for the brief column the card is already carrying the station's
           headline, and the frame below states the same thing by running. Full
           text is one click away at `/work/[slug]`. */}
-      <p className="mt-3 hidden text-[13px] leading-relaxed text-platinum deck-wide:block">
-        {t(
-          mode === "business"
-            ? `projects:${project.id}.pitch.executive`
-            : `projects:${project.id}.pitch.telemetry`,
-        )}
+      <p className="mt-2 hidden text-body leading-relaxed text-platinum deck-wide:block">
+        {t(`projects:${project.id}.pitch`)}
       </p>
-
-      {mode === "telemetry" && <MetricStrip project={project} />}
 
       <ShowcaseFrame project={project} className="mt-3" />
     </>
@@ -218,52 +102,39 @@ function ArtifactBody({
 }
 
 /**
- * Station 04 sells a way of working. There is no artifact to open, and faking
- * a product frame for a people programme would be the exact dishonesty the
- * rest of this page is written to avoid.
+ * A list card for stations with nothing to open: the services at 02, the
+ * people at 04. Faking a product frame for either would be the exact
+ * dishonesty the rest of this page is written to avoid.
  */
-function ProgramBody({ station }: { station: Station }) {
+function ProgramBody({
+  station,
+  wide,
+}: {
+  station: Station;
+  wide: boolean;
+}) {
   const { t } = useTranslation("stations");
   const points = t(`${station.id}.program`, {
     returnObjects: true,
   }) as ProgramPoint[];
 
   return (
-    <>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="font-mono text-[9px] tracking-telemetry text-zinc uppercase">
-            {t("ui.station", { index: station.index })} · {t("ui.programme")}
-          </div>
-          <h3 className="mt-1.5 font-mono text-xl leading-none font-semibold text-white">
-            {t("ui.programmeName")}
-          </h3>
+    <dl
+      className={cn(
+        "grid gap-2",
+        wide ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-1",
+      )}
+    >
+      {points.map((p) => (
+        <div
+          key={p.label}
+          className="rounded-lg border border-white/12 bg-white/4 px-3.5 py-2.5"
+        >
+          <dt className="text-body font-semibold text-white">{p.label}</dt>
+          <dd className="mt-0.5 text-small leading-snug text-zinc">{p.body}</dd>
         </div>
-
-        <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-signal/60 px-2.5 py-1 font-mono text-[9px] tracking-telemetry text-signal uppercase">
-          <span className="size-1.5 rounded-full bg-current" />
-          {t("ui.intakeOpen")}
-        </span>
-      </div>
-
-      {/* Two columns, because this card closes the flight centred and full
-          width — a single column of four would run past the fold. */}
-      <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-        {points.map((p) => (
-          <div
-            key={p.label}
-            className="rounded-lg border border-white/12 bg-white/4 px-3.5 py-2.5"
-          >
-            <dt className="font-mono text-[9.5px] tracking-telemetry text-white uppercase">
-              {p.label}
-            </dt>
-            <dd className="mt-1.5 text-[12.5px] leading-[1.5] text-zinc">
-              {p.body}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </>
+      ))}
+    </dl>
   );
 }
 
@@ -280,7 +151,7 @@ function StationCta({
   // `showcase/frame.tsx` to the pixel: a 39px button next to a 33px link left
   // the row visibly ragged, and on a 13" deck those 6px were not free.
   const style =
-    "flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-[12px] font-semibold text-black transition-colors hover:bg-zinc-200";
+    "flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover";
 
   const { t } = useTranslation("stations");
   const label = t(`${station.id}.cta`);
@@ -289,7 +160,7 @@ function StationCta({
     return (
       <LocaleLink href={station.ctaHref} className={style}>
         {label}
-        <Arrow className="text-[14px]" weight={1.7} />
+        <Arrow className="text-lead" weight={1.7} />
       </LocaleLink>
     );
   }
@@ -297,7 +168,7 @@ function StationCta({
   return (
     <button type="button" onClick={() => onAction?.(station)} className={style}>
       {label}
-      <Arrow className="text-[14px]" weight={1.7} />
+      <Arrow className="text-lead" weight={1.7} />
     </button>
   );
 }
@@ -336,53 +207,21 @@ function CardBrief({
         !always && "deck-wide:hidden",
       )}
     >
-      <div className="flex items-center gap-2.5 font-mono text-[9px] tracking-telemetry text-beam uppercase">
-        <span className="h-px w-6 bg-beam/55" />
-        {station.index} / {t(`${station.id}.pillar`)}
-      </div>
       <h2
         className={cn(
-          "mt-2 leading-[1.16] font-semibold tracking-[-0.025em] text-white",
-          always ? "text-[21px] deck-wide:text-[27px]" : "text-[19px]",
+          "leading-[1.16] font-semibold tracking-[-0.025em] text-white",
+          always ? "text-heading deck-wide:text-heading-xl" : "text-title",
         )}
       >
         {copy.headline}
       </h2>
-      {/* The lede is the first thing Telemetry mode gives up on a short deck.
-          It is the business framing of a claim the reader has just toggled
-          away from, and its three lines are almost exactly the height the
-          metric strip needs — carrying both is what put the card under the
-          navbar at 1280×720. The headline stays, because without it the card
-          is a widget with no station attached.
-
-          Business mode used to keep the lede whole on the stated grounds that
-          it has no strip and therefore fits. Measured, that was checked at the
-          wrong height: at 1280×720 the band is 592px and the tallest card is
-          544px, so it did fit — but a 1366x768 laptop only yields ~640px of
-          viewport, which is a 512px band, and stations 02 and 03 came to 544px
-          and 529px. Both overflowed, and because the row is `items-center` the
-          overflow splits: half the excess went *under the navbar*.
-
-          So on a short deck the lede is clamped rather than dropped. Two lines
-          still carry the promise — it is written outcome-first — and clamping
-          keeps a stranger from meeting an artifact with no framing at all,
-          which is what hiding it outright would do. */}
-      {/* The clamp and the hide are mutually exclusive branches, not two classes
-          on one element. `line-clamp-2` compiles to `display: -webkit-box`, so
-          written as a bare `deck-short:` utility alongside `hidden` it *wins* on
-          a short deck and un-hides the very paragraph Telemetry mode gives up —
-          adding 47px to the card in the one place there was none to spare. */}
-      <p
-        className={cn(
-          "mt-2 max-w-2xl text-[12.5px] leading-[1.55] text-platinum",
-          !always && mode === "telemetry"
-            ? "hidden"
-            : "deck-short:line-clamp-2",
-        )}
-      >
+      {/* On a short deck the lede is clamped rather than dropped: two lines
+          still carry the point, and a stranger never meets an artifact with no
+          framing at all. A 1366x768 laptop leaves a ~512px band, which is where
+          an unclamped lede pushed the card under the navbar. */}
+      <p className="mt-2 max-w-2xl text-small leading-[1.55] text-platinum deck-short:line-clamp-2">
         {copy.lede}
       </p>
-      {always && mode === "business" && <Proof items={copy.proof} />}
     </div>
   );
 }
@@ -439,9 +278,9 @@ function Card({
       <CardBrief station={station} mode={mode} always={centred} />
 
       {station.program ? (
-        <ProgramBody station={station} />
+        <ProgramBody station={station} wide={centred} />
       ) : project ? (
-        <ArtifactBody station={station} project={project} mode={mode} />
+        <ArtifactBody project={project} />
       ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 deck-short:mt-2">
@@ -466,11 +305,6 @@ function Brief({ station, mode }: { station: Station; mode: Mode }) {
   return (
     <div className="copy-scrim pointer-events-none hidden max-w-md deck-wide:block">
       <div className="relative">
-        <div className="flex items-center gap-3 font-mono text-[10px] tracking-telemetry text-beam uppercase">
-          <span className="h-px w-9 bg-beam/55" />
-          {station.index} / {t(`${station.id}.pillar`)}
-        </div>
-
         {/* Keyed on mode so flipping the toggle re-enters rather than swapping
             four paragraphs in place, which reads as a glitch. */}
         <motion.div
@@ -479,22 +313,14 @@ function Brief({ station, mode }: { station: Station; mode: Mode }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-lift mt-4 text-[1.9rem] leading-[1.08] font-semibold tracking-[-0.03em] text-white xl:text-[2.4rem]">
+          <h2 className="text-lift text-heading-xl leading-[1.1] font-bold tracking-[-0.035em] text-white xl:text-[2.15rem]">
             {copy.headline}
           </h2>
 
-          <p className="text-lift mt-4 text-[15.5px] leading-relaxed text-platinum">
+          <p className="text-lift mt-4 text-copy leading-relaxed text-platinum">
             {copy.lede}
           </p>
 
-          <div className="mt-5 space-y-4 border-l border-white/15 pl-4">
-            <Beat label={t("ui.problem")}>{copy.problem}</Beat>
-            <Beat label={t("ui.solution")}>{copy.solution}</Beat>
-          </div>
-
-          {/* In Specs mode the chips just restate the strip below. */}
-          {mode === "business" && <Proof items={copy.proof} />}
-          <SpecStrip station={station} />
         </motion.div>
       </div>
     </div>
@@ -572,7 +398,8 @@ export function ProjectDock({
             {side === "center" ? (
               <div
                 className={cn(
-                  "relative z-10 mx-auto w-full max-w-[880px]",
+                  "relative z-10 mx-auto w-full",
+                  active.program ? "max-w-[880px]" : "max-w-[680px]",
                   CAP,
                 )}
               >

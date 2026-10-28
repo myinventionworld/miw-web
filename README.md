@@ -1,8 +1,9 @@
 # MIW — My Invention World
 
-A single-page WebGL site for a software architecture and R&D studio. The whole page is one
-continuous camera flight: you leave Earth orbit, pass four stations — each one a body in the
-scene with its own work docked alongside it — and arrive at the transmission console.
+The site of MIW, a team of seven in Prague that builds websites, online stores and automation for
+small businesses, MVPs and AI features for startups, and its own products. The home page is one
+continuous camera flight: you leave Earth orbit, pass four stations — startups, small businesses,
+our products, the team — and arrive at the contact console. `/work` and `/about` are plain pages.
 
 There is exactly one element on the page with real height. Everything else is fixed, and scroll
 is a timeline rather than a layout.
@@ -54,8 +55,9 @@ your `Accept-Language`. See [Languages](#languages).
 | `next-i18n-router` | Locale detection and the `/` → `/en` redirect, run from `proxy.ts` |
 | `@i18nexus/cli` | Pulls translated JSON down from i18nexus (dev dependency) |
 
-Tailwind v4 is configured entirely in `app/globals.css` via `@theme`. There is no
-`tailwind.config.*`.
+Tailwind v4 is configured entirely in `app/globals.css` via `@theme`, including the colour
+palette and the type scale (`text-label` … `text-heading-xl`). Change sizes there, not in
+components. There is no `tailwind.config.*`.
 
 ---
 
@@ -69,17 +71,17 @@ proxy.ts                   Locale detection and redirect (this Next version has 
 locales/
   en|ru|cs/
     common.json            Chrome: nav, HUD, hero, availability, standards
-    stations.json          The four stations, both copy modes, specs, programme
+    stations.json          The four stations: headline, lede, CTA, service list
     projects.json          Case studies: pitches, problems, decisions, metric notes, demo widgets
-    careers.json           The Guild page and its application form
-    console.json           The transmission console and its three tabs
+    console.json           The contact console and its two tabs
+    about.json             The About page: what we do, team roles, how we work
 
 app/
   [locale]/
-    layout.tsx             Geist Sans + Geist Mono, TranslationsProvider, localized metadata
+    layout.tsx             Fonts (Onest, JetBrains Mono — self-hosted), TranslationsProvider
     page.tsx               Renders <Experience />
     work/                  Case study index and [slug]
-    careers/               The Guild page
+    about/                 Team, what we do, how we work
   globals.css              @theme tokens, .panel / .drawer / .copy-scrim / .field / .range
 
 components/
@@ -102,8 +104,7 @@ components/
 
   overlay/
     stage.tsx              Scroll-window primitive
-    hud.tsx                Footer telemetry strip
-    transmission-console.tsx  Contact console
+    transmission-console.tsx  Contact console (composes an email — see below)
     fallback.tsx           No-WebGL page
 
 lib/
@@ -122,19 +123,16 @@ ids. The navbar, the dock, the HUD and the no-WebGL fallback all read from both.
 ## Languages
 
 English, Russian and Czech. Every locale is prefixed, including the default: `/en/work/omnibus`,
-`/ru/work/omnibus`, `/cs/careers`. A bare `/work` is matched against `Accept-Language` and
+`/ru/work/omnibus`, `/cs/about`. A bare `/work` is matched against `Accept-Language` and
 redirected, and the choice is remembered in the `NEXT_LOCALE` cookie so a reader who switched by
 hand is not overruled by their browser on the next page.
 
-The root layout loads all five namespaces for the requested language plus English as a fallback,
+The root layout loads all five namespaces (`common`, `stations`, `projects`, `console`, `about`) for the requested language plus English as a fallback,
 then hands the resources to the client through `TranslationsProvider` — so the browser
 re-initialises from what the server already parsed rather than fetching the JSON again.
 
-**Tone is not uniform.** Client-facing surfaces — the four stations, the case studies, the
-engineering and audit tabs of the console — address the reader formally (*вы*, *vy*). The Guild
-surfaces — `/careers`, its application form, the Guild tab of the console — use the informal
-*ты* / *ty*. They are different audiences and the site is not pretending otherwise. Keep that
-split when adding strings.
+**Tone.** Every surface addresses the reader formally (*вы*, *vy*). Copy is short: a headline and
+two sentences per station. Positioning, palette and voice are in `.agents/product-marketing.md`.
 
 Stack names, codenames, metric figures and CLI flags stay in English in all three files: a
 `--architecture-audit` flag translated into Czech is a joke that does not land, and a budget
@@ -215,8 +213,11 @@ when it is between you and the star.
 - Decorative layers are marked `aria-hidden`, and controls carry explicit `aria-label` /
   `aria-pressed` / `aria-expanded`.
 
-The console has no backend. Submitting runs validation and plays the confirmation beat; wiring
-it to a real endpoint is a `submit()` away in `overlay/transmission-console.tsx`.
+The console has no backend. Submitting validates the form, composes an email with every field
+and opens it in the visitor's mail app (`mailto:` to the address in `lib/contact.ts`); the receipt
+says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
+real endpoint (a route handler with Resend, or a form service) is a change to `submit()` in
+`overlay/transmission-console.tsx`.
 
 ---
 

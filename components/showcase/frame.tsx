@@ -1,7 +1,6 @@
 "use client";
 
 import { LocaleLink } from "@/components/locale-link";
-import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 
 import { Arrow } from "@/components/glyph";
@@ -26,11 +25,7 @@ export function ShowcaseFrame({
   project: ProjectCase;
   className?: string;
 }) {
-  const reduced = useReducedMotion();
   const { t } = useTranslation("projects");
-  const callouts = t(`${project.id}.callouts`, {
-    returnObjects: true,
-  }) as string[];
 
   return (
     <div className={className}>
@@ -48,14 +43,14 @@ export function ShowcaseFrame({
               beside it is a claim about transport that this frame is in no
               position to make. */}
           <div className="flex min-w-0 flex-1 items-center rounded-md border border-white/10 bg-black/60 px-2 py-1">
-            <span className="truncate font-mono text-[10px] text-zinc">
+            <span className="truncate font-mono text-label text-zinc">
               {project.host}
             </span>
           </div>
 
           <span
             className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[8.5px] tracking-[0.16em] uppercase",
+              "flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-meta font-medium",
               STATUS_TONE[project.status],
             )}
           >
@@ -64,44 +59,14 @@ export function ShowcaseFrame({
           </span>
         </div>
 
-        <Prototype variant={project.variant} />
-
-        {/* Callouts read as annotations on the running thing rather than as a
-            feature list floating next to it, so they sit inside the frame. */}
-        <div className="border-t border-white/10 bg-white/4 px-3 py-2 deck-short:py-1.5">
-          <div className="flex flex-wrap gap-1.5">
-            {callouts.map((c, i) => (
-              <motion.span
-                key={c}
-                initial={reduced ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.32,
-                  delay: reduced ? 0 : 0.12 + i * 0.09,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="rounded-sm border border-beam/30 bg-beam/10 px-2 py-0.5 font-mono text-[9px] tracking-[0.1em] text-beam uppercase"
-              >
-                {c}
-              </motion.span>
-            ))}
-          </div>
-          {/* The callouts name what the thing does; this says what to go and
-              try. That is a nice-to-have, and on a short deck it is the
-              difference between the card fitting and the card being cropped —
-              so it is the first thing to go. The same sentence is on
-              `/work/[slug]`, which is where a curious reader ends up anyway. */}
-          <p className="mt-2 hidden font-mono text-[10px] leading-relaxed text-zinc deck-wide:block">
-            {t(`${project.id}.demoHint`)}
-          </p>
-        </div>
+        {project.variant && <Prototype variant={project.variant} />}
       </div>
     </div>
   );
 }
 
 const ACTION =
-  "flex items-center gap-1.5 rounded-lg border border-white/25 px-3 py-2 font-mono text-[10px] tracking-telemetry text-white uppercase transition-colors hover:bg-white hover:text-black";
+  "flex items-center gap-1.5 rounded-full border border-white/25 px-3.5 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8";
 
 /**
  * Split out of the frame so the station can put these on the same row as its
@@ -129,7 +94,7 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           className={ACTION}
         >
           {t("project.liveApp")}
-          <Arrow dir="up-right" className="text-[11px]" />
+          <Arrow dir="up-right" className="text-meta" />
         </a>
       )}
 
@@ -141,7 +106,7 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           className={ACTION}
         >
           {t("project.source")}
-          <Arrow dir="up-right" className="text-[11px]" />
+          <Arrow dir="up-right" className="text-meta" />
         </a>
       )}
 

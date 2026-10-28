@@ -1,327 +1,269 @@
 {
   "prototype": {
     "booking": {
-      "seatsSold": "Prodáno míst {{sold}}/{{total}}",
-      "race": "Poslat druhého cestujícího",
+      "seatsSold": "Prodaná místa: {{sold}} z {{total}}",
+      "race": "Druhý cestující",
       "seat": "Místo {{n}}",
-      "seatSold": "Místo {{n}} — prodáno",
-      "won": "> txn A: COMMIT místo {{seat}}",
-      "wonBlocked": "> txn B: 409 seat_taken — zablokována na SELECT … FOR UPDATE. Dvojitých rezervací: 0",
-      "held": "> txn A drží místo {{seat}}. Pošlete na něj druhého cestujícího.",
-      "idle": "> vyberte volné místo a pak na něj pošlete druhého cestujícího. Poraženého odmítne databáze, ne úklidová úloha."
+      "seatSold": "Místo {{n}}, prodáno",
+      "won": "> cestující A: místo {{seat}} rezervováno",
+      "wonBlocked": "> cestující B: zamítnuto, řádek místa je zamčený. Dvojí rezervace: 0",
+      "held": "> cestující A drží místo {{seat}}. Teď na něj pošlete druhého cestujícího.",
+      "idle": "> simulace: vyberte volné místo a pak na něj pošlete druhého cestujícího."
     },
-    "checkout": {
-      "cacheHit": "Cache katalogu · zásahů {{hit}}%",
-      "sale": "výprodej · 40× rps",
-      "baseline": "běžný provoz",
-      "l1": "L1 · paměť procesu",
-      "l1Legend": "L1 paměť {{pct}}%",
-      "l2Legend": "L2 redis {{pct}}%",
-      "dbLegend": "postgres {{pct}}%",
-      "charges": "Stržení {{charges}} · doručení {{deliveries}}",
-      "deliver": "Doručit stripe webhook",
-      "idle": "> brány opakují doručení záměrně. Pošlete stejnou událost dvakrát a sledujte, jak se druhá svede k objednávce, která už existuje.",
-      "first": "> pi_3Nk…9Qa → objednávka #10482 vytvořena. Jedno stržení.",
-      "duplicate": "> pi_3Nk…9Qa → duplicita ×{{n}}, unique constraint vydržel. Pořád objednávka #10482, pořád jedno stržení."
-    },
-    "streaming": {
-      "budget": "Rozpočet přechodu mezi routami",
-      "warm": "edge cache nahřátá",
-      "cold": "edge cache studená",
-      "perViewer": "> {{path}} je individuální pro diváka, takže tak jako tak čte Postgres — {{data}} ms z jejích {{total}} ms. Cache tu nepomůže a ani nepředstírá, že ano.",
-      "servedWarm": "> {{path}} odbavena z ISR na edge: {{edge}} ms edge + {{render}} ms render, bez dotazu na origin.",
-      "servedCold": "> {{path}} studená: {{data}} ms čekání na katalog výš v řetězci. Revalidace je to, co tohle drží mimo cestu diváka."
+    "reader": {
+      "book": "Puškin, Výstřel · kapitola {{n}}",
+      "read": "Číst",
+      "listen": "Poslouchat",
+      "chapter": "Kap. {{n}}",
+      "position": "Pozice v kapitole",
+      "idle": "> simulace: posuňte pozici a přepněte mezi čtením a poslechem.",
+      "toListen": "> kapitola {{n}}, strana {{page}} z {{pages}} → audio v {{at}} z {{total}}. Stejné místo.",
+      "toRead": "> kapitola {{n}}, audio v {{at}} → strana {{page}} z {{pages}}. Stejné místo."
     }
   },
-
   "status": {
     "live": "V provozu",
-    "beta": "Veřejná beta",
-    "build": "Ve výstavbě",
-    "internal": "Interní MVP"
+    "beta": "Beta",
+    "build": "Ve vývoji",
+    "internal": "Interní"
   },
-
   "environment": {
-    "production": "Produkce",
+    "production": "V provozu",
+    "demo": "Živé demo",
     "staging": "Staging",
     "internal": "Interní",
-    "source": "Zdroj dostupný"
+    "source": "Jen kód"
   },
-
   "basis": {
     "observed": {
-      "label": "Naměřeno",
-      "note": "Pozorováno na buildu, na který vede odkaz z této stránky"
+      "label": "Ověřeno",
+      "note": "Ověřeno v kódu nebo na běžící verzi"
     },
     "target": {
-      "label": "Návrhový rozpočet",
-      "note": "Návrhový rozpočet — proti čemu testujeme, ne výsledek klienta"
+      "label": "Cíl",
+      "note": "Na co je systém navržen — ne naměřený výsledek"
     }
   },
-
   "index": {
     "metaTitle": "Práce — MIW",
-    "metaDescription": "Tři systémy, které MIW navrhlo a postavilo: transakční rezervační platforma, commerce pipeline s vysokou propustností a mediální katalog s cache na edge. Architektura, rozhodnutí a rozpočty, které každý z nich drží.",
+    "metaDescription": "Projekty týmu MIW: rezervační systém míst, offline čtečka a přehrávač audioknih a katalog filmů. Co každý dělá a jak je postavený.",
     "eyebrow": "Práce",
-    "title": "Tři systémy, sepsané tak, jak bychom je předávali.",
-    "lede": "Žádná zeď s logy klientů. Každý z nich je systém, který jsme navrhli a postavili, popsaný tak, jak bychom do něj uváděli nového inženýra: jaký problém řeší, jaký tvar nakonec dostal, o kterých rozhodnutích se vedl spor a jaký rozpočet musí udržet.",
-    "body": "Klientské zakázky jsou pod NDA a nejsou tu vypsané. Místo nich publikujeme důkazy, které si můžete ověřit sami — jeden z těchto systémů má adresu, kterou otevřete hned teď, a jeden má zdrojový kód, který si přečtete."
+    "title": "Co jsme postavili",
+    "lede": "Projekty, které náš tým postavil a provozuje. Všechny běží — otevřete si je a vyzkoušejte.",
+    "body": "Projekty pro klienty sem přibudou, až vyjdou."
   },
-
   "case": {
     "back": "← Všechny práce",
-    "launch": "Otevřít živou aplikaci",
-    "readSource": "Číst zdrojový kód",
-    "diagramAlt": "Schéma architektury systému",
+    "launch": "Otevřít aplikaci",
+    "readSource": "Zdrojový kód",
+    "diagramAlt": "Schéma architektury",
     "sections": {
       "problem": "Problém",
-      "design": "Návrh systému",
-      "solutions": "Inženýrská rozhodnutí",
-      "solutionsNote": "Každé z nich byla volba, která měla alternativu, a ta alternativa je pojmenovaná. Log rozhodnutí bez nezvolené cesty je seznam funkcí.",
-      "results": "Výsledky a metriky"
+      "design": "Jak je to postavené",
+      "solutions": "Klíčová rozhodnutí",
+      "solutionsNote": "Každé rozhodnutí a alternativa, kterou porazilo.",
+      "results": "Čísla"
     },
     "table": {
-      "figure": "Hodnota",
-      "measures": "Co měří",
+      "figure": "Údaj",
+      "measures": "Co znamená",
       "basis": "Základ"
     },
     "cta": {
-      "title": "Potřebujete podobně výkonné řešení?",
-      "body": "Napište nám, co se rozbíjí, co to stojí, když se to rozbije, a kdy to má přestat. Odpovídá inženýr — ne prodejní sekvence.",
-      "action": "Napsat inženýrům"
+      "title": "Potřebujete něco podobného?",
+      "body": "Popište zadání pár řádky. Odpoví člověk z týmu.",
+      "action": "Probrat projekt"
     }
   },
-
   "omnibus_nss": {
-    "category": "PODNIKOVÁ INFRASTRUKTURA // JÁDRO PŘEPRAVY",
-    "headline": "Dva cestující, jedno sedadlo a databáze, která ani nemrkne",
-    "pitch": {
-      "executive": "Odolná platforma pro rezervace a správu linek. Mapa sedadel je živá, blokace je transakční a špičková poptávka nedokáže vůz přeprodat — takže poslední sedadlo na plné lince přestane být ticketem na podporu.",
-      "telemetry": "Rezervace bezpečné při souběhu: hranice ACID je vedená na blokaci, sporné řádky se berou přes SELECT … FOR UPDATE, RBAC se vynucuje na každém endpointu a klient se generuje z OpenAPI kontraktu. Nasazuje se v kontejnerech do Kubernetes clusteru."
-    },
-    "callouts": [
-      "Zámky na řádku sedadla",
-      "Žádný overbooking",
-      "Nasazení do k8s"
-    ],
-    "demoHint": "Pošlete dva cestující na stejné sedadlo — druhý požadavek prohraje na zámku, ne při noční rekonciliaci.",
+    "category": "Rezervace míst · týmový projekt na ČVUT FEL",
+    "headline": "Dva cestující, jedno místo, žádná dvojí rezervace",
+    "pitch": "Rezervační systém autobusů s živou mapou míst. Když dva lidé sáhnou po stejném místě ve stejnou chvíli, dostane ho jen jeden.",
+    "credit": "Týmový semestrální projekt na ČVUT FEL, autoři Mykhailo Plokhin a Ivan Shestachenko. Je to demo, ne skutečný dopravce.",
     "metrics": {
-      "integrity": {
-        "label": "Integrita transakcí",
-        "note": "Rezervace buď drží sedadlo, nebo hlasitě selže. Neexistuje částečný stav rezervace, který by pak podpora rozplétala."
-      },
       "overbooking": {
-        "label": "Overbooking",
-        "note": "Vynuceno zámkem a pokryto testem souběžných požadavků, místo aby se odhalilo rekonciliací až poté, co cestující zaplatil."
+        "label": "Dvojí rezervace",
+        "note": "Cíl návrhu: druhý zápis odmítne databáze, ne noční skript dodatečně."
       },
-      "mesh": {
-        "label": "k8s mesh",
-        "note": "Běží v kontejnerech na Kubernetes clusteru za jedním ingressem — je to to nasazení, které otevřete z této stránky."
+      "lock": {
+        "label": "Zámek místa",
+        "note": "Pesimistický zámek řádku v dotazu na místo (BookedSegmentRepository)."
+      },
+      "deploy": {
+        "label": "Běží na",
+        "note": "Kontejnery na clusteru k3s — adresa v odkazu na této stránce."
       }
     },
     "problem": {
-      "lede": "Rezervační systémy selhávají konkrétním a drahým způsobem: jsou správné přesně do chvíle, kdy dva lidé chtějí totéž ve stejný okamžik — což je zároveň okamžik, kdy byznys vydělává.",
+      "lede": "Rezervační systémy selhávají přesně ve chvíli, kdy dva lidé chtějí totéž ve stejný okamžik — a to je zároveň chvíle, kdy firma vydělává.",
       "points": [
-        "Výběr sedadla stylem „přečti a zapiš“ je závod. Oba požadavky vidí sedadlo jako volné, oba zapíšou a druhý cestující se to dozví u dveří.",
-        "Overbooking se řeší jako problém rekonciliace — noční job a omluva — místo jako invariant, který zápisová cesta nikdy neměla mít možnost porušit.",
-        "Data o linkách, vozovém parku a jízdním řádu se rozcházejí, protože každá plocha je čte trochu jinak, takže si mapa sedadel a jízdní řád ve špičce odporují.",
-        "Řízení přístupu přichází až dodatečně: endpoint dispečera a endpoint cestujícího je tentýž endpoint s jiným UI před ním."
+        "Když aplikace místo nejdřív přečte a pak zapíše, dva požadavky ho můžou oba vidět volné a oba ho zarezervovat.",
+        "Přeprodání se často řeší až dodatečně nočním skriptem a omluvou, místo aby bylo vůbec nemožné.",
+        "Cestující a dispečer potřebují různá práva, ne stejný endpoint za jinou obrazovkou."
       ]
     },
     "design": {
-      "lede": "Rezervaci vlastní jediná služba a nikdo jiný nesmí zapsat sedadlo. Všechno sporné se sbíhá do jediné transakční cesty, dost krátké na to, aby držela zámek řádku bez újmy na propustnosti.",
+      "lede": "Rezervace vlastní jedna služba a nic jiného místa nezapisuje. Sporné místo projde jednou krátkou transakcí, která drží zámek řádku.",
       "nodes": {
-        "ingress": "k8s ingress",
+        "ingress": "Ingress",
         "api": "Spring REST API",
-        "rbac": "RBAC / JWT",
+        "rbac": "Role · JWT",
         "booking": "Rezervační služba",
-        "routes": "Linky a vozový park",
-        "pg": "Postgres · zámky řádků",
-        "ledger": "Evidence jízdenek"
+        "routes": "Trasy a vozový park",
+        "pg": "PostgreSQL · zámky"
       },
       "edges": {
-        "rbac-booking": "token s rozsahem",
-        "api-booking": "rezervovat",
+        "rbac-booking": "token",
+        "api-booking": "rezervace",
         "booking-pg": "FOR UPDATE"
       }
     },
     "solutions": [
       {
-        "choice": "SELECT … FOR UPDATE na sporném řádku sedadla",
-        "why": "Druhý zapisovatel se zablokuje místo toho, aby přepsal, a transakce, na které čeká, se měří v milisekundách, protože uvnitř není nic než blokace. Alternativou byly optimistické retry a ty promění plnou linku v bouři opakování přesně ve chvíli, kdy je linka plná."
+        "choice": "Zamknout řádek sporného místa",
+        "why": "Druhý požadavek počká, místo aby přepsal, a čeká krátce, protože držení místa je v transakci jediná práce. Alternativou byly optimistické opakované pokusy; na plném spoji se z nich stane lavina."
       },
       {
-        "choice": "Jediná zápisová cesta pro rezervace",
-        "why": "Všechny ostatní plochy — dispečer, jízdní řád, mapa sedadel — jen čtou. Jediný zapisovatel je to, co dělá invariant vůbec ověřitelným; dva z něj dělají politiku, kterou nikdo nevynutí."
+        "choice": "Jedna cesta zápisu pro rezervace",
+        "why": "Jízdní řád, mapa míst i dispečer jen čtou. S jediným zapisovatelem je pravidlo „jedno místo, jeden cestující“ něco, co systém umí skutečně ověřit."
       },
       {
-        "choice": "OpenAPI jako kontrakt, ne jako dokumentace",
-        "why": "Klient se generuje ze specifikace, takže nekompatibilní změna pole shodí build místo toho, aby se v produkci projevila prázdnou mapou sedadel."
-      },
-      {
-        "choice": "RBAC na endpointu, nasazené v každém kontejneru",
-        "why": "Role se vyhodnotí dřív, než se spustí handler, a stejný image obsluhuje všechna prostředí. K dispečerské pravomoci se nedostanete uhodnutím cestující URL."
+        "choice": "Role ověřené na endpointu",
+        "why": "Spring Security určí roli dřív, než se spustí handler, takže akce dispečera není dostupná z URL cestujícího."
       }
     ],
     "results": {
-      "lede": "Omnibus je nasazený a otevřený — odkaz výše vede na běžící systém, ne na kopii stagingu. Čísla níže jsou jeho návrhové rozpočty a odznak prostředí říká, které z nich jsme sledovali v produkci."
+      "lede": "Omnibus je univerzitní projekt se živým demem, ne komerční služba. Ověřené údaje jsou zkontrolované v kódu; cíl je to, na co je navržen."
     }
   },
-
-  "miw_eshop": {
-    "category": "VYSOKÁ PROPUSTNOST // OBJEDNÁVKOVÉ PIPELINE",
-    "headline": "Checkout, který přežije výprodej, pro který byl postavený",
-    "pitch": {
-      "executive": "Headless výloha postavená na den, kdy provoz opravdu dorazí. Checkout projde napoprvé, sklad zůstane pravdivý po celou dobu výprodeje a dvakrát potvrzená platba stejně strhne jednou.",
-      "telemetry": "Idempotentní zpracování webhooků klíčované podle payment intentu, dvouvrstvá cache před katalogem a generování faktur odsunuté na distribuovanou frontu, aby checkout nikdy nečekal na PDF."
-    },
-    "callouts": [
-      "Idempotentní platební hooky",
-      "Dvouvrstvá Redis cache",
-      "Fakturace ve frontě"
-    ],
-    "demoHint": "Doručte stejný Stripe webhook dvakrát — druhé doručení se srovná na totéž id objednávky a nestrhne nic.",
+  "boowie": {
+    "category": "Čtečka a přehrávač audioknih · osobní projekt",
+    "headline": "Knihy a audioknihy v jedné aplikaci, i offline",
+    "pitch": "Čte EPUB, FB2 a PDF a přehrává audioknihy MP3 a M4B. Knihy zůstávají v telefonu a otevřou se bez internetu; vestavěný obchod nabízí 20 klasických knih zdarma.",
+    "credit": "Osobní projekt Mykhaila Plokhina. Instaluje se z prohlížeče na Androidu i iPhonu.",
     "metrics": {
-      "commit": {
-        "label": "Commit checkoutu",
-        "note": "Rozpočet cesty od odeslání k potvrzené objednávce. Fakturace a e-mail jsou z ní odsunuté do fronty právě proto, aby ho nemohly utratit."
+      "formats": {
+        "label": "Formáty",
+        "note": "EPUB, FB2, PDF, MP3 a M4B, plus jejich ZIP archivy."
       },
-      "hooks": {
-        "label": "Platební hooky",
-        "note": "Brány opakují doručení záměrně. Deduplikace podle id payment intentu dělá z opakovaného doručení prázdnou operaci místo druhé platby."
+      "store": {
+        "label": "Knih zdarma",
+        "note": "Volná díla ve vestavěném obchodě; audioknihy namluvil hlas RHVoice."
       },
-      "cache": {
-        "label": "Úspěšnost cache",
-        "note": "Čtení katalogu se obsluhuje z paměti procesu a pak z Redisu, takže špička výprodeje dopadne na cache, ne na Postgres."
+      "offline": {
+        "label": "Funguje",
+        "note": "Service worker ukládá aplikaci do mezipaměti a knihy jsou uložené v zařízení."
       }
     },
     "problem": {
-      "lede": "Commerce platformy prověří jejich nejhorší hodina, ne ta průměrná. Flash výprodej najde každé místo, kde checkout dělá víc práce, než musí, a každé místo, kde se opakované doručení bere jako nový záměr.",
+      "lede": "Většina čteček zvládne buď text, nebo audio, chce účet, nebo se rozbije na skutečných souborech: divná kódování, zazipované složky, MP3 bez kapitol.",
       "points": [
-        "Platební brány webhooky opakují. Handler bez deduplikačního klíče promění tuhle záruku v duplicitní objednávky, duplicitní faktury a frontu na vrácení peněz.",
-        "Čtení katalogu jde do databáze při každém renderu, takže špička provozu, na které marketing pracoval, je přesně to, co obchod položí.",
-        "Generování faktur a účtenek sedí přímo v požadavku checkoutu, což znamená, že nejpomalejší možná závislost stojí na kritické cestě k přijetí peněz.",
-        "Sklad se snižuje optimisticky v kódu aplikace, takže dvě souběžné objednávky mohou obě uspět na posledním kusu."
+        "Ruské FB2 soubory bývají ve windows-1251 nebo koi8-r a často špatně označené.",
+        "Audiokniha je obvykle složka souborů nebo ZIP z aplikace Soubory na iPhonu.",
+        "Číst a poslouchat stejnou knihu znamená udržet v souladu dvě pozice."
       ]
     },
     "design": {
-      "lede": "Dva vstupní body, jedna objednávková pipeline. Checkout zákazníka a webhook brány jsou různý provoz s různými režimy selhání a sbíhají se až v bodě, kde se objednávka zúčtuje.",
+      "lede": "Všechno běží v prohlížeči. Soubory projdou stejnými parsery, ať přijdou z telefonu, nebo z obchodu; záznamy jdou do IndexedDB, velké soubory do soukromého souborového systému prohlížeče.",
       "nodes": {
-        "shopper": "Zákazník",
-        "stripe": "Stripe webhook",
-        "storefront": "Next.js výloha",
-        "hooks": "Idempotentní handler",
-        "orders": "Služba objednávek",
-        "cache": "Redis · dvě vrstvy",
-        "queue": "Fronta faktur",
-        "pg": "Postgres · objednávky"
+        "files": "Soubory · složky · ZIP",
+        "store": "Vestavěný obchod",
+        "parsers": "Parsery",
+        "dexie": "IndexedDB",
+        "opfs": "Soukromý FS",
+        "reader": "Čtečka a přehrávač",
+        "sw": "Service worker"
       },
-      "edges": {
-        "stripe-hooks": "doručení ×N",
-        "storefront-orders": "checkout",
-        "orders-cache": "katalog",
-        "orders-queue": "úloha faktury",
-        "orders-pg": "rezervace skladu",
-        "hooks-pg": "zúčtovat jednou"
-      }
+      "edges": {}
     },
     "solutions": [
       {
-        "choice": "Deduplikace podle id payment intentu uvnitř zúčtovací transakce",
-        "why": "Insert s unikátním omezením na intentu je to, co dělá opakované doručení bezpečným — cache viděných id je závod s kratším oknem, ne oprava."
+        "choice": "Zpracovat knihy v prohlížeči, bez serveru",
+        "why": "Knihy nikdy neopustí zařízení a není potřeba provozovat ani platit žádný backend."
       },
       {
-        "choice": "Dvouvrstvá cache: paměť procesu před Redisem",
-        "why": "Horká cesta výprodeje je hrstka produktových stránek čtených tisíckrát. Vrstva v procesu to pohltí bez síťového skoku; Redis drží vrstvy konzistentní napříč instancemi."
+        "choice": "Streamované čtení ZIPu",
+        "why": "Složka audioknihy zazipovaná na iPhonu může mít gigabajty. Čtení položek jako proud je nedrží v paměti — včetně archivů ZIP64 a ruských názvů souborů."
       },
       {
-        "choice": "Faktury a účtenky ve frontě, ne v požadavku",
-        "why": "Generování dokumentů je pomalé a občas selže. Mimo kritickou cestu je to retry; na ní je to zákazník koukající na spinner poté, co mu strhli z karty."
+        "choice": "Velké soubory v soukromém souborovém systému",
+        "why": "Origin Private File System pojme velké soubory bez limitů starších úložišť; starší iOS Safari se vrátí k IndexedDB."
       },
       {
-        "choice": "Sklad rezervuje databáze, ne aplikace",
-        "why": "Snížení skladu a insert objednávky jsou jedna transakce, takže poslední kus se prodá jednou. Cokoliv jiného je historka o eventuální konzistenci vyprávěná zákazníkovi, který už zaplatil."
+        "choice": "Jedna pozice pro text i audio",
+        "why": "Když má kniha zvukovou verzi, přepnutí přenese místo podle kapitoly a podle toho, jak daleko v ní jste byli."
       }
     ],
     "results": {
-      "lede": "Commerce Core běží interně a zatím nemá veřejné nasazení, takže tu není nic ke kliknutí a nic, čemu bychom vás žádali věřit. Tohle jsou rozpočty, proti kterým se staví."
+      "lede": "Boowie běží: otevřete ho v telefonu a přidejte na plochu. Každý údaj tady je ověřený v kódu nebo v běžící aplikaci."
     }
   },
-
   "wovie_next": {
-    "category": "SPOTŘEBITELSKÝ WEB // STREAMING A DX",
-    "headline": "Mediální katalog, který vás nikdy nenechá čekat na rozhodnutí",
-    "pitch": {
-      "executive": "Rychlý streamovací portál a mediální katalog. Procházení, hledání i osobní knihovny naskočí okamžitě, takže divák věnuje pozornost výběru, ne čekání na to, co vlastně existuje.",
-      "telemetry": "SSR s ISR revalidací na Vercel edge, typované schéma end-to-end přes Prismu, hydratace omezená na interaktivní plochu a klientské routování pod 100 ms, protože payload další route je už na cestě."
-    },
-    "callouts": [
-      "ISR cache na edge",
-      "Typy end-to-end",
-      "Routování pod 100 ms"
-    ],
-    "demoHint": "Přepněte edge cache mezi studenou a teplou — rozpočet route se změní, tvar payloadu ne.",
+    "category": "Katalog filmů · osobní projekt",
+    "headline": "Najít film a mít seznam po ruce",
+    "pitch": "Katalog filmů s žánry, hodnocením z TMDB, oblíbenými a seznamy ke zhlédnutí. Postavený tak, aby zůstal rychlý nad velkým cizím katalogem.",
+    "credit": "Osobní projekt Mykhaila Plokhina. Ve vývoji.",
     "metrics": {
       "route": {
-        "label": "p99 změny route",
-        "note": "Rozpočet klientské navigace s teplou edge cache. Platí to prefetch, ne rychlejší server."
+        "label": "Přechod mezi stránkami",
+        "note": "Cílová doba přechodu — zatím nezměřená."
       },
-      "cost": {
-        "label": "Náklady na cloud",
-        "note": "Běží uvnitř limitů free tieru edge a serverless. Architektonické omezení se zuby: nic se nedá vyřešit dokoupením výkonu."
-      },
-      "types": {
-        "label": "Typově bezpečná datová cesta",
-        "note": "Generované typy Prismy a typované hranice API, bez únikové cesty mezi řádkem v databázi a vykresleným komponentem."
+      "revalidate": {
+        "label": "Obnova katalogu",
+        "note": "Stránky katalogu se vykreslí jednou a obnovují se každou hodinu."
       }
     },
     "problem": {
-      "lede": "Katalogová rozhraní jsou problémy latence převlečené za obsah. Knihovna je velká, data jsou od třetí strany a každá milisekunda mezi kliknutím a plakátem je divák, který se rozhoduje dělat něco jiného.",
+      "lede": "Katalog filmů jsou hlavně cizí data. Práce spočívá v tom, aby zůstal rychlý a spolehlivý, i když je zdroj pomalý nebo se mění.",
       "points": [
-        "Stahování cizího katalogu při každém požadavku dělá ze špatného dne cizího API špatný den vašeho rozhraní.",
-        "Vykreslování celé stránky na klientu staví nejpomalejší zařízení v publiku na kritickou cestu k prvnímu plakátu.",
-        "Netypované odpovědi API dovolí přejmenovanému poli odejít do produkce jako prázdná karta, a vždycky si toho všimne uživatel, ne CI.",
-        "Osobní knihovny potřebují skutečná čtení per uživatel — přesně ten provoz, který naivní strategie cache neobslouží a naivní strategie databáze nezaplatí."
+        "Dotaz na TMDB při každé návštěvě udělá ze špatného dne TMDB váš špatný den.",
+        "Když se všechno vykresluje v prohlížeči, pomalý telefon dlouho čeká na první plakát.",
+        "Seznamy patří jednomu člověku, takže se nedají cachovat jako katalog."
       ]
     },
     "design": {
-      "lede": "Všechno, co může být statické, je statické na edge; databáze se dotýká jen to, co patří konkrétnímu divákovi. Ta hranice se vede jednou, na úrovni routování, místo aby se vyjednávala u každé funkce.",
+      "lede": "Stránky katalogu se vykreslují na serveru a hodinu se drží v cache. Jen osobní data — oblíbené a seznamy — čtou z databáze.",
       "nodes": {
         "visitor": "Návštěvník",
-        "edge": "Edge middleware",
-        "rsc": "RSC render",
-        "isr": "ISR cache",
-        "prisma": "Prisma klient",
-        "pg": "Postgres · knihovny",
-        "tmdb": "Katalog TMDB"
+        "rsc": "Serverové vykreslení",
+        "isr": "Cache stránek · 1 h",
+        "prisma": "Prisma",
+        "pg": "PostgreSQL · seznamy",
+        "tmdb": "TMDB API"
       },
       "edges": {
-        "edge-rsc": "cache miss",
-        "rsc-isr": "revalidace",
-        "prisma-pg": "per divák",
-        "prisma-tmdb": "katalog"
+        "rsc-isr": "cache",
+        "rsc-prisma": "osobní",
+        "isr-tmdb": "obnova"
       }
     },
     "solutions": [
       {
-        "choice": "ISR na edge pro všechno, co má tvar katalogu",
-        "why": "Katalog je pro každého diváka stejný, takže se má vykreslit jednou za revalidační okno, ne jednou za návštěvu. Výpadek na straně dodavatele pak degraduje na zastaralá data, ne na chybovou stránku."
+        "choice": "Držet stránky katalogu hodinu v cache",
+        "why": "Katalog je pro všechny stejný, takže se vykreslí jednou za hodinu, ne při každé návštěvě. Když TMDB nejede, návštěvníci uvidí o něco starší data místo chyby."
       },
       {
-        "choice": "Server komponenty jako výchozí, hydratace jako výjimka",
-        "why": "Mřížka plakátů odchází jako markup. JavaScript nesou jen ovládací prvky, které na kliknutí skutečně reagují — a to je to, co drží velkou stránku levnou na průměrném telefonu."
+        "choice": "Stránky filmů vykreslené na serveru",
+        "why": "Stránky filmů, Top Rated a New Releases přijdou jako hotové HTML, takže pomalý telefon nečeká na JavaScript. Hlavní stránka katalogu se zatím vykresluje v prohlížeči — to je další na řadě."
       },
       {
-        "choice": "Generované typy po celé datové cestě",
-        "why": "Změna schématu se stane typovou chybou přesně na hranici, kterou rozbila. Alternativou je runtime kontrola na každém místě volání, což je stejná práce odvedená hůř a později."
-      },
-      {
-        "choice": "Prefetch route podle záměru, ne podle viewportu",
-        "why": "Prefetch všeho viditelného utratí rozpočet free tieru za route, které nikdo neotevře. Prefetch při přejetí myší a fokusu koupí stejnou vnímanou rychlost za zlomek požadavků."
+        "choice": "Databáze jen pro osobní data",
+        "why": "Oblíbené a seznamy potřebují skutečné čtení podle uživatele; všechno ostatní do databáze nechodí."
       }
     ],
     "results": {
-      "lede": "Zdrojový kód Wovie je veřejný; nasazení na této stránce není, protože to, které provozujeme, není otevřené cizím lidem. Rozpočty níže jsou ty, na které se build drží."
+      "lede": "Wovie je ve vývoji, má veřejné demo a otevřený zdrojový kód."
     }
+  },
+  "screens": {
+    "omnibusDesktop": "Úvodní stránka Omnibusu: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
+    "omnibusMobile": "Omnibus v telefonu: detail cesty na lince 501 z Prahy do Brna",
+    "boowieLibrary": "Knihovna Boowie: rozečtené knihy a kolik je z nich přečteno",
+    "boowieStore": "Obchod Boowie: výběr redakce a nové klasiky zdarma",
+    "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku",
+    "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
+    "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
+    "wovieTrailer": "Přehrávač traileru na stránce filmu ve Wovie",
+    "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple"
   }
 }

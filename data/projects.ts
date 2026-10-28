@@ -1,6 +1,7 @@
 /**
- * The three systems MIW has actually built. Single source of truth for the
- * product frames on the flight deck, the `/work` index and every case study.
+ * The projects MIW's people have actually built, each with a public address or
+ * public source. Single source of truth for the product frames on the flight
+ * deck, the `/work` index and every case study.
  *
  * Two rules hold this file together, and both exist because the deck is easy to
  * lie on:
@@ -11,9 +12,8 @@
  * as a result belonging to someone else's business.
  *
  * A link says what it actually opens. `liveUrl` is a deployment a stranger can
- * load; `repoUrl` is source. Wovie has source and no public deployment, so it
- * gets a source button and no "Live app" — one dead or mislabelled link costs
- * more trust than the whole page buys.
+ * load; `repoUrl` is source. A university project is labelled as one — one
+ * mislabelled link or badge costs more trust than the whole page buys.
  *
  * What is left here is what a translator must not be able to change: addresses,
  * stack names, statuses, metric figures and the grid a diagram is laid out on.
@@ -46,7 +46,7 @@ export interface ArchEdge {
 }
 
 /** Which interactive micro-demo the product frame renders. */
-export type Variant = "streaming" | "booking" | "checkout";
+export type Variant = "booking" | "reader";
 
 /**
  * Where a figure came from. Rendered next to the figure rather than explained in
@@ -71,14 +71,19 @@ export interface Metric {
  * it would have printed `Staging` over a GitHub URL. Text at
  * `projects:environment.<id>`.
  */
-export type Environment = "production" | "staging" | "internal" | "source";
+export type Environment =
+  | "production"
+  | "demo"
+  | "staging"
+  | "internal"
+  | "source";
 
 /**
  * Structure only. The prose counterpart of each project lives at
- * `projects:<id>` and holds: `category`, `headline`, `pitch.executive`,
- * `pitch.telemetry`, `callouts[]`, `demoHint`, `metrics.<metricId>.{label,note}`,
- * `problem.{lede,points[]}`, `design.{lede,nodes,edges}`, `solutions[]` of
- * `{choice, why}` and `results.lede`.
+ * `projects:<id>` and holds: `category`, `headline`, `pitch`, `credit`,
+ * `metrics.<metricId>.{label,note}`, `problem.{lede,points[]}`,
+ * `design.{lede,nodes,edges}`, `solutions[]` of `{choice, why}` and
+ * `results.lede`.
  *
  * Note what is absent: the decision log. It is prose end to end — a choice and
  * the alternative it beat — so it lives only in the locale file and is read back
@@ -91,12 +96,15 @@ export interface ProjectCase {
   slug: string;
   /** Display name. A proper noun, so it does not travel to the locale files. */
   name: string;
+  /** The product's own accent — the one it already ships with. */
+  color: string;
   /** Monospace short form used on the deck and in diagrams. */
   codename: string;
   station: StationId;
   status: ProjectStatus;
   environment: Environment;
-  variant: Variant;
+  /** Only the project docked on a station needs a demo. */
+  variant?: Variant;
   /** Shown in the frame's address bar. */
   host: string;
   /** A deployment anyone can open. Omitted when there is not one. */
@@ -113,25 +121,20 @@ export const PROJECTS: ProjectCase[] = [
     id: "omnibus_nss",
     slug: "omnibus",
     name: "Omnibus",
+    color: "#00d68f",
     codename: "OMNIBUS",
     station: "backend",
     status: "live",
-    environment: "production",
+    environment: "demo",
     variant: "booking",
     host: "omnibus.79.72.58.230.nip.io",
     liveUrl: "https://omnibus.79.72.58.230.nip.io/",
-    stack: [
-      "Java",
-      "Spring Boot",
-      "PostgreSQL",
-      "Docker",
-      "Kubernetes",
-      "REST/OpenAPI",
-    ],
+    repoUrl: "https://github.com/TheRainHub/BUS2HOLIDAY",
+    stack: ["Java", "Spring Boot", "PostgreSQL", "React", "Docker", "k3s"],
     metrics: [
-      { id: "integrity", value: "99.99%", basis: "target" },
       { id: "overbooking", value: "Zero", basis: "target" },
-      { id: "mesh", value: "Containerised", basis: "observed" },
+      { id: "lock", value: "FOR UPDATE", basis: "observed" },
+      { id: "deploy", value: "k3s", basis: "observed" },
     ],
     design: {
       nodes: [
@@ -141,7 +144,6 @@ export const PROJECTS: ProjectCase[] = [
         { id: "booking", kind: "service", col: 2, row: 0 },
         { id: "routes", kind: "service", col: 2, row: 1 },
         { id: "pg", kind: "store", col: 3, row: 0 },
-        { id: "ledger", kind: "store", col: 3, row: 1 },
       ],
       edges: [
         { from: "ingress", to: "api" },
@@ -150,46 +152,47 @@ export const PROJECTS: ProjectCase[] = [
         { from: "api", to: "booking" },
         { from: "api", to: "routes" },
         { from: "booking", to: "pg" },
-        { from: "booking", to: "ledger" },
         { from: "routes", to: "pg" },
       ],
     },
   },
   {
-    id: "miw_eshop",
-    slug: "commerce-core",
-    name: "MIW Commerce Platform",
-    codename: "COMMERCE CORE",
-    station: "commerce",
-    status: "build",
-    environment: "internal",
-    variant: "checkout",
-    host: "commerce.miw.internal/checkout",
-    stack: ["Next.js", "Node.js / Go", "PostgreSQL", "Redis", "Stripe Gateway"],
+    id: "boowie",
+    slug: "boowie",
+    name: "Boowie",
+    color: "#d2693f",
+    codename: "BOOWIE",
+    station: "labs",
+    status: "live",
+    environment: "production",
+    variant: "reader",
+    host: "boovie-kappa.vercel.app",
+    liveUrl: "https://boovie-kappa.vercel.app/",
+    repoUrl: "https://github.com/TheRainHub/Boovie",
+    stack: ["Next.js", "TypeScript", "IndexedDB", "OPFS", "Service Worker"],
     metrics: [
-      { id: "commit", value: "Sub-second", basis: "target" },
-      { id: "hooks", value: "Exactly once", basis: "target" },
-      { id: "cache", value: "> 94%", basis: "target" },
+      { id: "formats", value: "5", basis: "observed" },
+      { id: "store", value: "20", basis: "observed" },
+      { id: "offline", value: "Offline", basis: "observed" },
     ],
     design: {
       nodes: [
-        { id: "shopper", kind: "entry", col: 0, row: 0 },
-        { id: "stripe", kind: "entry", col: 0, row: 1 },
-        { id: "storefront", kind: "service", col: 1, row: 0 },
-        { id: "hooks", kind: "service", col: 1, row: 1 },
-        { id: "orders", kind: "service", col: 2, row: 0 },
-        { id: "cache", kind: "store", col: 3, row: 0 },
-        { id: "queue", kind: "stream", col: 3, row: 1 },
-        { id: "pg", kind: "store", col: 4, row: 0 },
+        { id: "files", kind: "entry", col: 0, row: 0 },
+        { id: "store", kind: "entry", col: 0, row: 1 },
+        { id: "parsers", kind: "service", col: 1, row: 0 },
+        { id: "dexie", kind: "store", col: 2, row: 0 },
+        { id: "opfs", kind: "store", col: 2, row: 1 },
+        { id: "reader", kind: "service", col: 3, row: 0 },
+        { id: "sw", kind: "service", col: 3, row: 1 },
       ],
       edges: [
-        { from: "shopper", to: "storefront" },
-        { from: "stripe", to: "hooks" },
-        { from: "storefront", to: "orders" },
-        { from: "orders", to: "cache" },
-        { from: "orders", to: "queue" },
-        { from: "orders", to: "pg" },
-        { from: "hooks", to: "pg" },
+        { from: "files", to: "parsers" },
+        { from: "store", to: "parsers" },
+        { from: "parsers", to: "dexie" },
+        { from: "parsers", to: "opfs" },
+        { from: "dexie", to: "reader" },
+        { from: "opfs", to: "reader" },
+        { from: "sw", to: "reader" },
       ],
     },
   },
@@ -197,43 +200,34 @@ export const PROJECTS: ProjectCase[] = [
     id: "wovie_next",
     slug: "wovie",
     name: "Wovie",
+    color: "#e8454a",
     codename: "WOVIE",
     station: "labs",
     status: "build",
-    environment: "source",
-    variant: "streaming",
-    host: "github.com/TheRainHub/wovie_next-",
+    environment: "demo",
+    host: "wovienext.vercel.app",
+    liveUrl: "https://wovienext.vercel.app/",
     repoUrl: "https://github.com/TheRainHub/wovie_next-",
-    stack: [
-      "Next.js",
-      "TypeScript",
-      "Tailwind CSS",
-      "Prisma",
-      "TMDB API",
-      "Vercel Edge",
-    ],
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Prisma", "TMDB API"],
     metrics: [
       { id: "route", value: "< 90ms", basis: "target" },
-      { id: "cost", value: "Zero", basis: "observed" },
-      { id: "types", value: "100%", basis: "observed" },
+      { id: "revalidate", value: "1 h", basis: "observed" },
     ],
     design: {
       nodes: [
         { id: "visitor", kind: "entry", col: 0, row: 0 },
-        { id: "edge", kind: "service", col: 1, row: 0 },
-        { id: "rsc", kind: "service", col: 2, row: 0 },
-        { id: "isr", kind: "store", col: 3, row: 1 },
-        { id: "prisma", kind: "service", col: 3, row: 0 },
-        { id: "pg", kind: "store", col: 4, row: 0 },
-        { id: "tmdb", kind: "model", col: 4, row: 1 },
+        { id: "rsc", kind: "service", col: 1, row: 0 },
+        { id: "isr", kind: "store", col: 2, row: 1 },
+        { id: "prisma", kind: "service", col: 2, row: 0 },
+        { id: "pg", kind: "store", col: 3, row: 0 },
+        { id: "tmdb", kind: "model", col: 3, row: 1 },
       ],
       edges: [
-        { from: "visitor", to: "edge" },
-        { from: "edge", to: "rsc" },
+        { from: "visitor", to: "rsc" },
         { from: "rsc", to: "isr" },
         { from: "rsc", to: "prisma" },
         { from: "prisma", to: "pg" },
-        { from: "prisma", to: "tmdb" },
+        { from: "isr", to: "tmdb" },
       ],
     },
   },
@@ -244,8 +238,10 @@ export function projectBySlug(slug: string): ProjectCase | undefined {
 }
 
 /**
- * The artifact a station puts in its frame. Station 04 sells a way of working
- * and deliberately has none — `undefined` is a valid answer, not a gap to fill.
+ * The artifact a station puts in its frame: the first project registered
+ * against it. Station 02 has no finished small-business project yet and station
+ * 04 is the team, so both have none — `undefined` is a valid answer, not a gap
+ * to fill.
  */
 export function projectForStation(station: StationId): ProjectCase | undefined {
   return PROJECTS.find((p) => p.station === station);

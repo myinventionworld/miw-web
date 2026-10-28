@@ -1,0 +1,59 @@
+{
+  "metaTitle": "About us — MIW",
+  "metaDescription": "MIW is a team of seven in Prague: engineers, an analyst and a designer. Who we are, what we do and how we work.",
+  "eyebrow": "About us",
+  "title": "A small team that finishes what it starts.",
+  "lede": "Seven people in Prague. We build for small businesses and startups, and we build our own products — so we know what it takes to get from an idea to people using it.",
+  "what": {
+    "title": "What we do",
+    "items": [
+      {
+        "label": "For small businesses",
+        "body": "Websites, online stores, booking, and simple systems for stock and orders."
+      },
+      {
+        "label": "For startups",
+        "body": "MVPs, backends and AI features, from the first version onwards."
+      }
+    ]
+  },
+  "team": {
+    "title": "The team",
+    "lede": "You talk directly to the people who build your project.",
+    "roles": {
+      "mykhailo": "Founder · full-stack & AI engineer",
+      "ivan": "IT analyst · system design, UML, BPMN, Spring Boot",
+      "denis": "Full-stack engineer",
+      "mykola": "Embedded & AI engineer",
+      "illia": "Senior C# engineer · 10 years",
+      "rosztiszlav": "AI/ML engineer",
+      "andrei": "Graphic designer"
+    }
+  },
+  "values": {
+    "title": "How we work",
+    "items": [
+      {
+        "label": "Plain language",
+        "body": "You understand what you pay for, and why."
+      },
+      {
+        "label": "Finished, not demoed",
+        "body": "We judge work by what people can actually use."
+      },
+      {
+        "label": "Straight about status",
+        "body": "What is done, what is not, and what we are not sure about yet."
+      }
+    ]
+  },
+  "work": {
+    "title": "What we have built",
+    "action": "All work"
+  },
+  "cta": {
+    "title": "Let's build something useful",
+    "body": "Tell us what you need in a few lines. A person from the team replies.",
+    "action": "Start a project"
+  }
+}

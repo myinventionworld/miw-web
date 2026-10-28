@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
 import { Arrow } from "@/components/glyph";
+import { Device } from "@/components/showcase/device";
+import { ProductShots, hasScreens } from "@/components/showcase/screens";
 import { EditorialShell } from "@/components/editorial/shell";
 import { PROJECTS, projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
@@ -34,7 +36,7 @@ export async function generateMetadata(
 
   return {
     title: `${project.codename} — ${t(`${project.id}.headline`)} — MIW`,
-    description: t(`${project.id}.pitch.executive`),
+    description: t(`${project.id}.pitch`),
     alternates: alternates(locale, `/work/${slug}`),
   };
 }
@@ -45,17 +47,11 @@ export async function generateMetadata(
  * with a single `<h2>` — the closing CTA — and the `<h3>`s inside the decision
  * grid hanging off nothing, which is a case study a screen reader cannot skim.
  */
-function SectionLabel({ n, children }: { n: string; children: string }) {
+function SectionLabel({ children }: { n?: string; children: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <span aria-hidden className="font-mono text-[10px] tracking-telemetry text-steel">
-        {n}
-      </span>
-      <h2 className="font-mono text-[10px] tracking-telemetry text-signal uppercase">
-        {children}
-      </h2>
-      <span className="h-px flex-1 bg-white/10" />
-    </div>
+    <h2 className="text-heading-lg leading-tight font-bold tracking-[-0.03em] text-white">
+      {children}
+    </h2>
   );
 }
 
@@ -102,37 +98,41 @@ export default async function WorkCasePage(
             baseline the heading below is spaced from. */}
         <Link
           href={localeHref(locale, "/work")}
-          className="-my-2 inline-block rounded-md py-2 font-mono text-[10px] tracking-telemetry text-steel uppercase transition-colors hover:text-white"
+          className="-my-2 inline-block rounded-md py-2 text-label text-steel transition-colors hover:text-white"
         >
           {t("case.back")}
         </Link>
 
         <div className="mt-7 flex flex-wrap items-center gap-3">
-          <span className="font-mono text-[14px] font-semibold tracking-[0.12em] text-white">
-            {project.codename}
+          <span className="flex items-center gap-2 text-copy-lg font-semibold text-white">
+            <span
+              className="size-2.5 rounded-full"
+              style={{ background: project.color }}
+            />
+            {project.name}
           </span>
           <span
             className={cn(
-              "flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[8.5px] tracking-[0.16em] uppercase",
+              "flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-label",
               STATUS_TONE[project.status],
             )}
           >
             <span className="size-1.5 rounded-full bg-current" />
             {t(`environment.${project.environment}`)}
           </span>
-          <span className="font-mono text-[10px] tracking-[0.14em] text-steel uppercase">
+          <span className="text-label text-steel">
             {t(`${project.id}.category`)}
           </span>
         </div>
 
-        <h1 className="mt-5 max-w-3xl text-[clamp(1.9rem,4.4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.04em] text-white">
+        <h1 className="mt-5 max-w-3xl text-[clamp(1.9rem,4.4vw,3rem)] leading-[1.04] font-bold tracking-[-0.045em] text-white">
           {t(`${project.id}.headline`)}
         </h1>
-        <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-platinum">
-          {t(`${project.id}.pitch.executive`)}
+        <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
+          {t(`${project.id}.pitch`)}
         </p>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-zinc">
-          {t(`${project.id}.pitch.telemetry`)}
+        <p className="mt-3 max-w-2xl text-copy leading-relaxed text-zinc">
+          {t(`${project.id}.credit`)}
         </p>
 
         {/* Links, labelled for what they open. A repository behind a button that
@@ -143,10 +143,10 @@ export default async function WorkCasePage(
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200"
+              className="flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover"
             >
               {t("case.launch")}
-              <Arrow dir="up-right" className="text-[13px]" weight={1.7} />
+              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
           {project.repoUrl && (
@@ -154,39 +154,46 @@ export default async function WorkCasePage(
               href={project.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-md border border-white/25 px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
+              className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
             >
               {t("case.readSource")}
-              <Arrow dir="up-right" className="text-[13px]" weight={1.7} />
+              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
-          <span className="font-mono text-[10.5px] text-steel">
+          <span className="text-label text-steel">
             {project.host}
           </span>
         </div>
 
-        <dl className="mt-8 flex flex-wrap gap-1.5">
-          {project.stack.map((s) => (
-            <dd
-              key={s}
-              className="rounded-sm border border-white/15 px-2 py-1 font-mono text-[10px] tracking-[0.1em] text-zinc"
-            >
-              {s}
-            </dd>
-          ))}
-        </dl>
+        <p className="mt-8 text-small text-zinc">
+          {project.stack.join(" · ")}
+        </p>
       </header>
+
+      {/* The product itself: real screenshots where we have them, the working
+          demo where we do not. */}
+      {hasScreens(project) ? (
+        <div className="mt-16">
+          <ProductShots project={project} t={(key: string) => t(key)} gallery />
+        </div>
+      ) : (
+        project.variant && (
+          <div className="mt-16">
+            <Device project={project} />
+          </div>
+        )
+      )}
 
       <section className="mt-20">
         <SectionLabel n="01">{t("case.sections.problem")}</SectionLabel>
-        <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
+        <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
           {t(`${project.id}.problem.lede`)}
         </p>
         <ul className="mt-6 max-w-2xl space-y-3">
           {points.map((p) => (
             <li key={p} className="flex gap-3.5">
               <span className="mt-[9px] size-1 shrink-0 rounded-full bg-white/35" />
-              <span className="text-[14.5px] leading-relaxed text-zinc">
+              <span className="text-lead leading-relaxed text-zinc">
                 {p}
               </span>
             </li>
@@ -196,14 +203,22 @@ export default async function WorkCasePage(
 
       <section className="mt-20">
         <SectionLabel n="02">{t("case.sections.design")}</SectionLabel>
-        <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
+        <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
           {t(`${project.id}.design.lede`)}
         </p>
+
+        {/* With screenshots at the top, the working demo moves here: it is the
+            mechanism this section describes. */}
+        {hasScreens(project) && project.variant && (
+          <div className="mt-10">
+            <Device project={project} compact />
+          </div>
+        )}
 
         {/* Hand-laid SVG rather than a rendered Mermaid graph: the diagram is
             part of the argument, so which box sits next to which is a decision,
             not a layout engine's opinion. */}
-        <div className="mt-8 rounded-xl border border-white/12 bg-white/3 p-6 md:p-8">
+        <div className="mt-10">
           <ArchDiagram
             nodes={nodes}
             edges={edges}
@@ -214,16 +229,16 @@ export default async function WorkCasePage(
 
       <section className="mt-20">
         <SectionLabel n="03">{t("case.sections.solutions")}</SectionLabel>
-        <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
+        <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
           {t("case.sections.solutionsNote")}
         </p>
-        <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-white/12 bg-white/10 md:grid-cols-2">
+        <div className="mt-8 grid gap-x-12 md:grid-cols-2">
           {solutions.map((s) => (
-            <div key={s.choice} className="bg-carbon p-6">
-              <p className="text-[14.5px] leading-snug font-semibold text-white">
+            <div key={s.choice} className="border-t border-white/12 py-6">
+              <p className="text-copy leading-snug font-semibold text-white">
                 {s.choice}
               </p>
-              <p className="mt-2.5 text-[13.5px] leading-relaxed text-zinc">
+              <p className="mt-2.5 text-body leading-relaxed text-zinc">
                 {s.why}
               </p>
             </div>
@@ -233,7 +248,7 @@ export default async function WorkCasePage(
 
       <section className="mt-20">
         <SectionLabel n="04">{t("case.sections.results")}</SectionLabel>
-        <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-platinum">
+        <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
           {t(`${project.id}.results.lede`)}
         </p>
 
@@ -241,45 +256,43 @@ export default async function WorkCasePage(
             the point. Read across: figure, what it measures, where it comes
             from. A budget and a measurement look identical in monospace until
             something says which is which. */}
-        <div className="mt-8 overflow-hidden rounded-xl border border-white/12">
+        <div className="mt-8 overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="border-b border-white/12 bg-white/4">
-                <th className="px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase">
+              <tr className="border-b border-white/20">
+                <th className="py-3 pr-5 text-label text-steel">
                   {t("case.table.figure")}
                 </th>
-                <th className="px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase">
+                <th className="py-3 pr-5 text-label text-steel">
                   {t("case.table.measures")}
                 </th>
-                <th className="hidden px-5 py-3 font-mono text-[9px] tracking-telemetry text-steel uppercase sm:table-cell">
+                <th className="hidden py-3 pr-5 text-label text-steel sm:table-cell">
                   {t("case.table.basis")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {project.metrics.map((m) => (
-                <tr key={m.id} className="border-b border-white/8 last:border-0">
-                  <td className="px-5 py-4 align-top">
-                    <span className="font-mono text-[17px] leading-none font-semibold tracking-[-0.02em] text-white tabular-nums">
+                <tr key={m.id} className="border-b border-white/12">
+                  <td className="py-5 pr-5 align-top">
+                    <span className="text-copy-lg leading-none font-semibold tracking-[-0.02em] text-white tabular-nums">
                       {m.value}
                     </span>
-                    <span className="mt-2 block font-mono text-[9px] tracking-[0.14em] text-signal uppercase">
+                    <span className="mt-2 block text-label text-signal">
                       {t(`${project.id}.metrics.${m.id}.label`)}
                     </span>
                   </td>
-                  <td className="px-5 py-4 align-top text-[13.5px] leading-relaxed text-zinc">
+                  <td className="py-5 pr-5 align-top text-body leading-relaxed text-zinc">
                     {t(`${project.id}.metrics.${m.id}.note`)}
-                    <span className="mt-2 block font-mono text-[9px] tracking-[0.12em] text-steel uppercase sm:hidden">
+                    <span className="mt-2 block text-label text-steel sm:hidden">
                       {t(`basis.${m.basis}.label`)}
                     </span>
                   </td>
-                  <td className="hidden px-5 py-4 align-top sm:table-cell">
+                  <td className="hidden py-5 align-top sm:table-cell">
                     <span
                       className={cn(
-                        "rounded-sm border px-2 py-1 font-mono text-[9px] tracking-[0.12em] uppercase",
-                        m.basis === "observed"
-                          ? "border-signal/45 bg-signal/10 text-signal"
-                          : "border-white/20 bg-white/5 text-zinc",
+                        "text-small font-medium",
+                        m.basis === "observed" ? "text-signal" : "text-zinc",
                       )}
                     >
                       {t(`basis.${m.basis}.label`)}
@@ -294,10 +307,10 @@ export default async function WorkCasePage(
         <dl className="mt-4 space-y-1">
           {bases.map((b) => (
             <div key={b} className="flex gap-2">
-              <dt className="font-mono text-[9.5px] tracking-[0.12em] text-steel uppercase">
+              <dt className="text-label text-steel">
                 {t(`basis.${b}.label`)}
               </dt>
-              <dd className="font-mono text-[9.5px] leading-[1.6] text-steel">
+              <dd className="text-label leading-[1.6] text-steel">
                 — {t(`basis.${b}.note`)}
               </dd>
             </div>
@@ -305,19 +318,19 @@ export default async function WorkCasePage(
         </dl>
       </section>
 
-      <section className="mt-20 rounded-xl border border-white/12 bg-white/3 p-8 md:p-10">
-        <h2 className="max-w-xl text-[clamp(1.4rem,2.6vw,1.9rem)] leading-[1.12] font-semibold tracking-[-0.03em] text-white">
+      <section className="mt-24 border-t border-white/12 pt-16">
+        <h2 className="max-w-xl text-[clamp(1.9rem,3.6vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white">
           {t("case.cta.title")}
         </h2>
-        <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-zinc">
+        <p className="mt-4 max-w-xl text-lead leading-relaxed text-zinc">
           {t("case.cta.body")}
         </p>
         <Link
           href={localeHref(locale, "/#transmission")}
-          className="mt-7 inline-flex items-center gap-1.5 rounded-md bg-white px-4 py-2 text-[12.5px] font-semibold text-black transition-colors hover:bg-zinc-200"
+          className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-action px-6 py-3 text-lead font-medium text-on-action transition-colors hover:bg-action-hover"
         >
           {t("case.cta.action")}
-          <Arrow className="text-[13px]" weight={1.7} />
+          <Arrow className="text-body" weight={1.7} />
         </Link>
       </section>
     </EditorialShell>

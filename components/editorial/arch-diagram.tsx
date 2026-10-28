@@ -12,12 +12,20 @@ const NODE_W = 152;
 const NODE_H = 46;
 const ROW_GAP = 80;
 
+/**
+ * Colours are the page's own variables, so the same drawing reads on the dark
+ * flight deck and on the light case-study pages. Services and streams take the
+ * link colour; stores and models a strong neutral; entry points stay quiet.
+ */
+const mix = (v: string, pct: number) =>
+  `color-mix(in srgb, var(${v}) ${pct}%, transparent)`;
+
 const KIND: Record<ArchNode["kind"], { stroke: string; text: string }> = {
-  entry: { stroke: "rgba(255,255,255,0.32)", text: "#a1a1aa" },
-  service: { stroke: "rgba(34,211,238,0.55)", text: "#e4e4e7" },
-  store: { stroke: "rgba(255,255,255,0.55)", text: "#ffffff" },
-  stream: { stroke: "rgba(52,211,153,0.6)", text: "#ffffff" },
-  model: { stroke: "rgba(251,191,36,0.6)", text: "#ffffff" },
+  entry: { stroke: mix("--color-zinc", 45), text: "var(--color-zinc)" },
+  service: { stroke: mix("--color-comet", 70), text: "var(--color-white)" },
+  store: { stroke: mix("--color-white", 45), text: "var(--color-white)" },
+  stream: { stroke: mix("--color-comet", 70), text: "var(--color-white)" },
+  model: { stroke: mix("--color-white", 45), text: "var(--color-white)" },
 };
 
 /**
@@ -55,7 +63,9 @@ export function ArchDiagram({
   }
 
   return (
-    <div className="thin-scroll -mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
+    // The page frame is px-4 on phones and px-6 from `sm`; the bleed matches it,
+    // or the scroller pokes 8px past a 390px screen and the page scrolls sideways.
+    <div className="thin-scroll -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         width={width}
@@ -73,7 +83,7 @@ export function ArchDiagram({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M0,1 L7,4 L0,7 z" fill="rgba(255,255,255,0.45)" />
+            <path d="M0,1 L7,4 L0,7 z" style={{ fill: mix("--color-white", 50) }} />
           </marker>
         </defs>
 
@@ -93,7 +103,7 @@ export function ArchDiagram({
               <path
                 d={`M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`}
                 fill="none"
-                stroke="rgba(255,255,255,0.22)"
+                style={{ stroke: mix("--color-white", 28) }}
                 strokeWidth="1.2"
                 markerEnd="url(#arrow)"
               />
@@ -105,8 +115,7 @@ export function ArchDiagram({
                   fontSize="9.5"
                   fontFamily="ui-monospace, SFMono-Regular, monospace"
                   letterSpacing="0.1em"
-                  fill="#71717a"
-                  stroke="#08080b"
+                  style={{ fill: "var(--color-zinc)", stroke: "var(--color-void)" }}
                   strokeWidth="4"
                   paintOrder="stroke"
                 >
@@ -128,31 +137,19 @@ export function ArchDiagram({
                 width={NODE_W}
                 height={NODE_H}
                 rx="6"
-                fill="#0a0a0d"
-                stroke={tone.stroke}
+                style={{ fill: "var(--color-void)", stroke: tone.stroke }}
                 strokeWidth="1"
               />
               <text
                 x={p.x + NODE_W / 2}
-                y={p.y + NODE_H / 2 - 3}
+                y={p.y + NODE_H / 2 + 4}
                 textAnchor="middle"
                 fontSize="12"
                 fontWeight="500"
-                fontFamily="ui-sans-serif, system-ui, sans-serif"
-                fill={tone.text}
+                fontFamily="Onest Variable, ui-sans-serif, system-ui, sans-serif"
+                style={{ fill: tone.text }}
               >
                 {n.label}
-              </text>
-              <text
-                x={p.x + NODE_W / 2}
-                y={p.y + NODE_H / 2 + 12}
-                textAnchor="middle"
-                fontSize="8"
-                letterSpacing="0.18em"
-                fontFamily="ui-monospace, SFMono-Regular, monospace"
-                fill="#52525b"
-              >
-                {n.kind.toUpperCase()}
               </text>
             </g>
           );

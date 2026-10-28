@@ -8,9 +8,11 @@
     "start": "next start",
     "i18n:pull": "i18nexus pull -p ./locales",
     "i18n:listen": "i18nexus listen -p ./locales",
-    "i18n:import": "for ns in common stations projects careers console; do i18nexus import ./locales/en/$ns.json -ns $ns; done"
+    "i18n:import": "for ns in common stations projects console about; do i18nexus import ./locales/en/$ns.json -ns $ns; done"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/onest": "^5.3.1",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "@react-three/postprocessing": "^3.1.1",
