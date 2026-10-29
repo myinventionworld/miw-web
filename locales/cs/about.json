@@ -28,7 +28,9 @@
       "illia": "Senior C# inženýr · 10 let praxe",
       "rosztiszlav": "AI/ML inženýr",
       "andrei": "Grafický designér"
-    }
+    },
+    "hint": "Najeďte na tvář a orbita se zastaví.",
+    "hintTouch": "Klepnutím tvář podržíte, dalším klepnutím pustíte."
   },
   "values": {
     "title": "Jak pracujeme",

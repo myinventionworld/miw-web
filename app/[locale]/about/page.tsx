@@ -3,9 +3,10 @@ import { locale as currentLocale } from "next/root-params";
 
 import { Cover } from "@/components/editorial/cover";
 import { EditorialShell } from "@/components/editorial/shell";
+import { TeamOrbit, type TeamMember } from "@/components/editorial/team-orbit";
 import { HeroShots } from "@/components/showcase/screens";
 import { PROJECTS } from "@/data/projects";
-import { TEAM, initials } from "@/data/team";
+import { TEAM } from "@/data/team";
 import { initTranslations } from "@/i18n";
 import { alternates, localeHref } from "@/lib/locale";
 
@@ -39,12 +40,27 @@ const SECTION_TITLE =
  */
 export default async function AboutPage() {
   const locale = await currentLocale();
-  const { t } = await initTranslations(locale, [
+  const { t, i18n } = await initTranslations(locale, [
     "about",
     "projects",
     "stations",
     "common",
   ]);
+
+  // One list for the team block and the cover. A line someone has not written
+  // yet is left out, never shown as a placeholder.
+  const people: TeamMember[] = TEAM.map((p) => {
+    const lineKey = `team.lines.${p.id}`;
+    const line = i18n.exists(lineKey, { ns: "about" }) ? t(lineKey) : "";
+    return {
+      id: p.id,
+      name: p.name,
+      role: t(`team.roles.${p.id}`),
+      line: line || undefined,
+      photo: p.photo,
+      orbit: p.orbit,
+    };
+  });
 
   const what = t("what.items", { returnObjects: true }) as Point[];
   const values = t("values.items", { returnObjects: true }) as Point[];
@@ -65,7 +81,8 @@ export default async function AboutPage() {
           as a banner under the header. */}
       <section className="md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
         <div className="aspect-[3/2] w-full border-b border-line md:col-start-3 md:row-start-1 md:self-stretch md:border-0">
-          <Cover />
+          {/* Drop `people` to keep only the products on the cover. */}
+          <Cover people={people} />
         </div>
         <div className="px-4 pt-12 pb-20 sm:px-6 md:col-start-2 md:row-start-1 md:self-center md:px-0 md:py-16 md:pr-12">
           <p className="text-small font-medium text-zinc">{t("eyebrow")}</p>
@@ -108,39 +125,13 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className={`${FRAME} py-24 text-center md:py-32`}>
-        <h2 className={SECTION_TITLE}>{t("team.title")}</h2>
-        <p className="mx-auto mt-5 max-w-xl text-[1.1875rem] leading-relaxed text-zinc">
-          {t("team.lede")}
-        </p>
-        <ul className="mt-16 flex flex-wrap justify-center gap-x-6 gap-y-12">
-          {TEAM.map((person) => (
-            <li key={person.id} className="w-[calc(50%-12px)] sm:w-52">
-              {person.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={person.photo}
-                  alt=""
-                  className="mx-auto size-28 rounded-full object-cover"
-                />
-              ) : (
-                <span
-                  aria-hidden
-                  className="mx-auto flex size-28 items-center justify-center rounded-full bg-space-800 text-heading font-semibold tracking-[-0.02em] text-zinc"
-                >
-                  {initials(person.name)}
-                </span>
-              )}
-              <p className="mt-5 text-lead leading-snug font-semibold text-white">
-                {person.name}
-              </p>
-              <p className="mt-1 text-small leading-snug text-zinc">
-                {t(`team.roles.${person.id}`)}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <TeamOrbit
+        people={people}
+        title={t("team.title")}
+        lede={t("team.lede")}
+        hintPointer={t("team.hint")}
+        hintTouch={t("team.hintTouch")}
+      />
 
       <section className="bg-carbon">
         <div className={`${FRAME} py-24 md:py-28`}>

@@ -1,0 +1,106 @@
+/* Orbits for the About page: the team block and the cover. One ring is a
+   point that turns; each slot sits at its angle on the ring and turns back by
+   the same amount, so faces and labels stay upright. CSS only: the compositor
+   runs it, and nothing runs per frame in JavaScript. */
+
+.ring {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: orbit-turn var(--period, 120s) linear infinite;
+  animation-direction: var(--ring-dir, reverse);
+}
+
+.slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--angle)) translateX(var(--radius)) rotate(calc(-1 * var(--angle)));
+}
+
+.upright {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: orbit-turn var(--period, 120s) linear infinite;
+  animation-direction: var(--upright-dir, normal);
+}
+
+/* Centres whatever sits in a slot on the slot's point. */
+.body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes orbit-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A ring that stops on its own while a pointer is on one of its bodies (the
+   cover: only that orbit stops). Real pointers only: a touch screen keeps
+   `:hover` on whatever was tapped last, and taps have their own hold. */
+@media (hover: hover) {
+  .holdSelf:has(.hit:hover),
+  .holdSelf:has(.hit:hover) .upright {
+    animation-play-state: paused;
+  }
+
+  .group:has(.hit:hover) :is(.ring, .upright) {
+    animation-play-state: paused;
+  }
+}
+
+/* A system whose rings all stop while the keyboard is on any of its bodies
+   (the team block). */
+.group:has(.hit:focus-visible) :is(.ring, .upright) {
+  animation-play-state: paused;
+}
+
+/* Set from script: off screen, tab hidden, or a person held by a tap. */
+.paused :is(.ring, .upright) {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .upright {
+    animation: none;
+  }
+}
+
+/* Product dots on the cover. The fallbacks are the theme values, in case a
+   build ever stops emitting the variables. */
+.omnibus {
+  background: var(--color-omnibus, #00d68f);
+}
+.boowie {
+  background: var(--color-boowie, #d2693f);
+}
+.wovie {
+  background: var(--color-wovie, #e8454a);
+}
+
+/* A person on the cover: name and role on hover only, on whichever side of
+   the face has room inside the cover. */
+.label {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.labelRight {
+  right: auto;
+  left: calc(100% + 10px);
+}
+.hit:hover .label {
+  opacity: 1;
+}
