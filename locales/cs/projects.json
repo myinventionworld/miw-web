@@ -287,12 +287,18 @@
   },
   "screens": {
     "omnibusDesktop": "Úvodní stránka Omnibusu: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
+    "omnibusFlowStart": "Úvodní stránka Omnibusu po přihlášení: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
     "omnibusMobile": "Omnibus v telefonu: detail cesty na lince 501 z Prahy do Brna",
+    "omnibusResults": "Výsledky hledání v Omnibusu: sedm spojů z Prahy do Brna 29. října s časy, cenou za místo a volnými místy",
+    "omnibusBooking": "Rezervace v Omnibusu: jméno cestujícího, plánek míst v autobusu a souhrn objednávky s odpočtem",
+    "omnibusSeats": "Plánek míst Omnibusu v telefonu: volná, obsazená a panoramatická místa po řadách",
+    "omnibusHomeMobile": "Úvodní stránka Omnibusu v telefonu: vyhledání spoje a oblíbené trasy z Česka",
     "boowieLibrary": "Knihovna Boowie: rozečtené knihy a kolik je z nich přečteno",
     "boowieStore": "Obchod Boowie: výběr redakce a nové klasiky zdarma",
     "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku",
     "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
     "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
+    "wovieFilmHero": "Stránka filmu Project Hail Mary ve Wovie: plakát, název, hodnocení TMDB a žánry na pozadí záběru z filmu",
     "wovieTrailer": "Přehrávač traileru na stránce filmu ve Wovie",
     "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple",
     "boowieReader": "Čtečka Boowie: první stránka Vánoční koledy s názvem kapitoly a počítadlem stran"

@@ -19,6 +19,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Static assets and the favicon have no locale, and sending `_next/static`
-  // through a redirect is how a site ships a page with no CSS.
-  matcher: "/((?!api|_next/static|_next/image|favicon.ico|.*\\.svg$).*)",
+  // through a redirect is how a site ships a page with no CSS — or, for the
+  // product recordings in `public/screens`, a video that never loads.
+  matcher:
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.svg$|.*\\.png$|.*\\.jpg$|.*\\.webp$|.*\\.mp4$|.*\\.webm$).*)",
 };

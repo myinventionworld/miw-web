@@ -1,20 +1,29 @@
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 
 import boowieLibrary from "@/data/screens/boowie-library.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
 import boowieReader from "@/data/screens/boowie-reader.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
+import omnibusBooking from "@/data/screens/omnibus-booking.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
+import omnibusFlowStart from "@/data/screens/omnibus-flow-start.webp";
+import omnibusHomeMobile from "@/data/screens/omnibus-home-mobile.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
+import omnibusResults from "@/data/screens/omnibus-results.webp";
+import omnibusSeats from "@/data/screens/omnibus-seats.webp";
 import wovieFilm from "@/data/screens/wovie-film.webp";
+import wovieFilmHero from "@/data/screens/wovie-film-hero.webp";
 import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
+import { BrowserFrame, PhoneFrame, type Shot } from "./frames";
 import { PhoneStory } from "./phone-story";
 import { Reveal } from "./reveal";
 import { ScrollingWindow } from "./scrolling-window";
 import type { CycleFrame } from "./screen-cycle";
+import { WindowStack } from "./window-stack";
+import { type LoopVideo, WindowVideo } from "./window-video";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,20 +40,21 @@ import { cn } from "@/lib/utils";
 
 type Translate = (key: string) => string;
 
-interface Shot {
-  src: StaticImageData;
-  alt: string;
-}
-
 const SHOTS = {
   omnibusDesktop: omnibusDesktop,
   omnibusMobile: omnibusMobile,
+  omnibusFlowStart: omnibusFlowStart,
+  omnibusResults: omnibusResults,
+  omnibusBooking: omnibusBooking,
+  omnibusSeats: omnibusSeats,
+  omnibusHomeMobile: omnibusHomeMobile,
   boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
   boowiePlayer: boowiePlayer,
   boowieReader: boowieReader,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
+  wovieFilmHero: wovieFilmHero,
   wovieTrailer: wovieTrailer,
   wovieSignup: wovieSignup,
 } as const;
@@ -58,7 +68,8 @@ const shot = (id: ShotId, t: Translate): Shot => ({
 
 /**
  * Which screenshots each project has. A project missing here shows none.
- * `windows` are further desktop screens, for a project with no phone shots.
+ * `windows` are further desktop screens: the second window of a desktop-only
+ * composition, and the row under the composition in a case study.
  */
 const BY_PROJECT: Record<
   string,
@@ -75,9 +86,20 @@ const BY_PROJECT: Record<
     /** A scroll story for the Work page: one screen per step, its copy under
      *  `projects:<id>.story.<key>`. */
     story?: { shot: ShotId; key: string }[];
+    /** A silent screen recording laid over the main window's screenshot, in
+     *  `public/screens/`. Its first frame should be that screenshot. */
+    video?: LoopVideo;
   }
 > = {
-  omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
+  omnibus: {
+    // The still is the first frame of the recording: a whole booking, from
+    // the search on the home page to the boarding pass.
+    desktop: "omnibusFlowStart",
+    phones: ["omnibusSeats", "omnibusHomeMobile", "omnibusMobile"],
+    windows: ["omnibusResults", "omnibusBooking"],
+    built: "omnibusSeats",
+    video: { mp4: "/screens/omnibus-flow.mp4", webm: "/screens/omnibus-flow.webm" },
+  },
   boowie: {
     phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
     built: "boowieReader",
@@ -89,9 +111,13 @@ const BY_PROJECT: Record<
     ],
   },
   wovie: {
-    desktop: "wovieHome",
+    // A film page, because that is where the backdrop turns into the trailer.
+    // The still is the recording's first frame, so the fade into the video
+    // shows nothing until the trailer itself comes in.
+    desktop: "wovieFilmHero",
     phones: [],
-    windows: ["wovieFilm", "wovieTrailer", "wovieSignup"],
+    windows: ["wovieHome", "wovieTrailer", "wovieSignup"],
+    video: { mp4: "/screens/wovie-hero.mp4", webm: "/screens/wovie-hero.webm" },
   },
 };
 
@@ -99,67 +125,26 @@ export function hasScreens(project: ProjectCase) {
   return project.slug in BY_PROJECT;
 }
 
-function BrowserFrame({
-  shot,
-  host,
-  className,
-}: {
-  shot: Shot;
-  host: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "device-shadow overflow-hidden rounded-[14px] border border-line bg-void",
-        className,
-      )}
-    >
-      <div className="flex h-9 items-center gap-2 border-b border-line px-4" aria-hidden>
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="ml-3 truncate text-meta text-zinc">{host}</span>
-      </div>
-      <Image
-        src={shot.src}
-        alt={shot.alt}
-        sizes="(min-width: 1024px) 880px, 90vw"
-        className="block h-auto w-full"
-      />
-    </div>
-  );
-}
-
-/** The big window of a composition: scrolling when there is a full-page shot. */
+/** The big window of a composition: scrolling when there is a full-page
+ *  shot, playing when there is a recording. */
 function MainWindow({
   shot,
   full,
   host,
+  video,
 }: {
   shot: Shot;
   full?: Shot;
   host: string;
+  video?: LoopVideo;
 }) {
   if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
-  return <BrowserFrame shot={shot} host={host} />;
-}
-
-function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
   return (
-    <div
-      className={cn(
-        "device-shadow overflow-hidden rounded-[2.6rem] border-[7px] border-[#111214] bg-[#111214]",
-        className,
-      )}
-    >
-      <Image
-        src={shot.src}
-        alt={shot.alt}
-        sizes="(min-width: 768px) 260px, 60vw"
-        className="block h-auto w-full rounded-[2.1rem]"
-      />
-    </div>
+    <BrowserFrame
+      shot={shot}
+      host={host}
+      overlay={video ? <WindowVideo video={video} /> : undefined}
+    />
   );
 }
 
@@ -249,15 +234,14 @@ export function ProductShots({
     const windows = (set.windows ?? []).map((id) => shot(id, t));
     return (
       <>
-        <div className="relative mx-auto hidden max-w-[1000px] pb-[16%] text-left md:block">
-          <Reveal className="w-[80%]">
-            <MainWindow shot={desktop} full={fullPage} host={project.host} />
-          </Reveal>
-          {windows[0] && (
-            <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[50%]">
-              <BrowserFrame shot={windows[0]} host={project.host} />
-            </Reveal>
-          )}
+        <div className="hidden md:block">
+          <WindowStack
+            main={desktop}
+            full={fullPage}
+            stack={windows}
+            host={project.host}
+            video={set.video}
+          />
         </div>
         {gallery && windows.length > 1 && (
           <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
@@ -273,18 +257,45 @@ export function ProductShots({
     );
   }
 
+  // A case study shows its `built` screen further down, under "How it is
+  // built", so here the window leans on another phone and the swipe row leaves
+  // that screen out. The Work page has no such section and leads with it.
+  const others = gallery && set.built
+    ? set.phones.filter((id) => id !== set.built).map((id) => shot(id, t))
+    : phones;
+  const lead = others[0] ?? phones[0];
+  const windows = gallery ? (set.windows ?? []).map((id) => shot(id, t)) : [];
+
   return (
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
         <Reveal className="w-[86%]">
-          <MainWindow shot={desktop} full={fullPage} host={project.host} />
+          <MainWindow
+            shot={desktop}
+            full={fullPage}
+            host={project.host}
+            video={set.video}
+          />
         </Reveal>
         <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
-          <PhoneFrame shot={phones[0]} />
+          <PhoneFrame shot={lead} />
         </Reveal>
       </div>
+      {windows.length > 0 && (
+        <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
+          {windows.map((w, i) => (
+            <Reveal key={w.alt} delay={i * 0.08}>
+              <BrowserFrame shot={w} host={project.host} />
+            </Reveal>
+          ))}
+        </div>
+      )}
       <div className="md:hidden">
-        <PhoneFrame shot={phones[0]} className="mx-auto w-[64%] max-w-[260px]" />
+        {gallery && others.length > 1 ? (
+          <PhoneRow shots={others} />
+        ) : (
+          <PhoneFrame shot={lead} className="mx-auto w-[64%] max-w-[260px]" />
+        )}
       </div>
     </>
   );
@@ -304,7 +315,7 @@ export function HeroShots({
 }) {
   const desktop = shot("omnibusDesktop", t);
   const player = shot("boowiePlayer", t);
-  const mobile = shot("omnibusMobile", t);
+  const mobile = shot("omnibusHomeMobile", t);
 
   return (
     <>
@@ -330,7 +341,9 @@ export function HeroShots({
 export const THUMBS: Record<string, CycleFrame[]> = {
   omnibus: [
     { src: omnibusDesktop, kind: "window" },
-    { src: omnibusMobile, kind: "phone" },
+    { src: omnibusResults, kind: "window" },
+    { src: omnibusBooking, kind: "window" },
+    { src: omnibusSeats, kind: "phone" },
   ],
   boowie: [
     { src: boowieLibrary, kind: "phone" },
@@ -424,7 +437,8 @@ export function hasBuiltShot(project: ProjectCase) {
 }
 
 /** The screen that shows the mechanism a case study's "How it is built" is
- *  about: Boowie's reader, where the same parsed book is read and listened. */
+ *  about: Boowie's reader, where the same parsed book is read and listened;
+ *  Omnibus's seat map, the thing two passengers race for. */
 export function BuiltShot({
   project,
   t,

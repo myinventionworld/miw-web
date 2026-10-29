@@ -287,12 +287,18 @@
   },
   "screens": {
     "omnibusDesktop": "Omnibus home page: route search over an illustration of a coach driving past Prague",
+    "omnibusFlowStart": "Omnibus home page, signed in: route search over an illustration of a coach driving past Prague",
     "omnibusMobile": "Omnibus on a phone: journey details for route 501 from Prague to Brno",
+    "omnibusResults": "Omnibus search results: seven trips from Prague to Brno on 29 October, with times, price per seat and free seats",
+    "omnibusBooking": "Omnibus booking page: passenger name, the seat map of the coach and a booking summary with a countdown",
+    "omnibusSeats": "Omnibus seat map on a phone: free, taken and panoramic seats row by row",
+    "omnibusHomeMobile": "Omnibus home page on a phone: route search and popular routes from the Czech Republic",
     "boowieLibrary": "Boowie library: the books in progress, with how much of each is read",
     "boowieStore": "Boowie store: an editor's pick and new free classics",
     "boowiePlayer": "Boowie audiobook player with chapter progress, playback speed and a sleep timer",
     "wovieHome": "Wovie home page: a featured film with rating, genres and a Continue where you left off button",
     "wovieFilm": "Wovie film page: poster, TMDB score, Rotten Tomatoes rating, genres and running time",
+    "wovieFilmHero": "Wovie film page for Project Hail Mary: poster, title, TMDB rating and genres over the film's backdrop",
     "wovieTrailer": "Wovie trailer player on a film page",
     "wovieSignup": "Wovie sign-up: avatar, username, email and password, with Google and Apple sign-in",
     "boowieReader": "Boowie reader: the first page of A Christmas Carol, with the chapter title and page counter"
