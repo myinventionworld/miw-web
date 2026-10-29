@@ -11,6 +11,9 @@ import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
+import { PhoneStory } from "./phone-story";
+import { Reveal } from "./reveal";
+import { ScrollingWindow } from "./scrolling-window";
 import type { CycleFrame } from "./screen-cycle";
 import { cn } from "@/lib/utils";
 
@@ -65,12 +68,25 @@ const BY_PROJECT: Record<
     windows?: ShotId[];
     /** Shown under "How it is built" in place of the working demo. */
     built?: ShotId;
+    /** A full-length screenshot of the desktop page. When present, the main
+     *  window scrolls through it as the visitor scrolls past (add the file to
+     *  SHOTS and name it here). */
+    fullPage?: ShotId;
+    /** A scroll story for the Work page: one screen per step, its copy under
+     *  `projects:<id>.story.<key>`. */
+    story?: { shot: ShotId; key: string }[];
   }
 > = {
   omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
   boowie: {
     phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
     built: "boowieReader",
+    story: [
+      { shot: "boowieLibrary", key: "library" },
+      { shot: "boowieStore", key: "store" },
+      { shot: "boowieReader", key: "reader" },
+      { shot: "boowiePlayer", key: "player" },
+    ],
   },
   wovie: {
     desktop: "wovieHome",
@@ -115,6 +131,20 @@ function BrowserFrame({
   );
 }
 
+/** The big window of a composition: scrolling when there is a full-page shot. */
+function MainWindow({
+  shot,
+  full,
+  host,
+}: {
+  shot: Shot;
+  full?: Shot;
+  host: string;
+}) {
+  if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
+  return <BrowserFrame shot={shot} host={host} />;
+}
+
 function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
   return (
     <div
@@ -137,12 +167,14 @@ function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
 function PhoneRow({ shots }: { shots: Shot[] }) {
   return (
     <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pt-2 pb-12 sm:-mx-6 sm:px-6 md:mx-0 md:justify-center md:gap-8 md:overflow-visible md:px-0">
-      {shots.map((s) => (
-        <PhoneFrame
+      {shots.map((s, i) => (
+        <Reveal
           key={s.alt}
-          shot={s}
+          delay={i * 0.08}
           className="w-[62%] max-w-[260px] shrink-0 snap-center md:w-[30%]"
-        />
+        >
+          <PhoneFrame shot={s} />
+        </Reveal>
       ))}
     </div>
   );
@@ -174,9 +206,13 @@ export function ProductShots({
   project,
   t,
   gallery = false,
+  story = false,
 }: {
   project: ProjectCase;
   t: Translate;
+  /** Work page: tell the product as a scroll story on large screens when it
+   *  has one. */
+  story?: boolean;
   /** Case studies: on large screens, the windows that do not fit the
    *  composition follow it as a row. Small screens swipe through all of
    *  them anyway. */
@@ -186,22 +222,41 @@ export function ProductShots({
   if (!set) return null;
   const phones = set.phones.map((id) => shot(id, t));
 
+  if (!set.desktop && story && set.story) {
+    const steps = set.story.map((s) => ({
+      ...shot(s.shot, t),
+      title: t(`projects:${project.id}.story.${s.key}.title`),
+      body: t(`projects:${project.id}.story.${s.key}.body`),
+    }));
+    return (
+      <>
+        <div className="hidden md:block">
+          <PhoneStory steps={steps} />
+        </div>
+        <div className="md:hidden">
+          <PhoneRow shots={phones} />
+        </div>
+      </>
+    );
+  }
+
   if (!set.desktop) return <PhoneRow shots={phones} />;
 
   const desktop = shot(set.desktop, t);
+  const fullPage = set.fullPage ? shot(set.fullPage, t) : undefined;
 
   if (phones.length === 0) {
     const windows = (set.windows ?? []).map((id) => shot(id, t));
     return (
       <>
         <div className="relative mx-auto hidden max-w-[1000px] pb-[16%] text-left md:block">
-          <BrowserFrame shot={desktop} host={project.host} className="w-[80%]" />
+          <Reveal className="w-[80%]">
+            <MainWindow shot={desktop} full={fullPage} host={project.host} />
+          </Reveal>
           {windows[0] && (
-            <BrowserFrame
-              shot={windows[0]}
-              host={project.host}
-              className="absolute right-0 bottom-0 w-[50%]"
-            />
+            <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[50%]">
+              <BrowserFrame shot={windows[0]} host={project.host} />
+            </Reveal>
           )}
         </div>
         {gallery && windows.length > 1 && (
@@ -221,11 +276,12 @@ export function ProductShots({
   return (
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
-        <BrowserFrame shot={desktop} host={project.host} className="w-[86%]" />
-        <PhoneFrame
-          shot={phones[0]}
-          className="absolute right-0 bottom-0 w-[23%]"
-        />
+        <Reveal className="w-[86%]">
+          <MainWindow shot={desktop} full={fullPage} host={project.host} />
+        </Reveal>
+        <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
+          <PhoneFrame shot={phones[0]} />
+        </Reveal>
       </div>
       <div className="md:hidden">
         <PhoneFrame shot={phones[0]} className="mx-auto w-[64%] max-w-[260px]" />
@@ -253,8 +309,12 @@ export function HeroShots({
   return (
     <>
       <div className="relative mx-auto hidden max-w-[1040px] pb-[7%] text-left md:block">
-        <BrowserFrame shot={desktop} host={omnibusHost} className="w-[84%]" />
-        <PhoneFrame shot={player} className="absolute right-[2%] bottom-0 w-[22%]" />
+        <Reveal className="w-[84%]">
+          <BrowserFrame shot={desktop} host={omnibusHost} />
+        </Reveal>
+        <Reveal from="right" delay={0.15} className="absolute right-[2%] bottom-0 w-[22%]">
+          <PhoneFrame shot={player} />
+        </Reveal>
       </div>
       <div className="flex items-end justify-center gap-4 md:hidden">
         <PhoneFrame shot={mobile} className="w-[46%] max-w-[220px]" />

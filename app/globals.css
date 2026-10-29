@@ -344,3 +344,157 @@ h2 {
 .tinted:hover {
   border-color: color-mix(in srgb, var(--tint) 60%, transparent);
 }
+
+/* ── explainers (components/showcase/explainers.tsx) ─────────────────── */
+
+/* Omnibus seat race, a 9s loop: A takes seat 12, B arrives and waits, A's
+   booking commits and B is told the seat is taken. */
+.race-a,
+.race-b {
+  display: flex;
+  align-items: center;
+  margin: -4px 0 0 -2px;
+  white-space: nowrap;
+}
+.race-a {
+  animation: race-a 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.race-b {
+  animation: race-b 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.race-seat {
+  animation: race-seat 9s ease-out infinite;
+}
+.race-wait {
+  animation: race-wait 9s ease-out infinite;
+}
+.race-taken {
+  animation: race-taken 9s ease-out infinite;
+}
+.race-cap {
+  position: absolute;
+  inset: 0;
+}
+.race-cap-1 {
+  animation: race-cap-1 9s ease-out infinite;
+}
+.race-cap-2 {
+  animation: race-cap-2 9s ease-out infinite;
+}
+.race-cap-3 {
+  animation: race-cap-3 9s ease-out infinite;
+}
+
+@keyframes race-a {
+  0% { transform: translate(-150px, 70px); opacity: 0; }
+  5% { opacity: 1; }
+  18% { transform: translate(0, 0); }
+  20% { transform: translate(0, 0) scale(0.88); }
+  23% { transform: translate(0, 0) scale(1); }
+  62% { transform: translate(0, 0); opacity: 1; }
+  70%, 100% { transform: translate(-40px, 46px); opacity: 0; }
+}
+@keyframes race-b {
+  0%, 24% { transform: translate(190px, -60px); opacity: 0; }
+  28% { opacity: 1; }
+  40% { transform: translate(14px, 10px); }
+  42% { transform: translate(14px, 10px) scale(0.88); }
+  45% { transform: translate(14px, 10px) scale(1); }
+  88% { transform: translate(14px, 10px); opacity: 1; }
+  96%, 100% { transform: translate(14px, 10px); opacity: 0; }
+}
+@keyframes race-seat {
+  0%, 19% { background: transparent; color: var(--color-comet); border-color: color-mix(in srgb, var(--color-comet) 35%, transparent); }
+  21%, 61% { background: var(--color-comet); color: var(--color-void); border-color: var(--color-comet); }
+  64%, 92% { background: var(--color-white); color: var(--color-void); border-color: var(--color-white); }
+  98%, 100% { background: transparent; color: var(--color-comet); border-color: color-mix(in srgb, var(--color-comet) 35%, transparent); }
+}
+@keyframes race-wait {
+  0%, 42% { opacity: 0; }
+  44%, 60% { opacity: 1; }
+  62%, 100% { opacity: 0; }
+}
+@keyframes race-taken {
+  0%, 62% { opacity: 0; }
+  64%, 90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes race-cap-1 {
+  0%, 28% { opacity: 1; }
+  31%, 97% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes race-cap-2 {
+  0%, 29% { opacity: 0; }
+  32%, 60% { opacity: 1; }
+  63%, 100% { opacity: 0; }
+}
+@keyframes race-cap-3 {
+  0%, 61% { opacity: 0; }
+  64%, 94% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+
+/* Boowie read/listen, a 7s loop: the same place as text, then as audio. */
+.morph-read {
+  animation: morph-read 7s ease-in-out infinite;
+}
+.morph-listen {
+  animation: morph-listen 7s ease-in-out infinite;
+}
+@keyframes morph-read {
+  0%, 42% { opacity: 1; transform: none; }
+  50%, 92% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes morph-listen {
+  0%, 42% { opacity: 0; transform: translateY(6px); }
+  50%, 92% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .race-a,
+  .race-b,
+  .race-seat,
+  .race-wait,
+  .race-taken,
+  .race-cap,
+  .morph-read,
+  .morph-listen {
+    animation: none !important;
+  }
+  /* End state of the race: B on the seat, told it is taken; all captions. */
+  .race-a,
+  .race-wait {
+    display: none !important;
+  }
+  .race-taken {
+    opacity: 1;
+  }
+  .race-b {
+    transform: translate(14px, 10px);
+  }
+  .race-seat {
+    background: var(--color-white);
+    color: var(--color-void);
+  }
+  .race-caps {
+    min-height: 0;
+  }
+  .race-cap {
+    position: static;
+    opacity: 1;
+  }
+  .race-cap + .race-cap {
+    margin-top: 0.5em;
+  }
+  /* Read/listen: both views stacked. */
+  .morph-listen {
+    opacity: 1;
+    position: relative;
+  }
+  .morph-read {
+    position: relative;
+  }
+}

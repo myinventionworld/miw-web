@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
 import { Device } from "@/components/showcase/device";
+import { ReadListen, SeatRace } from "@/components/showcase/explainers";
 import {
   BuiltShot,
   ProductShots,
@@ -68,6 +69,13 @@ export default async function WorkCasePage(
 
   const locale = await currentLocale();
   const { t } = await initTranslations(locale, ["projects", "common"]);
+  const tr = (key: string) => t(key);
+  const explainer =
+    project.slug === "omnibus" ? (
+      <SeatRace t={tr} />
+    ) : project.slug === "boowie" ? (
+      <ReadListen t={tr} />
+    ) : null;
 
   // Only print the half of the legend the table actually uses. A "measured"
   // footnote under three budgets is a footnote that reads as a hedge.
@@ -209,11 +217,20 @@ export default async function WorkCasePage(
           {t(`${project.id}.design.lede`)}
         </p>
 
-        {/* With screenshots at the top, the working demo moves here: it is the
-            mechanism this section describes. */}
-        {hasBuiltShot(project) ? (
-          <div className="mt-12">
-            <BuiltShot project={project} t={(key: string) => t(key)} />
+        {/* The mechanism this section describes, shown rather than told:
+            Omnibus's seat race, Boowie's reader next to its read/listen
+            switch. Projects without one keep the working demo. */}
+        {explainer || hasBuiltShot(project) ? (
+          <div
+            className={cn(
+              "mt-12 grid items-center gap-12",
+              hasBuiltShot(project) && explainer && "md:grid-cols-[minmax(0,300px)_1fr]",
+            )}
+          >
+            {hasBuiltShot(project) && (
+              <BuiltShot project={project} t={tr} />
+            )}
+            {explainer}
           </div>
         ) : (
           hasScreens(project) &&

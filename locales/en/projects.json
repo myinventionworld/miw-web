@@ -134,6 +134,13 @@
     ],
     "results": {
       "lede": "Omnibus is a university project with a live demo, not a commercial service. Measured figures are checked in the code; a target is what it is designed for."
+    },
+    "race": {
+      "a": "Passenger A books seat 12. The database locks that row.",
+      "b": "Passenger B asks for seat 12 at the same moment and waits for the lock.",
+      "c": "A's booking commits. B is told the seat is taken, not double-booked.",
+      "waiting": "waiting",
+      "taken": "taken"
     }
   },
   "boowie": {
@@ -196,6 +203,29 @@
     ],
     "results": {
       "lede": "Boowie is live: open it on a phone and add it to the home screen. Every figure here is checked in the code or on the live app."
+    },
+    "story": {
+      "library": {
+        "title": "Your shelf",
+        "body": "Books and audiobooks side by side, each showing how far you got."
+      },
+      "store": {
+        "title": "Free classics to start",
+        "body": "Twenty public-domain books in the built-in store, from Tolstoy to Dickens."
+      },
+      "reader": {
+        "title": "A reader that remembers",
+        "body": "EPUB, FB2 and PDF open without internet, on the page where you stopped."
+      },
+      "player": {
+        "title": "Or listen instead",
+        "body": "MP3 and M4B audiobooks with chapters, playback speed and a sleep timer."
+      }
+    },
+    "morph": {
+      "read": "Reading · page 6 of 14",
+      "listen": "Listening · 4:40 of 11:40",
+      "caption": "Switch between reading and listening and you stay in the same place in the chapter."
     }
   },
   "wovie_next": {

@@ -10,6 +10,7 @@ import { Bars, Cross } from "@/components/glyph";
 import { projectsForStations, type ProjectCase } from "@/data/projects";
 import { ScreenCycle } from "@/components/showcase/screen-cycle";
 import { THUMBS } from "@/components/showcase/screens";
+import { productFocus } from "@/lib/product-focus";
 import {
   NAV_SECTIONS,
   STATUS_TONE,
@@ -172,7 +173,15 @@ function ProjectCard({
   return (
     <LocaleLink
       href={`/work/${project.slug}`}
-      onClick={onDismiss}
+      onClick={() => {
+        productFocus.slug = null;
+        onDismiss();
+      }}
+      // Brightens this product's moon and orbit in the 3D scene.
+      onMouseEnter={() => (productFocus.slug = project.slug)}
+      onMouseLeave={() => (productFocus.slug = null)}
+      onFocus={() => (productFocus.slug = project.slug)}
+      onBlur={() => (productFocus.slug = null)}
       className="group block w-full text-left focus:outline-none"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/12 transition-colors group-hover:border-white/35 group-focus-visible:border-white">
