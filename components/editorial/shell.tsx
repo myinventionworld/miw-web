@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
-import { Arrow } from "@/components/glyph";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { initTranslations } from "@/i18n";
 import { localeHref } from "@/lib/locale";
@@ -91,15 +90,6 @@ export async function EditorialShell({
             >
               <span className="hidden sm:inline">{t("nav.bookCall")}</span>
               <span className="sm:hidden">{t("nav.contact")}</span>
-              {/* Measured: with the arrow in, the row fits 320px with 3.6px to
-                  spare — one font fallback or one longer translation from
-                  scrolling sideways again. The arrow is also the weakest mark in
-                  the set by this project's own rule, since it annotates an
-                  in-page anchor whose label already says where it goes. So it is
-                  the first thing to give up when the frame gets tight, and the
-                  19px it returns is what makes the fit a margin instead of a
-                  coincidence. */}
-              <Arrow className="hidden text-body sm:block" weight={1.7} />
             </Link>
           </nav>
         </div>

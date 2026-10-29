@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 
 import boowieLibrary from "@/data/screens/boowie-library.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
+import boowieReader from "@/data/screens/boowie-reader.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
@@ -10,6 +11,10 @@ import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
+import { PhoneStory } from "./phone-story";
+import { Reveal } from "./reveal";
+import { ScrollingWindow } from "./scrolling-window";
+import type { CycleFrame } from "./screen-cycle";
 import { cn } from "@/lib/utils";
 
 /**
@@ -37,6 +42,7 @@ const SHOTS = {
   boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
   boowiePlayer: boowiePlayer,
+  boowieReader: boowieReader,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
   wovieTrailer: wovieTrailer,
@@ -56,10 +62,32 @@ const shot = (id: ShotId, t: Translate): Shot => ({
  */
 const BY_PROJECT: Record<
   string,
-  { desktop?: ShotId; phones: ShotId[]; windows?: ShotId[] }
+  {
+    desktop?: ShotId;
+    phones: ShotId[];
+    windows?: ShotId[];
+    /** Shown under "How it is built" in place of the working demo. */
+    built?: ShotId;
+    /** A full-length screenshot of the desktop page. When present, the main
+     *  window scrolls through it as the visitor scrolls past (add the file to
+     *  SHOTS and name it here). */
+    fullPage?: ShotId;
+    /** A scroll story for the Work page: one screen per step, its copy under
+     *  `projects:<id>.story.<key>`. */
+    story?: { shot: ShotId; key: string }[];
+  }
 > = {
   omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
-  boowie: { phones: ["boowieLibrary", "boowieStore", "boowiePlayer"] },
+  boowie: {
+    phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
+    built: "boowieReader",
+    story: [
+      { shot: "boowieLibrary", key: "library" },
+      { shot: "boowieStore", key: "store" },
+      { shot: "boowieReader", key: "reader" },
+      { shot: "boowiePlayer", key: "player" },
+    ],
+  },
   wovie: {
     desktop: "wovieHome",
     phones: [],
@@ -103,6 +131,20 @@ function BrowserFrame({
   );
 }
 
+/** The big window of a composition: scrolling when there is a full-page shot. */
+function MainWindow({
+  shot,
+  full,
+  host,
+}: {
+  shot: Shot;
+  full?: Shot;
+  host: string;
+}) {
+  if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
+  return <BrowserFrame shot={shot} host={host} />;
+}
+
 function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
   return (
     <div
@@ -125,12 +167,14 @@ function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
 function PhoneRow({ shots }: { shots: Shot[] }) {
   return (
     <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pt-2 pb-12 sm:-mx-6 sm:px-6 md:mx-0 md:justify-center md:gap-8 md:overflow-visible md:px-0">
-      {shots.map((s) => (
-        <PhoneFrame
+      {shots.map((s, i) => (
+        <Reveal
           key={s.alt}
-          shot={s}
+          delay={i * 0.08}
           className="w-[62%] max-w-[260px] shrink-0 snap-center md:w-[30%]"
-        />
+        >
+          <PhoneFrame shot={s} />
+        </Reveal>
       ))}
     </div>
   );
@@ -162,9 +206,13 @@ export function ProductShots({
   project,
   t,
   gallery = false,
+  story = false,
 }: {
   project: ProjectCase;
   t: Translate;
+  /** Work page: tell the product as a scroll story on large screens when it
+   *  has one. */
+  story?: boolean;
   /** Case studies: on large screens, the windows that do not fit the
    *  composition follow it as a row. Small screens swipe through all of
    *  them anyway. */
@@ -174,22 +222,41 @@ export function ProductShots({
   if (!set) return null;
   const phones = set.phones.map((id) => shot(id, t));
 
+  if (!set.desktop && story && set.story) {
+    const steps = set.story.map((s) => ({
+      ...shot(s.shot, t),
+      title: t(`projects:${project.id}.story.${s.key}.title`),
+      body: t(`projects:${project.id}.story.${s.key}.body`),
+    }));
+    return (
+      <>
+        <div className="hidden md:block">
+          <PhoneStory steps={steps} />
+        </div>
+        <div className="md:hidden">
+          <PhoneRow shots={phones} />
+        </div>
+      </>
+    );
+  }
+
   if (!set.desktop) return <PhoneRow shots={phones} />;
 
   const desktop = shot(set.desktop, t);
+  const fullPage = set.fullPage ? shot(set.fullPage, t) : undefined;
 
   if (phones.length === 0) {
     const windows = (set.windows ?? []).map((id) => shot(id, t));
     return (
       <>
         <div className="relative mx-auto hidden max-w-[1000px] pb-[16%] text-left md:block">
-          <BrowserFrame shot={desktop} host={project.host} className="w-[80%]" />
+          <Reveal className="w-[80%]">
+            <MainWindow shot={desktop} full={fullPage} host={project.host} />
+          </Reveal>
           {windows[0] && (
-            <BrowserFrame
-              shot={windows[0]}
-              host={project.host}
-              className="absolute right-0 bottom-0 w-[50%]"
-            />
+            <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[50%]">
+              <BrowserFrame shot={windows[0]} host={project.host} />
+            </Reveal>
           )}
         </div>
         {gallery && windows.length > 1 && (
@@ -209,11 +276,12 @@ export function ProductShots({
   return (
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
-        <BrowserFrame shot={desktop} host={project.host} className="w-[86%]" />
-        <PhoneFrame
-          shot={phones[0]}
-          className="absolute right-0 bottom-0 w-[23%]"
-        />
+        <Reveal className="w-[86%]">
+          <MainWindow shot={desktop} full={fullPage} host={project.host} />
+        </Reveal>
+        <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
+          <PhoneFrame shot={phones[0]} />
+        </Reveal>
       </div>
       <div className="md:hidden">
         <PhoneFrame shot={phones[0]} className="mx-auto w-[64%] max-w-[260px]" />
@@ -241,13 +309,132 @@ export function HeroShots({
   return (
     <>
       <div className="relative mx-auto hidden max-w-[1040px] pb-[7%] text-left md:block">
-        <BrowserFrame shot={desktop} host={omnibusHost} className="w-[84%]" />
-        <PhoneFrame shot={player} className="absolute right-[2%] bottom-0 w-[22%]" />
+        <Reveal className="w-[84%]">
+          <BrowserFrame shot={desktop} host={omnibusHost} />
+        </Reveal>
+        <Reveal from="right" delay={0.15} className="absolute right-[2%] bottom-0 w-[22%]">
+          <PhoneFrame shot={player} />
+        </Reveal>
       </div>
       <div className="flex items-end justify-center gap-4 md:hidden">
         <PhoneFrame shot={mobile} className="w-[46%] max-w-[220px]" />
         <PhoneFrame shot={player} className="w-[46%] max-w-[220px]" />
       </div>
     </>
+  );
+}
+
+/**
+ * The header menu's project cards: each product's screens in turn.
+ */
+export const THUMBS: Record<string, CycleFrame[]> = {
+  omnibus: [
+    { src: omnibusDesktop, kind: "window" },
+    { src: omnibusMobile, kind: "phone" },
+  ],
+  boowie: [
+    { src: boowieLibrary, kind: "phone" },
+    { src: boowieStore, kind: "phone" },
+    { src: boowieReader, kind: "phone" },
+    { src: boowiePlayer, kind: "phone" },
+  ],
+  wovie: [
+    { src: wovieHome, kind: "window" },
+    { src: wovieFilm, kind: "window" },
+    { src: wovieTrailer, kind: "window" },
+    { src: wovieSignup, kind: "window" },
+  ],
+};
+
+/**
+ * The station card on the 3D home: the product's screenshots sized for a
+ * panel that has to fit a 13" screen next to the planet. A browser window with
+ * the phone leaning on it, or a row of phones at a fixed height.
+ */
+export function DockShots({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const set = BY_PROJECT[project.slug];
+  if (!set) return null;
+  const phones = set.phones.map((id) => shot(id, t));
+
+  if (set.desktop) {
+    const desktop = shot(set.desktop, t);
+    const phone = phones[0];
+    return (
+      <div className={cn("relative", phone && "pb-[6%]")}>
+        <div
+          className={cn(
+            "overflow-hidden rounded-lg border border-white/15 bg-black",
+            phone && "w-[84%]",
+          )}
+        >
+          <div className="flex h-7 items-center gap-1.5 border-b border-white/12 bg-white/5 px-3" aria-hidden>
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="size-2 rounded-full bg-white/22" />
+            <span className="ml-2 truncate text-label text-zinc">{project.host}</span>
+          </div>
+          <Image
+            src={desktop.src}
+            alt={desktop.alt}
+            sizes="460px"
+            className="block h-auto w-full"
+          />
+        </div>
+        {phone && (
+          <div className="absolute right-0 bottom-0 w-[22%] overflow-hidden rounded-[16px] border-[3px] border-[#1c1c20] bg-black">
+            <Image
+              src={phone.src}
+              alt={phone.alt}
+              sizes="120px"
+              className="block h-auto w-full"
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center gap-3">
+      {phones.map((p) => (
+        <div
+          key={p.alt}
+          className="overflow-hidden rounded-[18px] border-[3px] border-[#1c1c20] bg-black"
+        >
+          <Image
+            src={p.src}
+            alt={p.alt}
+            sizes="130px"
+            className="block h-[230px] w-auto deck-short:h-[170px]"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function hasBuiltShot(project: ProjectCase) {
+  return Boolean(BY_PROJECT[project.slug]?.built);
+}
+
+/** The screen that shows the mechanism a case study's "How it is built" is
+ *  about: Boowie's reader, where the same parsed book is read and listened. */
+export function BuiltShot({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const id = BY_PROJECT[project.slug]?.built;
+  if (!id) return null;
+  return (
+    <PhoneFrame shot={shot(id, t)} className="mx-auto w-[64%] max-w-[300px]" />
   );
 }

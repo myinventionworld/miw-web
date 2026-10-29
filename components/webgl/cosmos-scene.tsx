@@ -12,6 +12,7 @@ import { Effects } from "./effects";
 import { FlightDriver } from "./flight-driver";
 import { IcePlanet } from "./ice-planet";
 import { LogoModel } from "./logo-model";
+import { ProductMoons } from "./product-moons";
 import { Pulsar } from "./pulsar";
 import { RingedPlanet } from "./ringed-planet";
 import { Starfield } from "./starfield";
@@ -112,6 +113,7 @@ export function CosmosScene() {
         <RingedPlanet />
         <IcePlanet />
         <Pulsar />
+        <ProductMoons />
         <Starfield count={dense ? 3200 : 1400} />
       </Suspense>
 

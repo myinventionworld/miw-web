@@ -9,7 +9,6 @@ import {
 } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/locale-link";
-import { Arrow } from "@/components/glyph";
 
 import {
   STATIONS,
@@ -21,6 +20,7 @@ import {
 } from "@/lib/stations";
 import { projectForStation, type ProjectCase } from "@/data/projects";
 import { ShowcaseFrame, ProjectActions } from "./showcase/frame";
+import { DockShots, hasScreens } from "./showcase/screens";
 import { cn } from "@/lib/utils";
 
 /**
@@ -96,7 +96,15 @@ function ArtifactBody({
         {t(`projects:${project.id}.pitch`)}
       </p>
 
-      <ShowcaseFrame project={project} className="mt-3" />
+      {/* Real screenshots where we have them; the working demo stays on the
+          case study, in "How it is built". */}
+      <div className="mt-3">
+        {hasScreens(project) ? (
+          <DockShots project={project} t={(key: string) => t(key)} />
+        ) : (
+          <ShowcaseFrame project={project} />
+        )}
+      </div>
     </>
   );
 }
@@ -160,7 +168,6 @@ function StationCta({
     return (
       <LocaleLink href={station.ctaHref} className={style}>
         {label}
-        <Arrow className="text-lead" weight={1.7} />
       </LocaleLink>
     );
   }
@@ -168,7 +175,6 @@ function StationCta({
   return (
     <button type="button" onClick={() => onAction?.(station)} className={style}>
       {label}
-      <Arrow className="text-lead" weight={1.7} />
     </button>
   );
 }

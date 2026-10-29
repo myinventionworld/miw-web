@@ -134,6 +134,13 @@
     ],
     "results": {
       "lede": "Omnibus je univerzitní projekt se živým demem, ne komerční služba. Ověřené údaje jsou zkontrolované v kódu; cíl je to, na co je navržen."
+    },
+    "race": {
+      "a": "Cestující A rezervuje místo 12. Databáze ten řádek zamkne.",
+      "b": "Cestující B ve stejnou chvíli chce místo 12 a čeká, až se zámek uvolní.",
+      "c": "Rezervace A se uloží. B dostane „místo obsazeno“, ne dvojí rezervaci.",
+      "waiting": "čeká",
+      "taken": "obsazeno"
     }
   },
   "boowie": {
@@ -196,6 +203,29 @@
     ],
     "results": {
       "lede": "Boowie běží: otevřete ho v telefonu a přidejte na plochu. Každý údaj tady je ověřený v kódu nebo v běžící aplikaci."
+    },
+    "story": {
+      "library": {
+        "title": "Vaše police",
+        "body": "Knihy a audioknihy vedle sebe, u každé vidíte, kolik máte přečteno."
+      },
+      "store": {
+        "title": "Klasika zdarma na začátek",
+        "body": "Dvacet volných děl ve vestavěném obchodě, od Tolstého po Dickense."
+      },
+      "reader": {
+        "title": "Čtečka, která si pamatuje",
+        "body": "EPUB, FB2 a PDF se otevřou bez internetu, na stránce, kde jste skončili."
+      },
+      "player": {
+        "title": "Nebo poslouchejte",
+        "body": "Audioknihy MP3 a M4B s kapitolami, rychlostí přehrávání a časovačem spánku."
+      }
+    },
+    "morph": {
+      "read": "Čtení · strana 6 ze 14",
+      "listen": "Poslech · 4:40 z 11:40",
+      "caption": "Přepínáte mezi čtením a poslechem a zůstáváte na stejném místě kapitoly."
     }
   },
   "wovie_next": {
@@ -264,6 +294,7 @@
     "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
     "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
     "wovieTrailer": "Přehrávač traileru na stránce filmu ve Wovie",
-    "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple"
+    "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple",
+    "boowieReader": "Čtečka Boowie: první stránka Vánoční koledy s názvem kapitoly a počítadlem stran"
   }
 }

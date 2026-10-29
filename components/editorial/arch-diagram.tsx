@@ -7,8 +7,10 @@ import type { ArchEdge, ArchNode } from "@/data/projects";
  */
 
 const PAD = 16;
-const COL_W = 178;
 const NODE_W = 152;
+/** Column step. Annotated edges need a gap wide enough for "FOR UPDATE". */
+const COL_W = 178;
+const COL_W_LABELLED = 228;
 const NODE_H = 46;
 const ROW_GAP = 80;
 
@@ -43,7 +45,9 @@ export function ArchDiagram({
   label: string;
 }) {
   const maxCol = Math.max(...nodes.map((n) => n.col));
-  const width = PAD * 2 + maxCol * COL_W + NODE_W;
+  const labelled = edges.some((e) => e.label);
+  const colW = labelled ? COL_W_LABELLED : COL_W;
+  const width = PAD * 2 + maxCol * colW + NODE_W;
 
   // Each column is centred on the band independently, so a column with one
   // node sits level with the middle of a column with three.
@@ -57,7 +61,7 @@ export function ArchDiagram({
   for (const n of nodes) {
     const count = rowsIn.get(n.col) ?? 1;
     pos.set(n.id, {
-      x: PAD + n.col * COL_W,
+      x: PAD + n.col * colW,
       y: mid - NODE_H / 2 + (n.row - (count - 1) / 2) * ROW_GAP,
     });
   }
@@ -70,6 +74,9 @@ export function ArchDiagram({
         viewBox={`0 0 ${width} ${height}`}
         width={width}
         className="h-auto max-w-full min-w-[640px]"
+        // On a phone the drawing scrolls sideways; a wide one keeps its text
+        // readable instead of shrinking to the 640px floor.
+        style={labelled ? { minWidth: Math.round(width * 0.78) } : undefined}
         role="img"
         aria-label={label}
       >

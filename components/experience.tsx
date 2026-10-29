@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { ReactLenis, useLenis } from "lenis/react";
 import { useMotionValue, type MotionValue } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Arrow } from "@/components/glyph";
 
 import { clamp01, flight } from "@/lib/flight";
 import { useDockSnap } from "@/lib/use-dock-snap";
@@ -70,7 +69,6 @@ function Hero({
             className="flex items-center gap-2 rounded-full bg-action px-6 py-3 text-lead font-semibold text-on-action transition-colors hover:bg-action-hover"
           >
             {t("home.ctaContact")}
-            <Arrow dir="up-right" className="text-copy" weight={1.7} />
           </button>
           <button
             type="button"
@@ -78,7 +76,6 @@ function Hero({
             className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
           >
             {t("home.ctaStations")}
-            <Arrow dir="down" className="text-copy" weight={1.6} />
           </button>
         </div>
 

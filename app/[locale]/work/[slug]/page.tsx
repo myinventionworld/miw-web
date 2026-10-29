@@ -2,9 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
 import { ArchDiagram } from "@/components/editorial/arch-diagram";
-import { Arrow } from "@/components/glyph";
 import { Device } from "@/components/showcase/device";
-import { ProductShots, hasScreens } from "@/components/showcase/screens";
+import { ReadListen, SeatRace } from "@/components/showcase/explainers";
+import {
+  BuiltShot,
+  ProductShots,
+  hasBuiltShot,
+  hasScreens,
+} from "@/components/showcase/screens";
 import { EditorialShell } from "@/components/editorial/shell";
 import { PROJECTS, projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
@@ -64,6 +69,13 @@ export default async function WorkCasePage(
 
   const locale = await currentLocale();
   const { t } = await initTranslations(locale, ["projects", "common"]);
+  const tr = (key: string) => t(key);
+  const explainer =
+    project.slug === "omnibus" ? (
+      <SeatRace t={tr} />
+    ) : project.slug === "boowie" ? (
+      <ReadListen t={tr} />
+    ) : null;
 
   // Only print the half of the legend the table actually uses. A "measured"
   // footnote under three budgets is a footnote that reads as a hedge.
@@ -146,7 +158,6 @@ export default async function WorkCasePage(
               className="flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover"
             >
               {t("case.launch")}
-              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
           {project.repoUrl && (
@@ -157,7 +168,6 @@ export default async function WorkCasePage(
               className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
             >
               {t("case.readSource")}
-              <Arrow dir="up-right" className="text-body" weight={1.7} />
             </a>
           )}
           <span className="text-label text-steel">
@@ -207,12 +217,28 @@ export default async function WorkCasePage(
           {t(`${project.id}.design.lede`)}
         </p>
 
-        {/* With screenshots at the top, the working demo moves here: it is the
-            mechanism this section describes. */}
-        {hasScreens(project) && project.variant && (
-          <div className="mt-10">
-            <Device project={project} compact />
+        {/* The mechanism this section describes, shown rather than told:
+            Omnibus's seat race, Boowie's reader next to its read/listen
+            switch. Projects without one keep the working demo. */}
+        {explainer || hasBuiltShot(project) ? (
+          <div
+            className={cn(
+              "mt-12 grid items-center gap-12",
+              hasBuiltShot(project) && explainer && "md:grid-cols-[minmax(0,300px)_1fr]",
+            )}
+          >
+            {hasBuiltShot(project) && (
+              <BuiltShot project={project} t={tr} />
+            )}
+            {explainer}
           </div>
+        ) : (
+          hasScreens(project) &&
+          project.variant && (
+            <div className="mt-10">
+              <Device project={project} compact />
+            </div>
+          )
         )}
 
         {/* Hand-laid SVG rather than a rendered Mermaid graph: the diagram is
@@ -330,7 +356,6 @@ export default async function WorkCasePage(
           className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-action px-6 py-3 text-lead font-medium text-on-action transition-colors hover:bg-action-hover"
         >
           {t("case.cta.action")}
-          <Arrow className="text-body" weight={1.7} />
         </Link>
       </section>
     </EditorialShell>

@@ -3,7 +3,6 @@
 import { LocaleLink } from "@/components/locale-link";
 import { useTranslation } from "react-i18next";
 
-import { Arrow } from "@/components/glyph";
 import type { ProjectCase } from "@/data/projects";
 import { STATUS_TONE } from "@/lib/stations";
 import { cn } from "@/lib/utils";
@@ -94,7 +93,6 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           className={ACTION}
         >
           {t("project.liveApp")}
-          <Arrow dir="up-right" className="text-meta" />
         </a>
       )}
 
@@ -106,7 +104,6 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
           className={ACTION}
         >
           {t("project.source")}
-          <Arrow dir="up-right" className="text-meta" />
         </a>
       )}
 

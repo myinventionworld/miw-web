@@ -5,9 +5,12 @@ import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { AnimatePresence, motion } from "motion/react";
-import { Arrow, Bars, Cross } from "@/components/glyph";
+import { Bars, Cross } from "@/components/glyph";
 
 import { projectsForStations, type ProjectCase } from "@/data/projects";
+import { ScreenCycle } from "@/components/showcase/screen-cycle";
+import { THUMBS } from "@/components/showcase/screens";
+import { productFocus } from "@/lib/product-focus";
 import {
   NAV_SECTIONS,
   STATUS_TONE,
@@ -170,11 +173,23 @@ function ProjectCard({
   return (
     <LocaleLink
       href={`/work/${project.slug}`}
-      onClick={onDismiss}
+      onClick={() => {
+        productFocus.slug = null;
+        onDismiss();
+      }}
+      // Brightens this product's moon and orbit in the 3D scene.
+      onMouseEnter={() => (productFocus.slug = project.slug)}
+      onMouseLeave={() => (productFocus.slug = null)}
+      onFocus={() => (productFocus.slug = project.slug)}
+      onBlur={() => (productFocus.slug = null)}
       className="group block w-full text-left focus:outline-none"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/12 transition-colors group-hover:border-white/35 group-focus-visible:border-white">
-        <ProjectThumb station={project.station} code={project.codename} />
+        {THUMBS[project.slug] ? (
+          <ScreenCycle frames={THUMBS[project.slug]} />
+        ) : (
+          <ProjectThumb station={project.station} code={project.codename} />
+        )}
         <span
           className={cn(
             "absolute top-2 left-2 rounded-full border bg-black/70 px-2 py-0.5 text-meta font-medium backdrop-blur",
@@ -185,7 +200,6 @@ function ProjectCard({
         </span>
         <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full border border-white/25 bg-black/75 px-2 py-0.5 text-meta font-medium text-white backdrop-blur">
           {t("common:project.caseStudy")}
-          <Arrow className="text-label" weight={1.8} />
         </span>
       </div>
 
@@ -248,7 +262,6 @@ function MegaDrawer({
                 className="flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
               >
                 {t(`${s.id}.nav`)}
-                <Arrow className="text-body" />
               </button>
             ))}
           </div>
@@ -503,7 +516,6 @@ export function Navbar({
               className="hidden items-center gap-2 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover sm:flex"
             >
               {t("nav.bookCall")}
-              <Arrow dir="up-right" className="text-lead" weight={1.7} />
             </button>
 
             <button
@@ -596,7 +608,6 @@ export function Navbar({
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-action px-4 py-3 text-body font-semibold text-on-action transition-colors hover:bg-action-hover"
                 >
                   {t("nav.bookCall")}
-                  <Arrow dir="up-right" className="text-lead" weight={1.7} />
                 </button>
               </div>
             </motion.div>

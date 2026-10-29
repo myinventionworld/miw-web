@@ -18,6 +18,7 @@ import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
 import { TranslationsProvider } from "@/components/i18n-provider";
+import { LightVeilHost } from "@/components/light-veil";
 import { initTranslations, NAMESPACES } from "@/i18n";
 import { alternates } from "@/lib/locale";
 import i18nConfig, { type Locale } from "@/i18nConfig";
@@ -62,6 +63,7 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
           resources={resources}
         >
           {props.children}
+          <LightVeilHost />
         </TranslationsProvider>
       </body>
     </html>

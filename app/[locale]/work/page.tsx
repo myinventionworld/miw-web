@@ -100,7 +100,7 @@ export default async function WorkIndexPage() {
 
             {hasScreens(p) ? (
               <div className="mt-14">
-                <ProductShots project={p} t={tr} />
+                <ProductShots project={p} t={tr} story />
               </div>
             ) : (
               p.variant && (
