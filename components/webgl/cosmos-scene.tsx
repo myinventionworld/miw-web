@@ -74,6 +74,9 @@ export function CosmosScene() {
     <Canvas
       dpr={dpr}
       gl={{
+        // Off on purpose: everything is drawn into the composer's buffer,
+        // which multisamples itself (see `Effects`). A multisampled canvas on
+        // top of that would only cost memory.
         antialias: false,
         alpha: false,
         powerPreference: "high-performance",
@@ -118,7 +121,7 @@ export function CosmosScene() {
       </Suspense>
 
       <CosmosFlight />
-      <Effects quality={quality} />
+      <Effects quality={quality} dpr={dpr} />
     </Canvas>
   );
 }
