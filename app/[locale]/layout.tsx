@@ -20,8 +20,17 @@ import "../globals.css";
 import { TranslationsProvider } from "@/components/i18n-provider";
 import { LightVeilHost } from "@/components/light-veil";
 import { initTranslations, NAMESPACES } from "@/i18n";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { alternates } from "@/lib/locale";
+import { siteUrl } from "@/lib/site";
 import i18nConfig, { type Locale } from "@/i18nConfig";
+
+/** Open Graph wants a region with the language. */
+const OG_LOCALE: Record<Locale, string> = {
+  en: "en_US",
+  ru: "ru_RU",
+  cs: "cs_CZ",
+};
 
 export const viewport: Viewport = {
   themeColor: "#030305",
@@ -37,11 +46,48 @@ export async function generateMetadata(props: LayoutProps<"/[locale]">) {
   const { locale } = await props.params;
   const { t } = await initTranslations(locale, ["common"]);
 
+  // Only what every page shares. Each page keeps its own title and
+  // description, and Open Graph and Twitter take theirs from those; the share
+  // image is the `opengraph-image` file next to this layout.
   return {
+    metadataBase: new URL(siteUrl()),
     title: t("meta.title"),
     description: t("meta.description"),
     alternates: alternates(locale),
+    openGraph: {
+      type: "website",
+      siteName: "MIW Labs",
+      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.en,
+      alternateLocale: i18nConfig.locales
+        .filter((l) => l !== locale)
+        .map((l) => OG_LOCALE[l]),
+    },
+    twitter: { card: "summary_large_image" },
   };
+}
+
+/**
+ * Who publishes the site, for search engines: schema.org Organization. `<`
+ * is escaped so nothing in the strings can close the script tag.
+ */
+function organizationJsonLd(description: string) {
+  const base = siteUrl();
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "MIW Labs",
+    url: `${base}/`,
+    logo: `${base}/logo.png`,
+    email: CONTACT_EMAIL,
+    description,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Prague",
+      addressCountry: "CZ",
+    },
+    sameAs: ["https://github.com/myinventionworld"],
+  };
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 export default async function RootLayout(props: LayoutProps<"/[locale]">) {
@@ -52,11 +98,17 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
   // `<html lang="xx">`.
   if (!i18nConfig.locales.includes(locale as Locale)) notFound();
 
-  const { resources } = await initTranslations(locale, NAMESPACES);
+  const { resources, t } = await initTranslations(locale, NAMESPACES);
 
   return (
     <html lang={locale} className="antialiased">
       <body className="bg-void font-sans text-white">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: organizationJsonLd(t("meta.description")),
+          }}
+        />
         <TranslationsProvider
           locale={locale}
           namespaces={NAMESPACES}
