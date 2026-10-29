@@ -1,4 +1,4 @@
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 
 import boowieLibrary from "@/data/screens/boowie-library.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
@@ -15,10 +15,12 @@ import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
+import { BrowserFrame, PhoneFrame, type Shot } from "./frames";
 import { PhoneStory } from "./phone-story";
 import { Reveal } from "./reveal";
 import { ScrollingWindow } from "./scrolling-window";
 import type { CycleFrame } from "./screen-cycle";
+import { type LoopVideo, WindowStack } from "./window-stack";
 import { cn } from "@/lib/utils";
 
 /**
@@ -34,11 +36,6 @@ import { cn } from "@/lib/utils";
  */
 
 type Translate = (key: string) => string;
-
-interface Shot {
-  src: StaticImageData;
-  alt: string;
-}
 
 const SHOTS = {
   omnibusDesktop: omnibusDesktop,
@@ -84,6 +81,9 @@ const BY_PROJECT: Record<
     /** A scroll story for the Work page: one screen per step, its copy under
      *  `projects:<id>.story.<key>`. */
     story?: { shot: ShotId; key: string }[];
+    /** A silent screen recording laid over the main window's screenshot, in
+     *  `public/screens/`. Its first frame should be that screenshot. */
+    video?: LoopVideo;
   }
 > = {
   omnibus: {
@@ -113,38 +113,6 @@ export function hasScreens(project: ProjectCase) {
   return project.slug in BY_PROJECT;
 }
 
-function BrowserFrame({
-  shot,
-  host,
-  className,
-}: {
-  shot: Shot;
-  host: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "device-shadow overflow-hidden rounded-[14px] border border-line bg-void",
-        className,
-      )}
-    >
-      <div className="flex h-9 items-center gap-2 border-b border-line px-4" aria-hidden>
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="size-2.5 rounded-full bg-space-800" />
-        <span className="ml-3 truncate text-meta text-zinc">{host}</span>
-      </div>
-      <Image
-        src={shot.src}
-        alt={shot.alt}
-        sizes="(min-width: 1024px) 880px, 90vw"
-        className="block h-auto w-full"
-      />
-    </div>
-  );
-}
-
 /** The big window of a composition: scrolling when there is a full-page shot. */
 function MainWindow({
   shot,
@@ -157,24 +125,6 @@ function MainWindow({
 }) {
   if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
   return <BrowserFrame shot={shot} host={host} />;
-}
-
-function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "device-shadow overflow-hidden rounded-[2.6rem] border-[7px] border-[#111214] bg-[#111214]",
-        className,
-      )}
-    >
-      <Image
-        src={shot.src}
-        alt={shot.alt}
-        sizes="(min-width: 768px) 260px, 60vw"
-        className="block h-auto w-full rounded-[2.1rem]"
-      />
-    </div>
-  );
 }
 
 /** Phones in a row on large screens, a swipeable strip on small ones. */
@@ -263,15 +213,14 @@ export function ProductShots({
     const windows = (set.windows ?? []).map((id) => shot(id, t));
     return (
       <>
-        <div className="relative mx-auto hidden max-w-[1000px] pb-[16%] text-left md:block">
-          <Reveal className="w-[80%]">
-            <MainWindow shot={desktop} full={fullPage} host={project.host} />
-          </Reveal>
-          {windows[0] && (
-            <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[50%]">
-              <BrowserFrame shot={windows[0]} host={project.host} />
-            </Reveal>
-          )}
+        <div className="hidden md:block">
+          <WindowStack
+            main={desktop}
+            full={fullPage}
+            stack={windows}
+            host={project.host}
+            video={set.video}
+          />
         </div>
         {gallery && windows.length > 1 && (
           <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
