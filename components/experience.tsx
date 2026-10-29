@@ -73,7 +73,7 @@ function Hero({
           <button
             type="button"
             onClick={onExplore}
-            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/70 hover:bg-white/10"
+            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/90 hover:bg-white/10"
           >
             {t("home.ctaStations")}
           </button>

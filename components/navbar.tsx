@@ -1,19 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Bars, Cross } from "@/components/glyph";
 
 import { projectsForStations, type ProjectCase } from "@/data/projects";
+import { TEAM, initials } from "@/data/team";
 import { ScreenCycle } from "@/components/showcase/screen-cycle";
 import { THUMBS } from "@/components/showcase/screens";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { productFocus } from "@/lib/product-focus";
 import {
   NAV_SECTIONS,
   STATUS_TONE,
+  hasDrawer,
   stationById,
   type NavSection,
   type ProgramPoint,
@@ -225,6 +228,49 @@ function ProjectCard({
   );
 }
 
+const PILL =
+  "flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10";
+const PILL_SOLID =
+  "flex items-center gap-2 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover";
+
+/**
+ * What every drawer shares: the section's one line on the left, where to go
+ * from here on the right, and the body underneath.
+ */
+function Drawer({
+  blurb,
+  actions,
+  children,
+}: {
+  blurb: string;
+  actions: ReactNode;
+  children: ReactNode;
+}) {
+  const reduce = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduce ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: -12 }}
+      transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+      className="drawer absolute inset-x-0 top-full"
+    >
+      <div className="mx-auto max-w-[1400px] px-6 py-9 md:px-10 md:py-11">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-white">
+              {blurb}
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">{actions}</div>
+        </div>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
 function MegaDrawer({
   section,
   onNavigate,
@@ -239,69 +285,151 @@ function MegaDrawer({
   const projects = projectsForStations(section.stations);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-      className="drawer absolute inset-x-0 top-full"
+    <Drawer
+      blurb={t(`sections.${section.id}.blurb`)}
+      actions={stations.map((s) => (
+        <button
+          key={s.id}
+          type="button"
+          onClick={() => onNavigate(s.id)}
+          className={PILL}
+        >
+          {t(`${s.id}.nav`)}
+        </button>
+      ))}
     >
-      <div className="mx-auto max-w-[1400px] px-6 py-9 md:px-10 md:py-11">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-xl">
-            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-white">
-              {t(`sections.${section.id}.blurb`)}
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {stations.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => onNavigate(s.id)}
-                className="flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
-              >
-                {t(`${s.id}.nav`)}
-              </button>
-            ))}
-          </div>
+      {projects.length > 0 ? (
+        // Two or three real systems, not sixteen placeholders, so the grid
+        // tops out at three columns. At four they sat in a row with a column
+        // of dead space after them, which read as a portfolio with holes.
+        <div className="grid gap-x-7 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((p) => (
+            <ProjectCard key={p.id} project={p} onDismiss={onDismiss} />
+          ))}
         </div>
-
-        {projects.length > 0 ? (
-          // Two or three real systems, not sixteen placeholders, so the grid
-          // tops out at three columns. At four they sat in a row with a column
-          // of dead space after them, which read as a portfolio with holes.
-          <div className="grid gap-x-7 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((p) => (
-              <ProjectCard key={p.id} project={p} onDismiss={onDismiss} />
+      ) : (
+        /* The Guild sells a way of working and has no artifact to open, so
+           its drawer shows the terms instead of pretending to a catalogue. */
+        <dl className="grid gap-x-7 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+          {stations
+            .flatMap((s) =>
+              s.program
+                ? (t(`${s.id}.program`, {
+                    returnObjects: true,
+                  }) as ProgramPoint[])
+                : [],
+            )
+            .map((p) => (
+              <div key={p.label} className="border-t border-white/12 pt-3">
+                <dt className="text-body font-semibold text-white">
+                  {p.label}
+                </dt>
+                <dd className="mt-1.5 text-small leading-relaxed text-platinum/80">
+                  {p.body}
+                </dd>
+              </div>
             ))}
-          </div>
-        ) : (
-          /* The Guild sells a way of working and has no artifact to open, so
-             its drawer shows the terms instead of pretending to a catalogue. */
-          <dl className="grid gap-x-7 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-            {stations
-              .flatMap((s) =>
-                s.program
-                  ? (t(`${s.id}.program`, {
-                      returnObjects: true,
-                    }) as ProgramPoint[])
-                  : [],
-              )
-              .map((p) => (
-                <div key={p.label} className="border-t border-white/12 pt-3">
-                  <dt className="text-body font-semibold text-white">
-                    {p.label}
-                  </dt>
-                  <dd className="mt-1.5 text-small leading-relaxed text-platinum/80">
-                    {p.body}
-                  </dd>
-                </div>
-              ))}
-          </dl>
-        )}
-      </div>
-    </motion.div>
+        </dl>
+      )}
+    </Drawer>
+  );
+}
+
+/**
+ * Team: who is behind the work, before anyone has to open a page to find out.
+ * Initials until there is a real portrait, the same as on About.
+ */
+function TeamDrawer({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useTranslation(["stations", "about"]);
+
+  return (
+    <Drawer
+      blurb={t("sections.guild.blurb")}
+      actions={
+        <LocaleLink href="/about" onClick={onDismiss} className={PILL}>
+          {t("guild.cta")}
+        </LocaleLink>
+      }
+    >
+      <ul className="grid gap-x-7 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+        {TEAM.map((person) => (
+          <li
+            key={person.id}
+            className="flex items-center gap-3.5 border-t border-white/12 pt-4"
+          >
+            {person.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={person.photo}
+                alt=""
+                className="size-11 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span
+                aria-hidden
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-small font-semibold text-platinum"
+              >
+                {initials(person.name)}
+              </span>
+            )}
+            <div className="min-w-0">
+              <p className="text-body font-semibold text-white">{person.name}</p>
+              <p className="mt-0.5 text-meta leading-snug text-zinc">
+                {t(`about:team.roles.${person.id}`)}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Drawer>
+  );
+}
+
+/**
+ * Contact: the three things people look for before they write — where to,
+ * whether anyone is taking work, and how soon they will hear back.
+ */
+function ContactDrawer({ onLaunch }: { onLaunch: () => void }) {
+  const { t } = useTranslation(["common", "stations"]);
+
+  return (
+    <Drawer
+      blurb={t("stations:sections.transmission.blurb")}
+      actions={
+        <button type="button" onClick={onLaunch} className={PILL_SOLID}>
+          {t("nav.bookCall")}
+        </button>
+      }
+    >
+      <dl className="grid gap-x-7 gap-y-5 sm:grid-cols-3">
+        <div className="border-t border-white/12 pt-4">
+          <dt className="text-meta text-zinc">{t("contact.email")}</dt>
+          <dd className="mt-1.5">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-copy font-semibold break-all text-white underline-offset-4 hover:underline"
+            >
+              {CONTACT_EMAIL}
+            </a>
+          </dd>
+        </div>
+        <div className="border-t border-white/12 pt-4">
+          <dt className="text-meta text-zinc">{t("contact.status")}</dt>
+          <dd className="mt-1.5 flex items-center gap-2 text-copy font-semibold text-white">
+            <span className="size-1.5 shrink-0 rounded-full bg-signal" />
+            {t("availability.status")}
+          </dd>
+          <dd className="mt-1 text-small text-zinc">{t("availability.scope")}</dd>
+        </div>
+        <div className="border-t border-white/12 pt-4">
+          <dt className="text-meta text-zinc">{t("contact.reply")}</dt>
+          <dd className="mt-1.5 text-copy font-semibold text-white">
+            {t("contact.replyTime")}
+          </dd>
+          <dd className="mt-1 text-small text-zinc">{t("contact.replyNote")}</dd>
+        </div>
+      </dl>
+    </Drawer>
   );
 }
 
@@ -316,6 +444,7 @@ export function Navbar({
   onLaunch: () => void;
 }) {
   const { t } = useTranslation(["common", "stations"]);
+  const reduce = useReducedMotion();
   const [open, setOpen] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
@@ -371,9 +500,7 @@ export function Navbar({
     onNavigate(id);
   };
 
-  const openSection = NAV_SECTIONS.find(
-    (s) => s.id === open && s.stations.length > 0,
-  );
+  const openSection = NAV_SECTIONS.find((s) => s.id === open && hasDrawer(s));
 
   return (
     <div
@@ -462,21 +589,18 @@ export function Navbar({
                   setOpen(s.id);
                 }}
                 onClick={() => go(s)}
-                aria-expanded={
-                  s.stations.length > 0 ? open === s.id : undefined
-                }
-                className="relative px-4 py-2 text-body font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
+                aria-expanded={hasDrawer(s) ? open === s.id : undefined}
+                className="relative px-4 py-2 text-body font-medium text-platinum transition-colors hover:text-white focus:text-white"
               >
                 {active === s.id && (
                   <motion.span
                     layoutId="nav-pill"
                     className="absolute inset-0 rounded-md bg-white/12"
-                    transition={{
-                      type: "spring",
-                      stiffness: 420,
-                      damping: 34,
-                      mass: 0.7,
-                    }}
+                    transition={
+                      reduce
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 420, damping: 34, mass: 0.7 }
+                    }
                   />
                 )}
                 <span className="relative">
@@ -494,7 +618,7 @@ export function Navbar({
             <LocaleLink
               href="/work"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden rounded-full px-3 py-2 text-small font-medium text-platinum transition-colors hover:bg-white/10 hover:text-white sm:block"
             >
               {t("nav.work")}
             </LocaleLink>
@@ -502,7 +626,7 @@ export function Navbar({
             <LocaleLink
               href="/about"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden rounded-full px-3 py-2 text-small font-medium text-platinum transition-colors hover:bg-white/10 hover:text-white sm:block"
             >
               {t("nav.about")}
             </LocaleLink>
@@ -523,7 +647,7 @@ export function Navbar({
               onClick={() => setMobile((v) => !v)}
               aria-label={t("nav.menu")}
               aria-expanded={mobile}
-              className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white lg:hidden"
+              className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white transition-colors hover:border-white/40 hover:bg-white/10 lg:hidden"
             >
               {mobile ? (
                 <Cross className="text-copy-lg" />
@@ -536,12 +660,24 @@ export function Navbar({
 
         <AnimatePresence>
           {openSection && !mobile && (
-            <MegaDrawer
-              key={openSection.id}
-              section={openSection}
-              onNavigate={goStation}
-              onDismiss={dismiss}
-            />
+            openSection.panel === "team" ? (
+              <TeamDrawer key="team" onDismiss={dismiss} />
+            ) : openSection.panel === "contact" ? (
+              <ContactDrawer
+                key="contact"
+                onLaunch={() => {
+                  dismiss();
+                  onLaunch();
+                }}
+              />
+            ) : (
+              <MegaDrawer
+                key={openSection.id}
+                section={openSection}
+                onNavigate={goStation}
+                onDismiss={dismiss}
+              />
+            )
           )}
         </AnimatePresence>
 
@@ -560,7 +696,7 @@ export function Navbar({
                     key={s.id}
                     type="button"
                     onClick={() => go(s)}
-                    className="flex w-full items-baseline justify-between gap-4 border-b border-white/10 py-4 text-left last:border-0"
+                    className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-b border-white/10 px-3 py-4 text-left transition-colors last:border-0 hover:bg-white/8"
                   >
                     <span className="text-copy font-medium text-white">
                       {t(`stations:sections.${s.id}.label`)}
@@ -576,7 +712,7 @@ export function Navbar({
                 <LocaleLink
                   href="/work"
                   onClick={dismiss}
-                  className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
+                  className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-t border-white/10 px-3 py-4 text-left transition-colors hover:bg-white/8"
                 >
                   <span className="text-copy font-medium text-white">
                     {t("nav.work")}
@@ -589,7 +725,7 @@ export function Navbar({
                 <LocaleLink
                   href="/about"
                   onClick={dismiss}
-                  className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
+                  className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-t border-white/10 px-3 py-4 text-left transition-colors hover:bg-white/8"
                 >
                   <span className="text-copy font-medium text-white">
                     {t("nav.about")}

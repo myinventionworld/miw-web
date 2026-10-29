@@ -165,7 +165,7 @@ export default async function WorkCasePage(
               href={project.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
+              className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10"
             >
               {t("case.readSource")}
             </a>

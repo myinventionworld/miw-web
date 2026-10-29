@@ -56,11 +56,13 @@
   --color-comet: #7fa8ff; /* links, focus, the selected tab */
   --color-comet-soft: #a9c3ff;
 
-  /* The primary button: a solid pill, white on the dark flight deck and black
-     on the light pages (flipped by .theme-light below). */
-  --color-action: #ffffff;
+  /* The primary button: a solid pill, off-white on the dark flight deck and
+     black on the light pages (flipped by .theme-light below). Under the
+     pointer it gets brighter, never dimmer: pure white on dark. A pill that
+     went grey on hover read as disabled. */
+  --color-action: #e3e5ea;
   --color-on-action: #111214;
-  --color-action-hover: #e6e6e3;
+  --color-action-hover: #ffffff;
   --color-accent: var(--color-comet);
   /* Older class names — they used to be a green and a cyan side by side. */
   --color-signal: var(--color-comet);
@@ -185,6 +187,30 @@ h2 {
 }
 
 /* ── controls ─────────────────────────────────────────────────────────── */
+
+/* Tailwind v4's preflight puts buttons back on the default arrow, so half the
+   pills on the site did not look pressable. In the base layer, so a
+   `cursor-*` utility still wins where something needs another cursor. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  /* One focus ring for every control a keyboard reaches: the link colour,
+     clear of the control's own edge. Inputs draw their own (`.field`). */
+  :focus-visible {
+    outline: 2px solid var(--color-comet);
+    outline-offset: 3px;
+  }
+}
 
 .field {
   background: rgba(127, 168, 255, 0.06);
@@ -314,9 +340,9 @@ h2 {
   --color-accent: #7fa8ff;
   --color-signal: #7fa8ff;
   --color-beam: #7fa8ff;
-  --color-action: #ffffff;
+  --color-action: #e3e5ea;
   --color-on-action: #111214;
-  --color-action-hover: #e6e6e3;
+  --color-action-hover: #ffffff;
   color-scheme: dark;
   color: #e7eaf6;
 }
@@ -496,5 +522,54 @@ h2 {
   }
   .morph-read {
     position: relative;
+  }
+}
+
+/* ── cover (components/editorial/cover.tsx) ──────────────────────────── */
+
+/* The orbits draw in from the top edge, the planets come out once their
+   orbit is there, and the moon rises the last few units into place. Delays
+   are set per element. */
+.cover-orbit {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cover-draw 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cover-planet {
+  opacity: 0;
+  animation: cover-appear 1.4s ease-out forwards;
+}
+/* Product colours as classes, not inline `var()`s: Tailwind only writes out
+   the theme variables something in the CSS actually reads. */
+.cover-omnibus {
+  fill: var(--color-omnibus);
+}
+.cover-boowie {
+  fill: var(--color-boowie);
+}
+.cover-wovie {
+  fill: var(--color-wovie);
+}
+.cover-moon {
+  animation: cover-rise 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cover-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes cover-appear {
+  to { opacity: 1; }
+}
+@keyframes cover-rise {
+  from { transform: translateY(44px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-orbit,
+  .cover-planet,
+  .cover-moon {
+    animation: none !important;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
   }
 }

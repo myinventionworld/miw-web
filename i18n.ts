@@ -15,6 +15,8 @@ export const NAMESPACES = [
   "projects",
   "careers",
   "console",
+  // The header's Team drawer lists each person's role from here.
+  "about",
 ];
 
 /**

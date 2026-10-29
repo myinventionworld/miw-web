@@ -18,12 +18,16 @@ export function BrowserFrame({
   host,
   className,
   overlay,
+  aspect,
 }: {
   shot: Shot;
   host: string;
   className?: string;
   /** Laid over the screenshot, same size: the product's own motion. */
   overlay?: ReactNode;
+  /** Width over height of the page area. Windows shown side by side get one
+   *  shape; the screenshot is cut from the bottom to fit. */
+  aspect?: number;
 }) {
   return (
     <div
@@ -38,12 +42,18 @@ export function BrowserFrame({
         <span className="size-2.5 rounded-full bg-space-800" />
         <span className="ml-3 truncate text-meta text-zinc">{host}</span>
       </div>
-      <div className="relative">
+      <div
+        className={cn("relative", aspect && "overflow-hidden")}
+        style={aspect ? { aspectRatio: aspect } : undefined}
+      >
         <Image
           src={shot.src}
           alt={shot.alt}
           sizes="(min-width: 1024px) 880px, 90vw"
-          className="block h-auto w-full"
+          className={cn(
+            "block w-full",
+            aspect ? "h-full object-cover object-top" : "h-auto",
+          )}
         />
         {overlay}
       </div>

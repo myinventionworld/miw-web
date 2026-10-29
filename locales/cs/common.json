@@ -45,5 +45,12 @@
     "ctaWork": "Naše práce",
     "transmissionTitle": "Napište, co potřebujete",
     "transmissionBody": "Stačí pár řádků. Každou zprávu čte člověk z týmu a odpoví."
+  },
+  "contact": {
+    "email": "E-mail",
+    "status": "Stav",
+    "reply": "Odpověď",
+    "replyTime": "Do jednoho pracovního dne",
+    "replyNote": "Odpovídá člověk z týmu, ne bot."
   }
 }

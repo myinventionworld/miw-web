@@ -68,7 +68,7 @@ const shot = (id: ShotId, t: Translate): Shot => ({
 
 /**
  * Which screenshots each project has. A project missing here shows none.
- * `windows` are further desktop screens: the second window of a desktop-only
+ * `windows` are further desktop screens: the carousel of a desktop-only
  * composition, and the row under the composition in a case study.
  */
 const BY_PROJECT: Record<
@@ -184,8 +184,8 @@ function WindowRow({ shots, host }: { shots: Shot[]; host: string }) {
 /**
  * One project's screenshots. With a desktop shot and a phone shot: the
  * browser window with the phone leaning on its corner (large screens), the
- * phone alone (small). With desktop shots only: a second window overlapping
- * the first (large), a row of windows to swipe (small).
+ * phone alone (small). With desktop shots only: the other windows on a
+ * carousel under the first (large), a row of windows to swipe (small).
  */
 export function ProductShots({
   project,
@@ -243,13 +243,6 @@ export function ProductShots({
             video={set.video}
           />
         </div>
-        {gallery && windows.length > 1 && (
-          <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
-            {windows.slice(1).map((w) => (
-              <BrowserFrame key={w.alt} shot={w} host={project.host} />
-            ))}
-          </div>
-        )}
         <div className="md:hidden">
           <WindowRow shots={[desktop, ...windows]} host={project.host} />
         </div>

@@ -262,7 +262,7 @@ function ReaderProto() {
               TOGGLE,
               chapter === i
                 ? "border-white/60 text-white"
-                : "border-white/15 text-zinc hover:text-white",
+                : "border-white/15 text-zinc hover:border-white/50 hover:text-white",
             )}
           >
             {t("prototype.reader.chapter", { n: i + 1 })}

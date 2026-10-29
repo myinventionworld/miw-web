@@ -7,6 +7,7 @@ import {
   ChromaticAberration,
   EffectComposer,
   Noise,
+  SMAA,
   ToneMapping,
   Vignette,
 } from "@react-three/postprocessing";
@@ -19,10 +20,23 @@ import {
 
 import { flight, lerp, smoothstep } from "@/lib/flight";
 
-export function Effects({ quality }: { quality: "high" | "low" }) {
+export function Effects({
+  quality,
+  dpr,
+}: {
+  quality: "high" | "low";
+  dpr: number;
+}) {
   const bloom = useRef<BloomEffect>(null);
   const aberration = useRef<ChromaticAberrationEffect>(null);
   const BASE_RADIUS = quality === "high" ? 0.86 : 0.7;
+  // The scene renders into the composer's buffer, not the canvas, so the
+  // context's own `antialias` does nothing here: MSAA has to be asked for on
+  // that buffer. Without it the logo's bevels and the hairline orbits stepped
+  // like a staircase. Four samples at 1x–1.5x. On a 2x screen the pixels are
+  // small enough for SMAA alone (below), and MSAA there cost a quarter of the
+  // frame rate on an M-series laptop for an edge nobody could tell apart.
+  const samples = dpr >= 1.75 ? 0 : 4;
 
   useFrame(() => {
     const p = flight.eased;
@@ -55,7 +69,7 @@ export function Effects({ quality }: { quality: "high" | "low" }) {
   });
 
   return (
-    <EffectComposer multisampling={0} enableNormalPass={false}>
+    <EffectComposer multisampling={samples} enableNormalPass={false}>
       <Bloom
         ref={bloom}
         mipmapBlur
@@ -74,6 +88,10 @@ export function Effects({ quality }: { quality: "high" | "low" }) {
       <Vignette offset={0.24} darkness={0.82} />
       <Noise premultiply opacity={0.028} blendFunction={BlendFunction.OVERLAY} />
       <ToneMapping mode={ToneMappingMode.AGX} />
+      {/* Last, on the finished image. MSAA only smooths silhouettes; the
+          logo's bevels are a pixel or two wide and their highlights flicker
+          from one pixel to the next, which only an edge filter catches. */}
+      <SMAA />
     </EffectComposer>
   );
 }
