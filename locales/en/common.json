@@ -45,5 +45,12 @@
     "ctaWork": "See our work",
     "transmissionTitle": "Tell us what you need",
     "transmissionBody": "A few lines are enough. A person from the team reads every message and replies."
+  },
+  "contact": {
+    "email": "Email",
+    "status": "Status",
+    "reply": "Reply",
+    "replyTime": "Within one working day",
+    "replyNote": "A person from the team, not a bot."
   }
 }

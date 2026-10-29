@@ -89,11 +89,17 @@ export const STATIONS: Station[] = [
  * rather than a station at all.
  *
  * Label and blurb are at `stations:sections.<id>`.
+ *
+ * Every item opens a drawer on hover or focus. Two of them used to open
+ * nothing, and a row where half the items answer the pointer and half do not
+ * reads as broken rather than as two kinds of item.
  */
 export interface NavSection {
   id: string;
-  /** Stations listed in the drawer. Empty means the item has no drawer. */
+  /** Stations listed in the drawer, with their products. */
   stations: StationId[];
+  /** A drawer that is not about stations: the people, or how to reach them. */
+  panel?: "team" | "contact";
   /** Where clicking the label takes you. */
   go: StationId | "console";
 }
@@ -101,9 +107,13 @@ export interface NavSection {
 export const NAV_SECTIONS: NavSection[] = [
   { id: "studio", stations: ["backend", "commerce"], go: "backend" },
   { id: "labs", stations: ["labs"], go: "labs" },
-  { id: "guild", stations: [], go: "guild" },
-  { id: "transmission", stations: [], go: "console" },
+  { id: "guild", stations: [], panel: "team", go: "guild" },
+  { id: "transmission", stations: [], panel: "contact", go: "console" },
 ];
+
+export function hasDrawer(section: NavSection): boolean {
+  return section.stations.length > 0 || section.panel !== undefined;
+}
 
 export const CONSOLE_ANCHOR = 0.97;
 
