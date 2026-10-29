@@ -164,12 +164,14 @@ export function TeamOrbit({
           orbitClasses.hit,
           "flex size-(--avatar) items-center justify-center overflow-hidden rounded-full font-semibold tracking-[-0.01em] transition-colors duration-300",
           selected ? "bg-white text-void" : "bg-space-800 text-zinc hover:bg-line",
+          // A photo covers the fill, so the chosen one gets a ring instead.
+          selected && p.photo && "ring-2 ring-white ring-offset-[3px] ring-offset-void",
         )}
         style={{ fontSize: "calc(var(--avatar) * 0.32)" }}
       >
         {p.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.photo} alt="" className={cn("size-full object-cover", selected && "opacity-90")} />
+          <img src={p.photo} alt="" className="size-full object-cover" />
         ) : (
           <span aria-hidden>{initials(p.name)}</span>
         )}
