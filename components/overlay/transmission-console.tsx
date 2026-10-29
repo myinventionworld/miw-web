@@ -19,6 +19,7 @@ import {
 import { CONTACT_EMAIL, mailtoHref } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 import { Stage } from "./stage";
+import { Honeypot, useEnquiry } from "./use-enquiry";
 
 /**
  * Scroll band the console occupies — the end of the runway, held open.
@@ -75,15 +76,13 @@ function Select({
   );
 }
 
-type Status =
-  | { kind: "idle" }
-  | { kind: "error"; message: string }
-  | { kind: "sent"; subject: string; body: string };
-
 export function TransmissionConsole({
   progress,
+  direct,
 }: {
   progress: MotionValue<number>;
+  /** The server can send the message itself (see `lib/delivery.ts`). */
+  direct: boolean;
 }) {
   const { t } = useTranslation(["console", "common"]);
   const [tab, setTab] = useState<ConsoleTab>("business");
@@ -95,8 +94,15 @@ export function TransmissionConsole({
   const [budget, setBudget] = useState<string>(BUDGETS[0]);
   const [timeline, setTimeline] = useState<string>(TIMELINES[0]);
   const [scope, setScope] = useState("");
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [copied, setCopied] = useState(false);
+  const { status, setStatus, submit, touch, website, setWebsite } = useEnquiry(
+    direct,
+    () => {
+      firePulse();
+      setCopied(false);
+    },
+  );
+  const sending = status.kind === "sending";
 
   /**
    * Only the engagements that belong to this tab. Switching tabs re-points the
@@ -113,49 +119,11 @@ export function TransmissionConsole({
     if (first) setEngagement(first);
   }
 
-  function submit(event: React.FormEvent) {
+  function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-
-    // Validated in the order the fields are read, so the message always points
-    // at the first thing wrong rather than the last thing checked.
-    if (name.trim().length < 2) {
-      setStatus({ kind: "error", message: t("form.errName") });
-      return;
-    }
-    if (org.trim().length < 2) {
-      setStatus({ kind: "error", message: t("form.errOrg") });
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      setStatus({ kind: "error", message: t("form.errEmail") });
-      return;
-    }
-    // A written reply needs something to reply about. One line is enough; the
-    // point of the minimum is to keep this desk out of the auto-blast lists.
-    if (scope.trim().length < 12) {
-      setStatus({ kind: "error", message: t("form.errScope") });
-      return;
-    }
-
-    // There is no backend: the message is composed here and opened in the
-    // visitor's own mail app. The receipt says plainly that it is not sent yet.
-    const subject = `MIW — ${t(`engagements.${engagement}.label`)} — ${org.trim()}`;
-    const body = [
-      `${t("form.name")}: ${name.trim()}`,
-      `${t("form.company")}: ${org.trim()}`,
-      `${t("form.email")}: ${email.trim()}`,
-      `${t("form.engagement")}: ${t(`engagements.${engagement}.label`)}`,
-      `${t("form.stage")}: ${t(`stages.${stage}`)}`,
-      `${t("form.budget")}: ${t(`budgets.${budget}`)}`,
-      `${t("form.timeline")}: ${t(`timelines.${timeline}`)}`,
-      "",
-      scope.trim(),
-    ].join("\n");
-
-    firePulse();
-    setCopied(false);
-    setStatus({ kind: "sent", subject, body });
-    window.location.href = mailtoHref(subject, body);
+    // Checked again on the server; here so the message lands next to the
+    // button instead of after a round trip.
+    submit({ name, org, email, scope, budget, tab, engagement, stage, timeline });
   }
 
   async function copyMessage(text: string) {
@@ -230,7 +198,39 @@ export function TransmissionConsole({
           </p>
 
           <AnimatePresence mode="wait" initial={false}>
-            {status.kind === "sent" ? (
+            {status.kind === "delivered" ? (
+              <motion.div
+                key="delivered"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="py-8 text-center"
+              >
+                <div className="mx-auto flex size-11 items-center justify-center rounded-full border border-signal/50 bg-signal/12">
+                  <Tick className="text-title text-signal" />
+                </div>
+                <h3 className="mt-5 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
+                  {t("receipt.sentTitle")}
+                </h3>
+                <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
+                  {t("receipt.sentBody", {
+                    reply: t("common:contact.replyTime"),
+                    email: status.email,
+                  })}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScope("");
+                    setStatus({ kind: "idle" });
+                  }}
+                  className="mt-6 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
+                >
+                  {t("receipt.another")}
+                </button>
+              </motion.div>
+            ) : status.kind === "mailto" ? (
               <motion.div
                 key="receipt"
                 initial={{ opacity: 0, y: 14 }}
@@ -276,7 +276,10 @@ export function TransmissionConsole({
             ) : (
               <motion.form
                 key="form"
-                onSubmit={submit}
+                onSubmit={onSubmit}
+                onFocusCapture={touch}
+                onChangeCapture={touch}
+                aria-busy={sending}
                 // Native bubbles would pre-empt the status line and land a
                 // system-styled popover in the middle of the console.
                 noValidate
@@ -414,25 +417,46 @@ export function TransmissionConsole({
                   </div>
 
                   <div className="space-y-3 border-t border-white/15 pt-4 deck-short:space-y-2 deck-short:pt-3">
+                    <Honeypot value={website} onChange={setWebsite} />
                     <p
                       role="status"
                       aria-live="polite"
                       className={cn(
                         "text-small leading-relaxed",
-                        status.kind === "error" ? "text-amber-300" : "text-zinc",
+                        status.kind === "error" || status.kind === "failed"
+                          ? "text-amber-300"
+                          : "text-zinc",
                       )}
                     >
                       {status.kind === "error"
                         ? status.message
-                        : t("form.idle", { email: CONTACT_EMAIL })}
+                        : status.kind === "failed"
+                          ? t("form.errSend", { email: CONTACT_EMAIL })
+                          : direct
+                            ? t("form.idleDirect")
+                            : t("form.idle", { email: CONTACT_EMAIL })}
                     </p>
+                    {status.kind === "failed" && (
+                      <a
+                        href={mailtoHref(status.subject, status.body)}
+                        className="inline-flex rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10"
+                      >
+                        {t("form.openMail")}
+                      </a>
+                    )}
 
                     <button
                       type="submit"
-                      className="flex w-full items-center justify-center gap-2 rounded-full bg-action px-6 py-3 font-semibold text-on-action transition-colors hover:bg-action-hover"
+                      disabled={sending}
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-action px-6 py-3 font-semibold text-on-action transition-colors hover:bg-action-hover disabled:opacity-70"
                     >
-                      {t("form.submit")}
+                      {sending
+                        ? t("form.sending")
+                        : direct
+                          ? t("form.send")
+                          : t("form.submit")}
                     </button>
+                    <p className="text-meta text-zinc">{t("form.privacy")}</p>
                   </div>
                 </div>
               </motion.form>

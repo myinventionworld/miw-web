@@ -75,7 +75,15 @@
     "errEmail": "Please add an email we can reply to.",
     "errScope": "Please describe the task in a sentence or two.",
     "idle": "This opens your email app with the message ready to send to {{email}}.",
-    "submit": "Continue in email"
+    "submit": "Continue in email",
+    "idleDirect": "Goes straight to the team. A person reads every message.",
+    "send": "Send",
+    "sending": "Sending…",
+    "privacy": "We use these details only to reply to you.",
+    "errFast": "That was quick. Check the form and press Send again.",
+    "errSend": "It did not go through. Open it in your email app, or write to {{email}}.",
+    "openMail": "Open in email",
+    "orWrite": "Or write to"
   },
   "receipt": {
     "title": "Almost done",
@@ -83,6 +91,9 @@
     "reopen": "Open email again",
     "copy": "Copy message",
     "copied": "Copied",
-    "amend": "Edit the message"
+    "amend": "Edit the message",
+    "sentTitle": "Received",
+    "sentBody": "{{reply}}, a person from the team will write back to {{email}}.",
+    "another": "Send another message"
   }
 }

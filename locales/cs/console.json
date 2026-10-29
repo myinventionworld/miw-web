@@ -75,7 +75,15 @@
     "errEmail": "Doplňte prosím e-mail, na který odpovíme.",
     "errScope": "Popište prosím zadání jednou dvěma větami.",
     "idle": "Otevře se vaše pošta s připravenou zprávou na {{email}}.",
-    "submit": "Pokračovat v e-mailu"
+    "submit": "Pokračovat v e-mailu",
+    "idleDirect": "Zpráva půjde rovnou týmu. Každou čte člověk.",
+    "send": "Odeslat",
+    "sending": "Odesíláme…",
+    "privacy": "Údaje použijeme jen k tomu, abychom vám odpověděli.",
+    "errFast": "To bylo rychlé. Zkontrolujte formulář a klikněte znovu na Odeslat.",
+    "errSend": "Odeslání se nepovedlo. Otevřete zprávu v poště, nebo napište na {{email}}.",
+    "openMail": "Otevřít v poště",
+    "orWrite": "Nebo napište na"
   },
   "receipt": {
     "title": "Skoro hotovo",
@@ -83,6 +91,9 @@
     "reopen": "Otevřít poštu znovu",
     "copy": "Zkopírovat zprávu",
     "copied": "Zkopírováno",
-    "amend": "Upravit zprávu"
+    "amend": "Upravit zprávu",
+    "sentTitle": "Máme to",
+    "sentBody": "{{reply}} vám na {{email}} odpoví člověk z týmu.",
+    "another": "Napsat další zprávu"
   }
 }
