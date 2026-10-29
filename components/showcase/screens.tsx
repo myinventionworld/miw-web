@@ -4,8 +4,12 @@ import boowieLibrary from "@/data/screens/boowie-library.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
 import boowieReader from "@/data/screens/boowie-reader.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
+import omnibusBooking from "@/data/screens/omnibus-booking.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
+import omnibusHomeMobile from "@/data/screens/omnibus-home-mobile.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
+import omnibusResults from "@/data/screens/omnibus-results.webp";
+import omnibusSeats from "@/data/screens/omnibus-seats.webp";
 import wovieFilm from "@/data/screens/wovie-film.webp";
 import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
@@ -39,6 +43,10 @@ interface Shot {
 const SHOTS = {
   omnibusDesktop: omnibusDesktop,
   omnibusMobile: omnibusMobile,
+  omnibusResults: omnibusResults,
+  omnibusBooking: omnibusBooking,
+  omnibusSeats: omnibusSeats,
+  omnibusHomeMobile: omnibusHomeMobile,
   boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
   boowiePlayer: boowiePlayer,
@@ -58,7 +66,8 @@ const shot = (id: ShotId, t: Translate): Shot => ({
 
 /**
  * Which screenshots each project has. A project missing here shows none.
- * `windows` are further desktop screens, for a project with no phone shots.
+ * `windows` are further desktop screens: the second window of a desktop-only
+ * composition, and the row under the composition in a case study.
  */
 const BY_PROJECT: Record<
   string,
@@ -77,7 +86,12 @@ const BY_PROJECT: Record<
     story?: { shot: ShotId; key: string }[];
   }
 > = {
-  omnibus: { desktop: "omnibusDesktop", phones: ["omnibusMobile"] },
+  omnibus: {
+    desktop: "omnibusDesktop",
+    phones: ["omnibusSeats", "omnibusHomeMobile", "omnibusMobile"],
+    windows: ["omnibusResults", "omnibusBooking"],
+    built: "omnibusSeats",
+  },
   boowie: {
     phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
     built: "boowieReader",
@@ -273,6 +287,15 @@ export function ProductShots({
     );
   }
 
+  // A case study shows its `built` screen further down, under "How it is
+  // built", so here the window leans on another phone and the swipe row leaves
+  // that screen out. The Work page has no such section and leads with it.
+  const others = gallery && set.built
+    ? set.phones.filter((id) => id !== set.built).map((id) => shot(id, t))
+    : phones;
+  const lead = others[0] ?? phones[0];
+  const windows = gallery ? (set.windows ?? []).map((id) => shot(id, t)) : [];
+
   return (
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
@@ -280,11 +303,24 @@ export function ProductShots({
           <MainWindow shot={desktop} full={fullPage} host={project.host} />
         </Reveal>
         <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
-          <PhoneFrame shot={phones[0]} />
+          <PhoneFrame shot={lead} />
         </Reveal>
       </div>
+      {windows.length > 0 && (
+        <div className="mt-16 hidden items-start gap-8 md:grid md:grid-cols-2">
+          {windows.map((w, i) => (
+            <Reveal key={w.alt} delay={i * 0.08}>
+              <BrowserFrame shot={w} host={project.host} />
+            </Reveal>
+          ))}
+        </div>
+      )}
       <div className="md:hidden">
-        <PhoneFrame shot={phones[0]} className="mx-auto w-[64%] max-w-[260px]" />
+        {gallery && others.length > 1 ? (
+          <PhoneRow shots={others} />
+        ) : (
+          <PhoneFrame shot={lead} className="mx-auto w-[64%] max-w-[260px]" />
+        )}
       </div>
     </>
   );
@@ -304,7 +340,7 @@ export function HeroShots({
 }) {
   const desktop = shot("omnibusDesktop", t);
   const player = shot("boowiePlayer", t);
-  const mobile = shot("omnibusMobile", t);
+  const mobile = shot("omnibusHomeMobile", t);
 
   return (
     <>
@@ -330,7 +366,9 @@ export function HeroShots({
 export const THUMBS: Record<string, CycleFrame[]> = {
   omnibus: [
     { src: omnibusDesktop, kind: "window" },
-    { src: omnibusMobile, kind: "phone" },
+    { src: omnibusResults, kind: "window" },
+    { src: omnibusBooking, kind: "window" },
+    { src: omnibusSeats, kind: "phone" },
   ],
   boowie: [
     { src: boowieLibrary, kind: "phone" },
@@ -424,7 +462,8 @@ export function hasBuiltShot(project: ProjectCase) {
 }
 
 /** The screen that shows the mechanism a case study's "How it is built" is
- *  about: Boowie's reader, where the same parsed book is read and listened. */
+ *  about: Boowie's reader, where the same parsed book is read and listened;
+ *  Omnibus's seat map, the thing two passengers race for. */
 export function BuiltShot({
   project,
   t,

@@ -288,6 +288,10 @@
   "screens": {
     "omnibusDesktop": "Úvodní stránka Omnibusu: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
     "omnibusMobile": "Omnibus v telefonu: detail cesty na lince 501 z Prahy do Brna",
+    "omnibusResults": "Výsledky hledání v Omnibusu: sedm spojů z Prahy do Brna 29. října s časy, cenou za místo a volnými místy",
+    "omnibusBooking": "Rezervace v Omnibusu: jméno cestujícího, plánek míst v autobusu a souhrn objednávky s odpočtem",
+    "omnibusSeats": "Plánek míst Omnibusu v telefonu: volná, obsazená a panoramatická místa po řadách",
+    "omnibusHomeMobile": "Úvodní stránka Omnibusu v telefonu: vyhledání spoje a oblíbené trasy z Česka",
     "boowieLibrary": "Knihovna Boowie: rozečtené knihy a kolik je z nich přečteno",
     "boowieStore": "Obchod Boowie: výběr redakce a nové klasiky zdarma",
     "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku",

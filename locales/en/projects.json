@@ -288,6 +288,10 @@
   "screens": {
     "omnibusDesktop": "Omnibus home page: route search over an illustration of a coach driving past Prague",
     "omnibusMobile": "Omnibus on a phone: journey details for route 501 from Prague to Brno",
+    "omnibusResults": "Omnibus search results: seven trips from Prague to Brno on 29 October, with times, price per seat and free seats",
+    "omnibusBooking": "Omnibus booking page: passenger name, the seat map of the coach and a booking summary with a countdown",
+    "omnibusSeats": "Omnibus seat map on a phone: free, taken and panoramic seats row by row",
+    "omnibusHomeMobile": "Omnibus home page on a phone: route search and popular routes from the Czech Republic",
     "boowieLibrary": "Boowie library: the books in progress, with how much of each is read",
     "boowieStore": "Boowie store: an editor's pick and new free classics",
     "boowiePlayer": "Boowie audiobook player with chapter progress, playback speed and a sleep timer",
