@@ -524,3 +524,52 @@ h2 {
     position: relative;
   }
 }
+
+/* ── cover (components/editorial/cover.tsx) ──────────────────────────── */
+
+/* The orbits draw in from the top edge, the planets come out once their
+   orbit is there, and the moon rises the last few units into place. Delays
+   are set per element. */
+.cover-orbit {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cover-draw 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cover-planet {
+  opacity: 0;
+  animation: cover-appear 1.4s ease-out forwards;
+}
+/* Product colours as classes, not inline `var()`s: Tailwind only writes out
+   the theme variables something in the CSS actually reads. */
+.cover-omnibus {
+  fill: var(--color-omnibus);
+}
+.cover-boowie {
+  fill: var(--color-boowie);
+}
+.cover-wovie {
+  fill: var(--color-wovie);
+}
+.cover-moon {
+  animation: cover-rise 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cover-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes cover-appear {
+  to { opacity: 1; }
+}
+@keyframes cover-rise {
+  from { transform: translateY(44px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-orbit,
+  .cover-planet,
+  .cover-moon {
+    animation: none !important;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
+  }
+}
