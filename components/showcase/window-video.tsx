@@ -18,7 +18,10 @@ export interface LoopVideo {
  * shows (its own first frame) to its end, then fades back to the screenshot
  * and starts again, so the loop is a soft change rather than a cut.
  *
- * With reduced motion there is no video, only the screenshot.
+ * With reduced motion there is no video, only the screenshot. The element
+ * stays in the page (it never loads or plays): the server cannot know the
+ * preference, and dropping the element on the client was a hydration error
+ * that made React render the page again from scratch.
  */
 export function WindowVideo({ video }: { video: LoopVideo }) {
   const reduce = useReducedMotion();
@@ -29,7 +32,7 @@ export function WindowVideo({ video }: { video: LoopVideo }) {
 
   useEffect(() => {
     const v = ref.current;
-    if (!v) return;
+    if (!v || reduce) return;
     if (!inView) {
       v.pause();
       return;
@@ -40,7 +43,7 @@ export function WindowVideo({ video }: { video: LoopVideo }) {
       v.play().catch(() => {});
     }, wait);
     return () => window.clearTimeout(id);
-  }, [inView]);
+  }, [inView, reduce]);
 
   useEffect(() => {
     if (shown) return;
@@ -52,8 +55,6 @@ export function WindowVideo({ video }: { video: LoopVideo }) {
     }, 2600);
     return () => window.clearTimeout(id);
   }, [shown, inView]);
-
-  if (reduce) return null;
 
   return (
     <video
