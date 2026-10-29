@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import Image from "next/image";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 
 import { initials } from "@/data/team";
@@ -24,11 +25,12 @@ import { OrbitRing, orbitClasses, useOrbitIdle, type OrbitItem } from "./orbit";
  * still frame is the design system's cover: the three products where it puts
  * them. The orbits draw in once, the moon rises the last few units, and on
  * scroll the system and the moon drift apart a little. Pointing at a person
- * stops their orbit and shows who it is; a click goes to them in the team
- * block. Off screen, in a hidden tab or with reduced motion nothing turns.
+ * grows the face and shows who it is while the orbit keeps turning; a click
+ * goes to them in the team block. Off screen, in a hidden tab or with reduced
+ * motion nothing turns.
  *
- * People show from `md` up: on a phone the cover is a banner too small for
- * faces, and keeps the products. Without `people` the cover is products only.
+ * On a phone there is no pointer: a tap on a face goes straight to the team
+ * block. Without `people` the cover is products only.
  *
  * Colours are the theme's: ink (`--color-white` is black on the light pages),
  * the link blue and the three product colours. Flat, no glow.
@@ -157,7 +159,7 @@ export function Cover({
         {/* The rings turn about the body's centre, the top-right corner. */}
         <div className="absolute top-0 right-0">
           {ORBITS.map((o, i) => (
-            <OrbitRing key={o.r} radius={u(o.r)} period={o.period} items={rings[i]} holdSelf />
+            <OrbitRing key={o.r} radius={u(o.r)} period={o.period} items={rings[i]} />
           ))}
         </div>
       </motion.div>
@@ -184,8 +186,8 @@ export function Cover({
  * there.
  */
 function Face({ person, delay }: { person: CoverPerson; delay: number }) {
-  // The orbit stops while the face is pointed at, so the side is worked out
-  // once, when the pointer arrives.
+  // The face moves slowly, so the side is worked out once, when the pointer
+  // arrives.
   const [right, setRight] = useState(false);
 
   return (
@@ -204,7 +206,7 @@ function Face({ person, delay }: { person: CoverPerson; delay: number }) {
       }}
       className={cn(
         orbitClasses.hit,
-        "cover-planet relative hidden items-center justify-center rounded-full bg-space-800 font-semibold text-zinc transition-colors hover:bg-white hover:text-void md:flex",
+        "cover-planet relative flex items-center justify-center rounded-full bg-space-800 font-semibold text-zinc hover:bg-white hover:text-void",
       )}
       style={
         {
@@ -216,8 +218,18 @@ function Face({ person, delay }: { person: CoverPerson; delay: number }) {
       }
     >
       {person.photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={person.photo} alt="" className="size-full rounded-full object-cover" />
+        <Image
+          src={person.photo}
+          alt=""
+          width={160}
+          height={160}
+          sizes="80px"
+          // Not lazy: a face clipped outside the cover counts as off screen, so
+          // it would load only as it drifted in, an empty circle first.
+          loading="eager"
+          fetchPriority="low"
+          className="size-full rounded-full object-cover"
+        />
       ) : (
         initials(person.name)
       )}

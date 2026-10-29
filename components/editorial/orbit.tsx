@@ -19,17 +19,17 @@ export interface OrbitItem {
  * parent's point where the ring's centre should be. `radius` is any CSS
  * length, so a ring can be sized in container units and scale with its box.
  *
- * Pausing is the caller's: wrap rings in `orbitClasses.group` to stop all of
- * them while a body is hovered or focused, give one ring `holdSelf` to stop
- * only that one, and add `orbitClasses.paused` (see `useOrbitIdle`) when the
- * rings should stand still. With reduced motion they never turn.
+ * Rings keep turning under the pointer: the body it is on grows instead
+ * (give interactive bodies `orbitClasses.hit`). Wrap rings in
+ * `orbitClasses.group` to stop them while the keyboard is on a body, and add
+ * `orbitClasses.paused` (see `useOrbitIdle`) when nobody can see them. With
+ * reduced motion they never turn.
  */
 export function OrbitRing({
   radius,
   period,
   items,
   clockwise = false,
-  holdSelf = false,
   className,
   style,
 }: {
@@ -38,13 +38,12 @@ export function OrbitRing({
   period: number;
   items: OrbitItem[];
   clockwise?: boolean;
-  holdSelf?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
   return (
     <div
-      className={cn(s.ring, holdSelf && s.holdSelf, className)}
+      className={cn(s.ring, className)}
       style={
         {
           "--radius": radius,
