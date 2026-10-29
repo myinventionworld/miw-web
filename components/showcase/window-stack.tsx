@@ -11,12 +11,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { BrowserFrame, type Shot } from "./frames";
 import { ScrollingWindow } from "./scrolling-window";
+import { type LoopVideo, WindowVideo } from "./window-video";
 
-/** A silent screen recording of the product, laid over its screenshot. */
-export interface LoopVideo {
-  mp4: string;
-  webm?: string;
-}
+export type { LoopVideo };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 /** How far each window below the top one peeks out above it, in px. */
@@ -27,66 +24,6 @@ const SHRINK = 0.05;
 const STAGGER = 0.16;
 const FIRST = 0.25;
 const LAND = 0.85;
-
-/**
- * The window plays what the product itself plays. It loads nothing until the
- * window is on screen, starts a moment after the windows have settled, fades
- * in only once frames are actually coming, and pauses when scrolled away.
- *
- * The clip is not looped in place: it runs from the still the screenshot
- * shows to the trailer, then fades back to the screenshot and starts again,
- * so the loop is the same soft change the site makes rather than a cut.
- */
-function WindowVideo({ video }: { video: LoopVideo }) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const inView = useInView(ref, { amount: 0.5 });
-  const [shown, setShown] = useState(false);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (!inView) {
-      v.pause();
-      return;
-    }
-    const wait = started.current ? 0 : 1600;
-    const id = window.setTimeout(() => {
-      started.current = true;
-      v.play().catch(() => {});
-    }, wait);
-    return () => window.clearTimeout(id);
-  }, [inView]);
-
-  useEffect(() => {
-    if (shown) return;
-    const v = ref.current;
-    if (!v || !v.ended) return;
-    const id = window.setTimeout(() => {
-      v.currentTime = 0;
-      if (inView) v.play().catch(() => {});
-    }, 2600);
-    return () => window.clearTimeout(id);
-  }, [shown, inView]);
-
-  return (
-    <video
-      ref={ref}
-      muted
-      playsInline
-      preload="none"
-      aria-hidden
-      tabIndex={-1}
-      onPlaying={() => setShown(true)}
-      onEnded={() => setShown(false)}
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-1000 ease-out"
-      style={{ opacity: shown ? 1 : 0 }}
-    >
-      {video.webm && <source src={video.webm} type="video/webm" />}
-      <source src={video.mp4} type="video/mp4" />
-    </video>
-  );
-}
 
 /**
  * A desktop-only product on a large screen: the main window, and the other
@@ -155,7 +92,7 @@ export function WindowStack({
             <BrowserFrame
               shot={main}
               host={host}
-              overlay={video && !reduce ? <WindowVideo video={video} /> : undefined}
+              overlay={video ? <WindowVideo video={video} /> : undefined}
             />
           )}
         </motion.div>

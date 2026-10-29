@@ -287,6 +287,7 @@
   },
   "screens": {
     "omnibusDesktop": "Omnibus home page: route search over an illustration of a coach driving past Prague",
+    "omnibusFlowStart": "Omnibus home page, signed in: route search over an illustration of a coach driving past Prague",
     "omnibusMobile": "Omnibus on a phone: journey details for route 501 from Prague to Brno",
     "omnibusResults": "Omnibus search results: seven trips from Prague to Brno on 29 October, with times, price per seat and free seats",
     "omnibusBooking": "Omnibus booking page: passenger name, the seat map of the coach and a booking summary with a countdown",

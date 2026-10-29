@@ -287,6 +287,7 @@
   },
   "screens": {
     "omnibusDesktop": "Úvodní stránka Omnibusu: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
+    "omnibusFlowStart": "Úvodní stránka Omnibusu po přihlášení: vyhledání spoje na pozadí ilustrace s autobusem a Prahou",
     "omnibusMobile": "Omnibus v telefonu: detail cesty na lince 501 z Prahy do Brna",
     "omnibusResults": "Výsledky hledání v Omnibusu: sedm spojů z Prahy do Brna 29. října s časy, cenou za místo a volnými místy",
     "omnibusBooking": "Rezervace v Omnibusu: jméno cestujícího, plánek míst v autobusu a souhrn objednávky s odpočtem",

@@ -6,6 +6,7 @@ import boowieReader from "@/data/screens/boowie-reader.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
 import omnibusBooking from "@/data/screens/omnibus-booking.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
+import omnibusFlowStart from "@/data/screens/omnibus-flow-start.webp";
 import omnibusHomeMobile from "@/data/screens/omnibus-home-mobile.webp";
 import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
 import omnibusResults from "@/data/screens/omnibus-results.webp";
@@ -21,7 +22,8 @@ import { PhoneStory } from "./phone-story";
 import { Reveal } from "./reveal";
 import { ScrollingWindow } from "./scrolling-window";
 import type { CycleFrame } from "./screen-cycle";
-import { type LoopVideo, WindowStack } from "./window-stack";
+import { WindowStack } from "./window-stack";
+import { type LoopVideo, WindowVideo } from "./window-video";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,6 +43,7 @@ type Translate = (key: string) => string;
 const SHOTS = {
   omnibusDesktop: omnibusDesktop,
   omnibusMobile: omnibusMobile,
+  omnibusFlowStart: omnibusFlowStart,
   omnibusResults: omnibusResults,
   omnibusBooking: omnibusBooking,
   omnibusSeats: omnibusSeats,
@@ -89,10 +92,13 @@ const BY_PROJECT: Record<
   }
 > = {
   omnibus: {
-    desktop: "omnibusDesktop",
+    // The still is the first frame of the recording: a whole booking, from
+    // the search on the home page to the boarding pass.
+    desktop: "omnibusFlowStart",
     phones: ["omnibusSeats", "omnibusHomeMobile", "omnibusMobile"],
     windows: ["omnibusResults", "omnibusBooking"],
     built: "omnibusSeats",
+    video: { mp4: "/screens/omnibus-flow.mp4", webm: "/screens/omnibus-flow.webm" },
   },
   boowie: {
     phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
@@ -119,18 +125,27 @@ export function hasScreens(project: ProjectCase) {
   return project.slug in BY_PROJECT;
 }
 
-/** The big window of a composition: scrolling when there is a full-page shot. */
+/** The big window of a composition: scrolling when there is a full-page
+ *  shot, playing when there is a recording. */
 function MainWindow({
   shot,
   full,
   host,
+  video,
 }: {
   shot: Shot;
   full?: Shot;
   host: string;
+  video?: LoopVideo;
 }) {
   if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
-  return <BrowserFrame shot={shot} host={host} />;
+  return (
+    <BrowserFrame
+      shot={shot}
+      host={host}
+      overlay={video ? <WindowVideo video={video} /> : undefined}
+    />
+  );
 }
 
 /** Phones in a row on large screens, a swipeable strip on small ones. */
@@ -255,7 +270,12 @@ export function ProductShots({
     <>
       <div className="relative mx-auto hidden max-w-[980px] pb-[6%] text-left md:block">
         <Reveal className="w-[86%]">
-          <MainWindow shot={desktop} full={fullPage} host={project.host} />
+          <MainWindow
+            shot={desktop}
+            full={fullPage}
+            host={project.host}
+            video={set.video}
+          />
         </Reveal>
         <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
           <PhoneFrame shot={lead} />
