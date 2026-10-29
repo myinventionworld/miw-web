@@ -42,27 +42,31 @@
   }
 }
 
-/* A ring that stops on its own while a pointer is on one of its bodies (the
-   cover: only that orbit stops). Real pointers only: a touch screen keeps
-   `:hover` on whatever was tapped last, and taps have their own hold. */
+/* The orbits keep turning under the pointer; the face it is on grows
+   instead, above its neighbours. Real pointers only: a touch screen keeps
+   `:hover` on whatever was tapped last. */
+.hit {
+  transition:
+    scale 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
 @media (hover: hover) {
-  .holdSelf:has(.hit:hover),
-  .holdSelf:has(.hit:hover) .upright {
-    animation-play-state: paused;
+  .hit:hover {
+    scale: 1.5;
   }
-
-  .group:has(.hit:hover) :is(.ring, .upright) {
-    animation-play-state: paused;
+  .slot:has(.hit:hover) {
+    z-index: 10;
   }
 }
 
-/* A system whose rings all stop while the keyboard is on any of its bodies
-   (the team block). */
+/* The one stop: while the keyboard is on a face (the team block), so the
+   button it is on holds still. */
 .group:has(.hit:focus-visible) :is(.ring, .upright) {
   animation-play-state: paused;
 }
 
-/* Set from script: off screen, tab hidden, or a person held by a tap. */
+/* Set from script: off screen or tab hidden. */
 .paused :is(.ring, .upright) {
   animation-play-state: paused;
 }

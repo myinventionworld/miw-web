@@ -21,15 +21,15 @@
     "title": "The team",
     "lede": "You talk directly to the people who build your project.",
     "roles": {
-      "mykhailo": "Founder · full-stack & AI engineer",
-      "ivan": "IT analyst · system design, UML, BPMN, Spring Boot",
+      "mykhailo": "Founder, full-stack & AI engineer",
+      "ivan": "Systems analyst",
       "denis": "Full-stack engineer",
-      "mykola": "Embedded & AI engineer",
-      "illia": "Senior C# engineer · 10 years",
-      "rosztiszlav": "AI/ML engineer",
+      "mykola": "Embedded systems & AI engineer",
+      "illia": "Senior .NET engineer",
+      "rosztiszlav": "Machine learning engineer",
       "andrei": "Graphic designer"
     },
-    "hint": "Point at a face to stop the orbit.",
+    "hint": "Point at a face to see who it is.",
     "hintTouch": "Tap a face to keep it, tap again to let go."
   },
   "values": {

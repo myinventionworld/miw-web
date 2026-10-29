@@ -21,15 +21,15 @@
     "title": "Tým",
     "lede": "Mluvíte přímo s lidmi, kteří váš projekt staví.",
     "roles": {
-      "mykhailo": "Zakladatel · full-stack a AI inženýr",
-      "ivan": "IT analytik · návrh systémů, UML, BPMN, Spring Boot",
+      "mykhailo": "Zakladatel, full-stack a AI inženýr",
+      "ivan": "Systémový analytik",
       "denis": "Full-stack inženýr",
-      "mykola": "Embedded a AI inženýr",
-      "illia": "Senior C# inženýr · 10 let praxe",
-      "rosztiszlav": "AI/ML inženýr",
+      "mykola": "Inženýr vestavěných systémů a AI",
+      "illia": "Senior .NET inženýr",
+      "rosztiszlav": "Inženýr strojového učení",
       "andrei": "Grafický designér"
     },
-    "hint": "Najeďte na tvář a orbita se zastaví.",
+    "hint": "Najeďte na tvář a uvidíte, kdo to je.",
     "hintTouch": "Klepnutím tvář podržíte, dalším klepnutím pustíte."
   },
   "values": {

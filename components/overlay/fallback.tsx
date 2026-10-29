@@ -1,6 +1,8 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
+import { Cover } from "@/components/editorial/cover";
+import { TeamOrbit, type TeamMember } from "@/components/editorial/team-orbit";
 import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { Device } from "@/components/showcase/device";
@@ -13,6 +15,7 @@ import {
   type StationCopy,
 } from "@/lib/stations";
 import { projectForStation } from "@/data/projects";
+import { TEAM } from "@/data/team";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
@@ -27,9 +30,23 @@ import { cn } from "@/lib/utils";
  *
  * Laid out like the light pages: white and grey bands instead of cards, one
  * big statement per section, and each product shown in the device it runs on.
+ * The same moving pieces as About, made for a phone: the cover as a banner
+ * under the header, and the team on its orbits in the team section.
  */
 export function Fallback({ direct }: { direct: boolean }) {
-  const { t } = useTranslation(["common", "stations", "projects", "console"]);
+  const { t, i18n } = useTranslation(["common", "stations", "projects", "console", "about"]);
+
+  const people: TeamMember[] = TEAM.map((p) => {
+    const lineKey = `about:team.lines.${p.id}`;
+    return {
+      id: p.id,
+      name: p.name,
+      role: t(`about:team.roles.${p.id}`),
+      line: i18n.exists(lineKey) ? t(lineKey) || undefined : undefined,
+      photo: p.photo,
+      orbit: p.orbit,
+    };
+  });
 
   return (
     <main className="theme-light min-h-screen bg-void">
@@ -46,7 +63,15 @@ export function Fallback({ direct }: { direct: boolean }) {
         <LocaleSwitch />
       </header>
 
-      <section className="mx-auto max-w-3xl px-5 pt-16 pb-20 text-center sm:px-8">
+      {/* The cover as a banner between two rules: the body bleeds off the top
+          one and the moon rises from the bottom one. */}
+      <div className="mt-5 border-y border-line">
+        <div className="mx-auto aspect-[3/2] w-full max-w-3xl">
+          <Cover people={people} />
+        </div>
+      </div>
+
+      <section className="mx-auto max-w-3xl px-5 pt-12 pb-20 text-center sm:px-8">
         <p className="text-small text-zinc">{t("availability.status")}</p>
         <h1 className="mt-4 text-[clamp(2.4rem,10vw,3.6rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
           {t("home.titleTop")} {t("home.titleBottom")}
@@ -107,6 +132,18 @@ export function Fallback({ direct }: { direct: boolean }) {
                     </div>
                   ))}
                 </dl>
+              )}
+
+              {s.id === "guild" && (
+                <div className="mt-12">
+                  <TeamOrbit
+                    embedded
+                    people={people}
+                    title={t("about:team.title")}
+                    hintPointer={t("about:team.hint")}
+                    hintTouch={t("about:team.hintTouch")}
+                  />
+                </div>
               )}
 
               {s.ctaHref && (

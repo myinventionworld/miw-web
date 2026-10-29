@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
+import Image from "next/image";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
 import { initials } from "@/data/team";
@@ -30,12 +31,17 @@ const fromHash = (hash: string) => (hash.startsWith("#team-") ? hash.slice(6) : 
 /**
  * The team on About: everyone on two slow orbits around the studio, and a card
  * for one person at a time. The card moves on by itself every few seconds;
- * pointing at a face (or reaching it with Tab) shows that person and stops the
- * orbits, and a tap holds a person until the next tap. The avatars are the
+ * pointing at a face grows it and shows that person while the orbits keep
+ * turning, Tab reaches each face (and stops the orbits so the focused one
+ * holds still), and a tap keeps a person on the card until the next tap. The avatars are the
  * accessible list of the team, as buttons named after the person.
  *
  * `#team-<id>` (the cover links there) selects that person and keeps them for
  * a few seconds, so `/about#team-ivan` is a link to Ivan.
+ *
+ * On About it is a section of its own with a heading. `embedded` drops the
+ * heading and the page frame and stacks the orbit over the card, for a page
+ * that already introduces the team (the phone home).
  */
 export function TeamOrbit({
   people,
@@ -43,12 +49,15 @@ export function TeamOrbit({
   lede,
   hintPointer,
   hintTouch,
+  embedded = false,
 }: {
   people: TeamMember[];
+  /** The heading, and the name of the list of people. */
   title: string;
-  lede: string;
+  lede?: string;
   hintPointer: string;
   hintTouch: string;
+  embedded?: boolean;
 }) {
   const reduce = useReducedMotion();
   const section = useRef<HTMLElement>(null);
@@ -162,7 +171,7 @@ export function TeamOrbit({
         }}
         className={cn(
           orbitClasses.hit,
-          "flex size-(--avatar) items-center justify-center overflow-hidden rounded-full font-semibold tracking-[-0.01em] transition-colors duration-300",
+          "flex size-(--avatar) items-center justify-center overflow-hidden rounded-full font-semibold tracking-[-0.01em]",
           selected ? "bg-white text-void" : "bg-space-800 text-zinc hover:bg-line",
           // A photo covers the fill, so the chosen one gets a ring instead.
           selected && p.photo && "ring-2 ring-white ring-offset-[3px] ring-offset-void",
@@ -170,8 +179,15 @@ export function TeamOrbit({
         style={{ fontSize: "calc(var(--avatar) * 0.32)" }}
       >
         {p.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.photo} alt="" className="size-full object-cover" />
+          // Sized for the avatar grown under the pointer, at 2x.
+          <Image
+            src={p.photo}
+            alt=""
+            width={240}
+            height={240}
+            sizes="(min-width: 768px) 112px, 56px"
+            className="size-full object-cover"
+          />
         ) : (
           <span aria-hidden>{initials(p.name)}</span>
         )}
@@ -190,25 +206,35 @@ export function TeamOrbit({
     <section
       ref={section}
       id="team"
-      aria-labelledby="team-title"
-      className="mx-auto grid max-w-5xl scroll-mt-20 items-center gap-x-10 gap-y-12 px-4 py-24 [grid-template-areas:'head'_'orbit'_'card'] sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] md:px-8 md:py-32 md:[grid-template-areas:'head_orbit'_'card_orbit']"
+      aria-label={embedded ? title : undefined}
+      aria-labelledby={embedded ? undefined : "team-title"}
+      className={cn(
+        "grid scroll-mt-20 items-center gap-y-10",
+        embedded
+          ? "[grid-template-areas:'orbit'_'card']"
+          : "mx-auto max-w-6xl gap-x-12 px-4 py-24 [grid-template-areas:'head'_'orbit'_'card'] sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,40rem)] md:gap-y-12 md:px-8 md:py-32 md:[grid-template-areas:'head_orbit'_'card_orbit']",
+      )}
     >
-      <div className="[grid-area:head] md:self-end">
-        <h2
-          id="team-title"
-          className="text-[clamp(2rem,4.6vw,3.4rem)] leading-[1.04] font-bold tracking-[-0.045em] text-white"
-        >
-          {title}
-        </h2>
-        <p className="mt-5 max-w-md text-[1.1875rem] leading-relaxed text-zinc">{lede}</p>
-      </div>
+      {!embedded && (
+        <div className="[grid-area:head] md:self-end">
+          <h2
+            id="team-title"
+            className="text-[clamp(2rem,4.6vw,3.4rem)] leading-[1.04] font-bold tracking-[-0.045em] text-white"
+          >
+            {title}
+          </h2>
+          {lede && (
+            <p className="mt-5 max-w-md text-[1.1875rem] leading-relaxed text-zinc">{lede}</p>
+          )}
+        </div>
+      )}
 
       <div
         // Read out only when someone changed it; a card that moves on its own
         // every few seconds would talk over everything else.
         aria-live={userMoved ? "polite" : "off"}
         aria-atomic
-        className="[grid-area:card] md:self-start"
+        className={cn("[grid-area:card]", !embedded && "md:self-start")}
       >
         <p className="text-small font-semibold text-zinc tabular-nums">
           {pad(index + 1)} / {pad(people.length)}
@@ -224,12 +250,12 @@ export function TeamOrbit({
         <p className="mt-8 hidden text-meta text-steel [@media(hover:none)]:block">{hintTouch}</p>
       </div>
 
-      <div className="mx-auto w-full max-w-[340px] [grid-area:orbit] md:max-w-none">
+      <div className={cn("mx-auto w-full max-w-[460px] [grid-area:orbit]", !embedded && "md:max-w-none")}>
         <div
           ref={system}
           className={cn(
             orbitClasses.group,
-            (idle || held || linked) && orbitClasses.paused,
+            idle && orbitClasses.paused,
             "@container relative aspect-square w-full",
           )}
           style={{ "--avatar": "max(44px, 11.5cqw)" } as CSSProperties}
