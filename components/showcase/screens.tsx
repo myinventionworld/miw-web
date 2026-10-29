@@ -11,6 +11,7 @@ import omnibusMobile from "@/data/screens/omnibus-mobile.webp";
 import omnibusResults from "@/data/screens/omnibus-results.webp";
 import omnibusSeats from "@/data/screens/omnibus-seats.webp";
 import wovieFilm from "@/data/screens/wovie-film.webp";
+import wovieFilmHero from "@/data/screens/wovie-film-hero.webp";
 import wovieHome from "@/data/screens/wovie-home.webp";
 import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
@@ -50,6 +51,7 @@ const SHOTS = {
   boowieReader: boowieReader,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
+  wovieFilmHero: wovieFilmHero,
   wovieTrailer: wovieTrailer,
   wovieSignup: wovieSignup,
 } as const;
@@ -103,9 +105,13 @@ const BY_PROJECT: Record<
     ],
   },
   wovie: {
-    desktop: "wovieHome",
+    // A film page, because that is where the backdrop turns into the trailer.
+    // The still is the recording's first frame, so the fade into the video
+    // shows nothing until the trailer itself comes in.
+    desktop: "wovieFilmHero",
     phones: [],
-    windows: ["wovieFilm", "wovieTrailer", "wovieSignup"],
+    windows: ["wovieHome", "wovieTrailer", "wovieSignup"],
+    video: { mp4: "/screens/wovie-hero.mp4", webm: "/screens/wovie-hero.webm" },
   },
 };
 

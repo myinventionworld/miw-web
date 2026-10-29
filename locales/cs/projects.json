@@ -297,6 +297,7 @@
     "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku",
     "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
     "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
+    "wovieFilmHero": "Stránka filmu Project Hail Mary ve Wovie: plakát, název, hodnocení TMDB a žánry na pozadí záběru z filmu",
     "wovieTrailer": "Přehrávač traileru na stránce filmu ve Wovie",
     "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple",
     "boowieReader": "Čtečka Boowie: první stránka Vánoční koledy s názvem kapitoly a počítadlem stran"
