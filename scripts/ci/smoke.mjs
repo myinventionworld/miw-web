@@ -26,6 +26,7 @@ const fail = (msg) => {
   failures.push(msg);
   console.log(`  FAIL ${msg}`);
 };
+const warn = (msg) => console.log(`  WARN ${msg}`);
 
 // 1. Status codes, without a browser.
 console.log("status codes");
@@ -53,9 +54,16 @@ async function visit(context, path, { shot, width } = {}) {
       const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
       if (scrollWidth > width) fail(`${path} at ${width}px scrolls sideways (${scrollWidth}px)`);
     }
-    if (shot) await page.screenshot({ path: `${OUT}/${shot}.png`, fullPage: false });
   } catch (e) {
     fail(`${path}: ${String(e).split("\n")[0]}`);
+  }
+  // A screenshot is for people to look at, not a check. On a runner without a
+  // GPU the 3D home draws through software WebGL and one frame can take tens
+  // of seconds, so it gets time, and a missing picture is a warning.
+  if (shot) {
+    await page
+      .screenshot({ path: `${OUT}/${shot}.png`, timeout: 120_000 })
+      .catch((e) => warn(`${path}: no screenshot (${String(e).split("\n")[0]})`));
   }
   for (const e of errors) fail(`${path}${width ? ` at ${width}px` : ""} threw: ${e}`);
   await page.close();

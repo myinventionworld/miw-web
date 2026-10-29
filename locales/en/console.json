@@ -39,11 +39,11 @@
     }
   },
   "budgets": {
-    "upto-2k": "Up to €2,000",
-    "2-5k": "€2,000 – €5,000",
-    "5-15k": "€5,000 – €15,000",
-    "15k-plus": "€15,000+",
-    "unsure": "Not sure yet"
+    "upto-2k": "Up to €2k",
+    "2-5k": "€2–5k",
+    "5-15k": "€5–15k",
+    "15k-plus": "€15k+",
+    "unsure": "Not sure"
   },
   "stages": {
     "small-business": "Small business",

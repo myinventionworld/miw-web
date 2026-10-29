@@ -28,7 +28,9 @@
       "illia": "Senior C# engineer · 10 years",
       "rosztiszlav": "AI/ML engineer",
       "andrei": "Graphic designer"
-    }
+    },
+    "hint": "Point at a face to stop the orbit.",
+    "hintTouch": "Tap a face to keep it, tap again to let go."
   },
   "values": {
     "title": "How we work",

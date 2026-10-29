@@ -193,6 +193,16 @@ export const BUDGETS = [
 
 export const STAGES = ["small-business", "idea", "startup", "company"] as const;
 
+/**
+ * Which stages each console tab offers. The business tab has one, so the form
+ * does not ask it: a shop owner who has just pressed "Small business" was being
+ * asked "You are: Small business" again one row further down.
+ */
+export const TAB_STAGES: Record<ConsoleTab, readonly (typeof STAGES)[number][]> = {
+  business: ["small-business"],
+  startup: ["idea", "startup", "company"],
+};
+
 export const TIMELINES = ["now", "month", "quarter", "scoping"] as const;
 
 /* ── lookups ──────────────────────────────────────────────────────────── */

@@ -63,7 +63,7 @@ components. There is no `tailwind.config.*`.
 ### CI
 
 `.github/workflows/ci.yml` runs on every push and pull request to `redesign/product` and `main`:
-`npm ci`, `tsc --noEmit`, `next build`, then `next start` and a Playwright smoke test,
+`npm ci`, `next typegen` + `tsc --noEmit`, `next build`, then `next start` and a Playwright smoke test,
 `scripts/ci/smoke.mjs`. The smoke test fails the run if any page in any language answers
 anything but 200 (robots.txt and sitemap.xml included), if a page throws, or if a page scrolls
 sideways at 320 or 390 px. Screenshots of the main pages, desktop and phone, are attached to the

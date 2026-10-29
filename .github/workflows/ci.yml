@@ -31,8 +31,10 @@ jobs:
       - name: Install
         run: npm ci
 
+      # A fresh checkout has neither next-env.d.ts (it is gitignored) nor the
+      # generated route types (PageProps, LayoutProps); typegen writes both.
       - name: Type check
-        run: npx tsc --noEmit
+        run: npx next typegen && npx tsc --noEmit
 
       - name: Build
         run: npx next build
