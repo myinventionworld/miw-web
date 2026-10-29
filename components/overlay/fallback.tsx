@@ -5,6 +5,7 @@ import { LocaleLink } from "@/components/locale-link";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { Device } from "@/components/showcase/device";
 import { ProductShots, hasScreens } from "@/components/showcase/screens";
+import { EnquiryForm } from "./enquiry-form";
 
 import {
   STATIONS,
@@ -27,8 +28,8 @@ import { cn } from "@/lib/utils";
  * Laid out like the light pages: white and grey bands instead of cards, one
  * big statement per section, and each product shown in the device it runs on.
  */
-export function Fallback() {
-  const { t } = useTranslation(["common", "stations", "projects"]);
+export function Fallback({ direct }: { direct: boolean }) {
+  const { t } = useTranslation(["common", "stations", "projects", "console"]);
 
   return (
     <main className="theme-light min-h-screen bg-void">
@@ -178,12 +179,15 @@ export function Fallback() {
         <p className="mt-4 text-copy leading-relaxed text-zinc">
           {t("home.transmissionBody")}
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="mt-8 flex w-full items-center justify-center rounded-full bg-action px-6 py-3.5 text-lead font-medium break-all text-on-action transition-colors hover:bg-action-hover sm:inline-flex sm:w-auto"
-        >
-          {CONTACT_EMAIL}
-        </a>
+        <EnquiryForm direct={direct} />
+        {/* The address stays in plain sight for anyone who would rather
+            write from their own mail. */}
+        <p className="mt-6 text-small text-zinc">
+          {t("console:form.orWrite")}{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-comet hover:underline">
+            {CONTACT_EMAIL}
+          </a>
+        </p>
       </section>
     </main>
   );

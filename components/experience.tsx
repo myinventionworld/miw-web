@@ -89,7 +89,7 @@ function Hero({
  * navigation has to drive Lenis rather than `window.scrollTo`, or the smooth
  * scroller and the browser fight each other for the same scrollTop.
  */
-function Deck({ webgl }: { webgl: boolean }) {
+function Deck({ webgl, direct }: { webgl: boolean; direct: boolean }) {
   // One copy mode. The old Business / Telemetry toggle doubled every station's
   // text for a distinction most visitors never looked for.
   const mode: Mode = "business";
@@ -177,7 +177,7 @@ function Deck({ webgl }: { webgl: boolean }) {
         mode={mode}
         onAction={() => travel(CONSOLE_ANCHOR)}
       />
-      <TransmissionConsole progress={progress} />
+      <TransmissionConsole progress={progress} direct={direct} />
 
       {/* The only element with real height — everything else is fixed. */}
       <div aria-hidden className={`${RUNWAY} w-full`} />
@@ -185,7 +185,8 @@ function Deck({ webgl }: { webgl: boolean }) {
   );
 }
 
-export function Experience() {
+/** `direct`: the contact form can send on its own (`lib/delivery.ts`). */
+export function Experience({ direct }: { direct: boolean }) {
   /**
    * `null` until the first client effect, because both inputs are runtime
    * capabilities and a server render has neither. Rendering the deck optimistically
@@ -219,7 +220,7 @@ export function Experience() {
   // Touch and no-WebGL both land on the same flat route. It is not a downgrade
   // path with missing content — it carries the whole page as a normal document
   // that scrolls the way the device expects.
-  if (flight3d === false) return <Fallback />;
+  if (flight3d === false) return <Fallback direct={direct} />;
 
   // `null` renders the deck shell with no scene rather than nothing: the server
   // pass lands here, and a blank first paint would cost the LCP on the one device
@@ -237,7 +238,7 @@ export function Experience() {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} />
+      <Deck webgl={Boolean(flight3d)} direct={direct} />
     </ReactLenis>
   );
 }

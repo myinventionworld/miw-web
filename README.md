@@ -54,10 +54,27 @@ your `Accept-Language`. See [Languages](#languages).
 | `i18next` + `react-i18next` | Translation lookup, server and client |
 | `next-i18n-router` | Locale detection and the `/` → `/en` redirect, run from `proxy.ts` |
 | `@i18nexus/cli` | Pulls translated JSON down from i18nexus (dev dependency) |
+| `playwright` | The CI smoke test (dev dependency) |
 
 Tailwind v4 is configured entirely in `app/globals.css` via `@theme`, including the colour
 palette and the type scale (`text-label` … `text-heading-xl`). Change sizes there, not in
 components. There is no `tailwind.config.*`.
+
+### CI
+
+`.github/workflows/ci.yml` runs on every push and pull request to `redesign/product` and `main`:
+`npm ci`, `tsc --noEmit`, `next build`, then `next start` and a Playwright smoke test,
+`scripts/ci/smoke.mjs`. The smoke test fails the run if any page in any language answers
+anything but 200 (robots.txt and sitemap.xml included), if a page throws, or if a page scrolls
+sideways at 320 or 390 px. Screenshots of the main pages, desktop and phone, are attached to the
+run as the `smoke-screenshots` artifact.
+
+To run it locally against your own build, with the Chrome you already have:
+
+```bash
+npm run build && npm run start
+SMOKE_CHANNEL=chrome node scripts/ci/smoke.mjs
+```
 
 ---
 

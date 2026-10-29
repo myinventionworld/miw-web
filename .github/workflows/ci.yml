@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [redesign/product, main]
+  pull_request:
+    branches: [redesign/product, main]
+
+# A newer push to the same branch makes the running check pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx next build
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Start the site
+        run: |
+          npx next start -p 3000 > next-start.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/en && exit 0
+            sleep 1
+          done
+          echo "next start did not answer within 60 s"
+          cat next-start.log
+          exit 1
+
+      - name: Smoke test
+        run: node scripts/ci/smoke.mjs
+        env:
+          SMOKE_BASE_URL: http://localhost:3000
+          SMOKE_OUT: smoke-screenshots
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-screenshots
+          path: smoke-screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload server log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: next-start-log
+          path: next-start.log
+          if-no-files-found: ignore
