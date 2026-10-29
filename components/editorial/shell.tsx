@@ -46,7 +46,7 @@ export async function EditorialShell({
         "-my-2 rounded-md px-2 py-2 text-body font-medium",
         active === id
           ? "text-white"
-          : "text-zinc transition-colors hover:text-white",
+          : "text-zinc transition-colors hover:bg-white/8 hover:text-white",
       )}
     >
       {label}

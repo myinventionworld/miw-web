@@ -259,7 +259,7 @@ function MegaDrawer({
                 key={s.id}
                 type="button"
                 onClick={() => onNavigate(s.id)}
-                className="flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
+                className="flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10"
               >
                 {t(`${s.id}.nav`)}
               </button>
@@ -465,7 +465,7 @@ export function Navbar({
                 aria-expanded={
                   s.stations.length > 0 ? open === s.id : undefined
                 }
-                className="relative px-4 py-2 text-body font-medium text-platinum transition-colors hover:text-white focus:text-white focus:outline-none"
+                className="relative px-4 py-2 text-body font-medium text-platinum transition-colors hover:text-white focus:text-white"
               >
                 {active === s.id && (
                   <motion.span
@@ -494,7 +494,7 @@ export function Navbar({
             <LocaleLink
               href="/work"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden rounded-full px-3 py-2 text-small font-medium text-platinum transition-colors hover:bg-white/10 hover:text-white sm:block"
             >
               {t("nav.work")}
             </LocaleLink>
@@ -502,7 +502,7 @@ export function Navbar({
             <LocaleLink
               href="/about"
               onClick={dismiss}
-              className="hidden px-3 py-2 text-small font-medium text-platinum transition-colors hover:text-white sm:block"
+              className="hidden rounded-full px-3 py-2 text-small font-medium text-platinum transition-colors hover:bg-white/10 hover:text-white sm:block"
             >
               {t("nav.about")}
             </LocaleLink>
@@ -523,7 +523,7 @@ export function Navbar({
               onClick={() => setMobile((v) => !v)}
               aria-label={t("nav.menu")}
               aria-expanded={mobile}
-              className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white lg:hidden"
+              className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white transition-colors hover:border-white/40 hover:bg-white/10 lg:hidden"
             >
               {mobile ? (
                 <Cross className="text-copy-lg" />
@@ -560,7 +560,7 @@ export function Navbar({
                     key={s.id}
                     type="button"
                     onClick={() => go(s)}
-                    className="flex w-full items-baseline justify-between gap-4 border-b border-white/10 py-4 text-left last:border-0"
+                    className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-b border-white/10 px-3 py-4 text-left transition-colors last:border-0 hover:bg-white/8"
                   >
                     <span className="text-copy font-medium text-white">
                       {t(`stations:sections.${s.id}.label`)}
@@ -576,7 +576,7 @@ export function Navbar({
                 <LocaleLink
                   href="/work"
                   onClick={dismiss}
-                  className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
+                  className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-t border-white/10 px-3 py-4 text-left transition-colors hover:bg-white/8"
                 >
                   <span className="text-copy font-medium text-white">
                     {t("nav.work")}
@@ -589,7 +589,7 @@ export function Navbar({
                 <LocaleLink
                   href="/about"
                   onClick={dismiss}
-                  className="flex w-full items-baseline justify-between gap-4 border-t border-white/10 py-4 text-left"
+                  className="-mx-3 flex w-[calc(100%+1.5rem)] items-baseline justify-between gap-4 border-t border-white/10 px-3 py-4 text-left transition-colors hover:bg-white/8"
                 >
                   <span className="text-copy font-medium text-white">
                     {t("nav.about")}

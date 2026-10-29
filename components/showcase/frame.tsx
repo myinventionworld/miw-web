@@ -65,7 +65,7 @@ export function ShowcaseFrame({
 }
 
 const ACTION =
-  "flex items-center gap-1.5 rounded-full border border-white/25 px-3.5 py-2 text-small font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8";
+  "flex items-center gap-1.5 rounded-full border border-white/25 px-3.5 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10";
 
 /**
  * Split out of the frame so the station can put these on the same row as its
