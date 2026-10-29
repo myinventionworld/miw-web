@@ -39,11 +39,11 @@
     }
   },
   "budgets": {
-    "upto-2k": "Do 2 000 €",
-    "2-5k": "2 000 – 5 000 €",
-    "5-15k": "5 000 – 15 000 €",
-    "15k-plus": "15 000 € a víc",
-    "unsure": "Zatím nevím"
+    "upto-2k": "Do 2 tis. €",
+    "2-5k": "2–5 tis. €",
+    "5-15k": "5–15 tis. €",
+    "15k-plus": "15+ tis. €",
+    "unsure": "Nevím"
   },
   "stages": {
     "small-business": "Malá firma",
