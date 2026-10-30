@@ -62,8 +62,19 @@ function ChromeEnvironment() {
   );
 }
 
+/**
+ * The sharpest the canvas gets, on every screen. On a 1x screen that is twice
+ * the screen's pixels, scaled down by the browser: since the composer cannot
+ * multisample (see `Effects`), this is what smooths the edges there.
+ */
+const MAX_DPR = 2;
+
 export function CosmosScene() {
-  const [dpr, setDpr] = useState(1.5);
+  // Start at the ceiling, not below it. This used to start at 1.5 and let the
+  // monitor raise it once it had 2.5 s of frames, so a fast machine resized
+  // the canvas with the hero planet on screen. Now only a machine that cannot
+  // hold the frame rate ever sees a change.
+  const [dpr, setDpr] = useState(MAX_DPR);
   const [quality, setQuality] = useState<"high" | "low">("high");
 
   const dense =
@@ -74,9 +85,9 @@ export function CosmosScene() {
     <Canvas
       dpr={dpr}
       gl={{
-        // Off on purpose: everything is drawn into the composer's buffer,
-        // which multisamples itself (see `Effects`). A multisampled canvas on
-        // top of that would only cost memory.
+        // Off on purpose: everything is drawn into the composer's buffer, so
+        // multisampling the canvas would never touch the scene and would only
+        // cost memory. `Effects` says how the edges are smoothed instead.
         antialias: false,
         alpha: false,
         powerPreference: "high-performance",
@@ -97,10 +108,16 @@ export function CosmosScene() {
       <PerformanceMonitor
         bounds={() => [50, 60]}
         onDecline={() => {
-          setDpr(1);
-          setQuality("low");
+          // One step at a time: a machine that only struggles at 2x keeps the
+          // full grade at 1.5, where every machine used to start.
+          if (dpr > 1.5) {
+            setDpr(1.5);
+          } else {
+            setDpr(1);
+            setQuality("low");
+          }
         }}
-        onIncline={() => setDpr(Math.min(2, window.devicePixelRatio))}
+        onIncline={() => setDpr(MAX_DPR)}
       />
 
       {/* Far plane is huge; fog keeps the tail of the track from stacking up. */}
@@ -121,7 +138,7 @@ export function CosmosScene() {
       </Suspense>
 
       <CosmosFlight />
-      <Effects quality={quality} dpr={dpr} />
+      <Effects quality={quality} />
     </Canvas>
   );
 }

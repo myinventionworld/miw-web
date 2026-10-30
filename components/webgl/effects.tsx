@@ -20,23 +20,10 @@ import {
 
 import { flight, lerp, smoothstep } from "@/lib/flight";
 
-export function Effects({
-  quality,
-  dpr,
-}: {
-  quality: "high" | "low";
-  dpr: number;
-}) {
+export function Effects({ quality }: { quality: "high" | "low" }) {
   const bloom = useRef<BloomEffect>(null);
   const aberration = useRef<ChromaticAberrationEffect>(null);
   const BASE_RADIUS = quality === "high" ? 0.86 : 0.7;
-  // The scene renders into the composer's buffer, not the canvas, so the
-  // context's own `antialias` does nothing here: MSAA has to be asked for on
-  // that buffer. Without it the logo's bevels and the hairline orbits stepped
-  // like a staircase. Four samples at 1x–1.5x. On a 2x screen the pixels are
-  // small enough for SMAA alone (below), and MSAA there cost a quarter of the
-  // frame rate on an M-series laptop for an edge nobody could tell apart.
-  const samples = dpr >= 1.75 ? 0 : 4;
 
   useFrame(() => {
     const p = flight.eased;
@@ -69,7 +56,14 @@ export function Effects({
   });
 
   return (
-    <EffectComposer multisampling={samples} enableNormalPass={false}>
+    // No MSAA on the composer's buffer, at any ratio. In Chrome on an Apple
+    // GPU (ANGLE over Metal) a multisampled buffer now and then hands back a
+    // frame with the planet, the logo and the orbits missing and only the
+    // stars left: the hero planet blinked out for a frame every second or so.
+    // Two, four or eight samples all do it; none never does. The logo's
+    // bevels and the hairline orbits get their smoothing from the canvas
+    // running at 2x (`CosmosScene`) and from SMAA below.
+    <EffectComposer multisampling={0} enableNormalPass={false}>
       <Bloom
         ref={bloom}
         mipmapBlur
