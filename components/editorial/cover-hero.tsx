@@ -12,16 +12,18 @@ import { Cover, type CoverPerson } from "./cover";
  */
 export function CoverHero({
   people,
+  picture,
   children,
 }: {
   /** Also put these people on the cover's orbits. */
   people?: CoverPerson[];
+  picture?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
       <div className="aspect-[3/2] w-full border-b border-line md:col-start-3 md:row-start-1 md:self-stretch md:border-0">
-        <Cover people={people} />
+        {picture ?? <Cover people={people} />}
       </div>
       <div className="px-4 pt-12 pb-20 sm:px-6 md:col-start-2 md:row-start-1 md:self-center md:px-0 md:py-16 md:pr-12">
         {children}

@@ -54,6 +54,7 @@ your `Accept-Language`. See [Languages](#languages).
 | `i18next` + `react-i18next` | Translation lookup, server and client |
 | `next-i18n-router` | Locale detection and the `/` → `/en` redirect, run from `proxy.ts` |
 | `@i18nexus/cli` | Pulls translated JSON down from i18nexus (dev dependency) |
+| `@vercel/analytics` | Vercel Web Analytics: page views, no cookies |
 | `playwright` | The CI smoke test (dev dependency) |
 
 Tailwind v4 is configured entirely in `app/globals.css` via `@theme`, including the colour
