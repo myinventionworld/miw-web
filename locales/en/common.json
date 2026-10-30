@@ -23,7 +23,9 @@
     "about": "About us"
   },
   "footer": {
-    "back": "Back to home"
+    "back": "Back to home",
+    "legal": "Legal",
+    "terms": "Terms of use"
   },
   "project": {
     "caseStudy": "Case study",

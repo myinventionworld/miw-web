@@ -1,5 +1,8 @@
 import { PROJECTS } from "@/data/projects";
 
+/** Listed, but not what anyone searches for. */
+export const LEGAL_PAGES = ["/terms"];
+
 /**
  * The site's own address, for everything that needs an absolute URL:
  * `metadataBase`, the sitemap, robots.txt and the JSON-LD.
@@ -23,4 +26,5 @@ export const PAGES = [
   "/about",
   "/work",
   ...PROJECTS.map((p) => `/work/${p.slug}`),
+  ...LEGAL_PAGES,
 ];

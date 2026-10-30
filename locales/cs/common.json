@@ -23,7 +23,9 @@
     "about": "O nás"
   },
   "footer": {
-    "back": "Zpět na úvod"
+    "back": "Zpět na úvod",
+    "legal": "Právní informace",
+    "terms": "Podmínky užívání"
   },
   "project": {
     "caseStudy": "Případová studie",
