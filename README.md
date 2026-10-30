@@ -150,8 +150,8 @@ ids. The navbar, the dock, the HUD and the flat page all read from both.
 
 English, Russian and Czech. Every locale is prefixed, including the default: `/en/work/omnibus`,
 `/ru/work/omnibus`, `/cs/about`. A bare `/work` is matched against `Accept-Language` and
-redirected, and the choice is remembered in the `NEXT_LOCALE` cookie so a reader who switched by
-hand is not overruled by their browser on the next page.
+redirected. A language picked by hand is remembered in the `NEXT_LOCALE` cookie, but only for a
+reader who accepted the cookie banner; until then nothing is stored.
 
 The root layout loads all five namespaces (`common`, `stations`, `projects`, `console`, `about`) for the requested language plus English as a fallback,
 then hands the resources to the client through `TranslationsProvider` — so the browser

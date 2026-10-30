@@ -9,9 +9,8 @@ import i18nConfig from "./i18nConfig";
  * request and hands back a response.
  *
  * A visitor landing on `/work` is matched against `Accept-Language` and sent to
- * `/en/work`, `/ru/work` or `/cs/work`; the choice is then remembered in the
- * `NEXT_LOCALE` cookie so a reader who switched by hand is not overruled by
- * their browser on the next page.
+ * `/en/work`, `/ru/work` or `/cs/work`. A `NEXT_LOCALE` cookie, set only when
+ * the reader accepted cookies and switched by hand, takes precedence.
  */
 export function proxy(request: NextRequest) {
   return i18nRouter(request, i18nConfig);
