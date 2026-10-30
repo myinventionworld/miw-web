@@ -4,7 +4,7 @@ import projects from "@/locales/en/projects.json";
 import stations from "@/locales/en/stations.json";
 import { PROJECTS } from "@/modules/work";
 import { TEAM } from "@/modules/team";
-import { CONTACT_EMAIL } from "@/modules/enquiry";
+import { CONTACT_EMAIL } from "@/modules/contact";
 import { siteUrl } from "@/modules/seo";
 
 /**

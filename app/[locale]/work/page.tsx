@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { EditorialShell } from "@/modules/editorial/server";
+import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs } from "@/modules/seo";
 import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
 import { initTranslations, alternates, localeHref } from "@/modules/i18n";
@@ -32,7 +32,7 @@ export default async function WorkIndexPage() {
   const tr = (key: string) => t(key);
 
   return (
-    <EditorialShell active="work" bleed>
+    <PageLayout active="work" bleed>
       <JsonLd
         graph={[
           breadcrumbs([
@@ -136,6 +136,6 @@ export default async function WorkIndexPage() {
           {t("common:home.ctaContact")}
         </Link>
       </section>
-    </EditorialShell>
+    </PageLayout>
   );
 }

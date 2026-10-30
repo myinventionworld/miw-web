@@ -3,18 +3,17 @@
 import { useTranslation } from "react-i18next";
 import { Cover, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { LocaleSwitch } from "@/modules/language";
-import { SiteFooter } from "@/modules/footer";
+import { LocaleSwitch, SiteFooter } from "@/modules/layout";
 import {
   Device,
   ProductShots,
   hasScreens,
   projectForStation,
 } from "@/modules/work";
-import { EnquiryForm } from "@/modules/enquiry";
+import { EnquiryForm } from "@/modules/contact";
 
 import { STATIONS, type ProgramPoint, type StationCopy } from "./stations";
-import { CONTACT_EMAIL } from "@/modules/enquiry";
+import { CONTACT_EMAIL } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
 
 /**

@@ -13,7 +13,7 @@
  *
  * What is left in this file is structure — scroll anchors and the header's
  * sections. The ids are in `shared/station-id.ts`, the console's options in
- * `modules/enquiry/options.ts`. The words moved to
+ * `modules/contact/options.ts`. The words moved to
  * `locales/<lang>/stations.json` and `console.json` when the site went
  * trilingual, because three copies of this file kept in step by hand is not a
  * content model. Every

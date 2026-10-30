@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 import { useLocale } from "@/modules/i18n";
-import { rememberLocale } from "@/modules/consent";
+import { rememberLocale } from "@/modules/cookies";
 import { swapLocale } from "@/modules/i18n";
 import { i18nConfig, LOCALE_NAMES, type Locale } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";

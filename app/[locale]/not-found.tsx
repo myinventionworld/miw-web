@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { AsciiCover, CoverHero } from "@/modules/editorial";
-import { EditorialShell } from "@/modules/editorial/server";
+import { CoverHero } from "@/modules/layout";
+import { AsciiCover } from "@/modules/team";
+import { PageLayout } from "@/modules/layout/server";
 import { initTranslations, localeHref } from "@/modules/i18n";
 
 /**
@@ -14,7 +15,7 @@ export default async function NotFound() {
   const { t } = await initTranslations(locale, ["common"]);
 
   return (
-    <EditorialShell bleed>
+    <PageLayout bleed>
       <CoverHero picture={<AsciiCover />}>
         <p className="text-small font-medium text-zinc tabular-nums">404</p>
         <h1 className="mt-5 text-[clamp(2.5rem,4.4vw,4rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
@@ -38,6 +39,6 @@ export default async function NotFound() {
           </Link>
         </div>
       </CoverHero>
-    </EditorialShell>
+    </PageLayout>
   );
 }

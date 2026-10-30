@@ -3,11 +3,11 @@
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { CONTACT_EMAIL } from "@/modules/enquiry";
+import { CONTACT_EMAIL } from "@/modules/contact";
 import { LocaleLink } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
 
-/** Same tap-target trick as the editorial header: padding, cancelled margin. */
+/** Same tap-target trick as the page shell header: padding, cancelled margin. */
 const LINK = "-my-2 rounded-md py-2 transition-colors hover:text-white";
 
 /**

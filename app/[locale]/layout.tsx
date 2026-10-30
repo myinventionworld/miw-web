@@ -18,7 +18,7 @@ import "@fontsource-variable/onest";
 import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
-import { CookieBanner } from "@/modules/consent";
+import { CookieBanner } from "@/modules/cookies";
 import {
   TranslationsProvider,
   LightVeilHost,
