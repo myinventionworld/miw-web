@@ -91,7 +91,7 @@ SMOKE_CHANNEL=chrome node scripts/ci/smoke.mjs
 
 The code is cut into vertical slices. Each folder under `modules/` is one part of the site, with
 its components, data, hooks and server code side by side, and a public entry (`index.ts`, plus
-`server.ts` where something must stay on the server). Routes in `app/` are thin: they read
+`server.ts` for what must stay on the server, so a client file can import `index.ts` safely). Routes in `app/` are thin: they read
 params, set metadata and compose modules.
 
 ```

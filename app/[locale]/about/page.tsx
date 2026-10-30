@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { CoverHero, EditorialShell } from "@/modules/editorial";
+import { CoverHero } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
 import { JsonLd, breadcrumbs, teamMembers } from "@/modules/seo";
 import { TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { HeroShots, PROJECTS } from "@/modules/work";

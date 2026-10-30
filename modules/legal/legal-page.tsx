@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { locale as currentLocale } from "next/root-params";
 
-import { EditorialShell } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
 import { CONTACT_EMAIL } from "@/modules/enquiry";
 import { initTranslations } from "@/modules/i18n";
 import { LEGAL_UPDATED, OPERATOR } from "./operator";

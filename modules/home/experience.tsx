@@ -12,6 +12,7 @@ import { CONSOLE_ANCHOR, stationById, type Mode } from "./stations";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./fallback";
+import { SignalLost } from "./signal-lost";
 import { Stage } from "./stage";
 import { TransmissionConsole } from "./transmission-console";
 import type { StationId } from "@/shared/station-id";
@@ -24,6 +25,8 @@ const CosmosScene = dynamic(
 
 /** Total scroll runway. Nine screens of travel across five parking points. */
 const RUNWAY = "h-[900vh]";
+
+const RECONNECT_MS = 4000;
 
 function Hero({
   progress,
@@ -85,7 +88,46 @@ function Hero({
  * navigation has to drive Lenis rather than `window.scrollTo`, or the smooth
  * scroller and the browser fight each other for the same scrollTop.
  */
-function Deck({ webgl, direct }: { webgl: boolean; direct: boolean }) {
+function Deck({
+  webgl,
+  direct,
+  onSceneLost,
+}: {
+  webgl: boolean;
+  direct: boolean;
+  onSceneLost: () => void;
+}) {
+  const { t } = useTranslation("common");
+  const scene = useRef<HTMLDivElement>(null);
+  const [lost, setLost] = useState(false);
+  const [sceneKey, setSceneKey] = useState(0);
+
+  // WebGL context events do not bubble; the capture phase still reaches the
+  // canvas's parent. A restored context comes back without the scene's
+  // procedural textures, so the scene is mounted again from scratch.
+  useEffect(() => {
+    const el = scene.current;
+    if (!el || !webgl) return;
+    let giveUp = 0;
+    const onLost = () => {
+      setLost(true);
+      window.clearTimeout(giveUp);
+      giveUp = window.setTimeout(onSceneLost, RECONNECT_MS);
+    };
+    const onRestored = () => {
+      window.clearTimeout(giveUp);
+      setLost(false);
+      setSceneKey((k) => k + 1);
+    };
+    el.addEventListener("webglcontextlost", onLost, true);
+    el.addEventListener("webglcontextrestored", onRestored, true);
+    return () => {
+      window.clearTimeout(giveUp);
+      el.removeEventListener("webglcontextlost", onLost, true);
+      el.removeEventListener("webglcontextrestored", onRestored, true);
+    };
+  }, [webgl, onSceneLost]);
+
   // One copy mode. The old Business / Telemetry toggle doubled every station's
   // text for a distinction most visitors never looked for.
   const mode: Mode = "business";
@@ -146,7 +188,10 @@ function Deck({ webgl, direct }: { webgl: boolean; direct: boolean }) {
 
   return (
     <>
-      <div className="fixed inset-0 z-0 bg-void">{webgl && <CosmosScene />}</div>
+      <div ref={scene} className="fixed inset-0 z-0 bg-void">
+        {webgl && <CosmosScene key={sceneKey} />}
+        {lost && <SignalLost message={t("signalLost")} />}
+      </div>
 
       {/* Filmic grade. Light touch — the panels carry their own contrast now. */}
       <div
@@ -190,6 +235,10 @@ export function Experience({ direct }: { direct: boolean }) {
    * away.
    */
   const [flight3d, setFlight3d] = useState<boolean | null>(null);
+  const toFlatPage = useCallback(() => {
+    setFlight3d(false);
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     setFlight3d(detectHardwareWebGL() && !prefersFlatDeck());
@@ -228,7 +277,7 @@ export function Experience({ direct }: { direct: boolean }) {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} direct={direct} />
+      <Deck webgl={Boolean(flight3d)} direct={direct} onSceneLost={toFlatPage} />
     </ReactLenis>
   );
 

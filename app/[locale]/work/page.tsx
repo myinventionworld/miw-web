@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { EditorialShell } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
 import { JsonLd, breadcrumbs } from "@/modules/seo";
 import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
 import { initTranslations, alternates, localeHref } from "@/modules/i18n";

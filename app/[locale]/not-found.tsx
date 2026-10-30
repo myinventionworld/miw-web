@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { AsciiCover, CoverHero, EditorialShell } from "@/modules/editorial";
+import { AsciiCover, CoverHero } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
 import { initTranslations, localeHref } from "@/modules/i18n";
 
 /**

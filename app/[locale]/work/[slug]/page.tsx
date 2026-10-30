@@ -14,7 +14,7 @@ import {
   projectBySlug,
   STATUS_TONE,
 } from "@/modules/work";
-import { EditorialShell } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
 import { JsonLd, breadcrumbs, caseStudy } from "@/modules/seo";
 import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 import { clsx } from "clsx";
