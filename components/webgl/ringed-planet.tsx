@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { NOISE_GLSL, RING_GLSL } from "@/lib/glsl";
 import { BODY, damp, flight, smoothstep } from "@/lib/flight";
 import { bindUniforms } from "@/lib/utils";
+import { useBakedCube } from "./baked-cube";
 import { Rings } from "./rings";
 
 const POS = new THREE.Vector3(...BODY.commerce.pos);
@@ -42,10 +43,21 @@ void main() {
 }
 `;
 
-const fragmentShader = /* glsl */ `
+const fieldsFragment = /* glsl */ `
 ${NOISE_GLSL}
+
+void main() {
+  vec3 sp = normalize(vDir);
+  float shear = fbm(vec3(sp.x * 1.7, sp.y * 0.6, sp.z * 1.7), 4);
+  float grain = fbm(sp * 8.2, 4) * 0.5 + 0.5;
+  gl_FragColor = vec4(shear * 0.5 + 0.5, grain, 0.0, 1.0);
+}
+`;
+
+const fragmentShader = /* glsl */ `
 ${RING_GLSL}
 
+uniform samplerCube uFields;
 uniform vec3 uSunDir;
 uniform vec3 uRingCenter;
 uniform vec3 uRingNormal;
@@ -58,6 +70,12 @@ varying vec3 vUnit;
 varying vec3 vNormalW;
 varying vec3 vWorld;
 varying vec3 vView;
+
+vec3 spinY(vec3 p, float a) {
+  float c = cos(a);
+  float s = sin(a);
+  return vec3(c * p.x + s * p.z, p.y, c * p.z - s * p.x);
+}
 
 /**
  * March from this surface point toward the star, intersect the ring plane, and
@@ -83,12 +101,12 @@ void main() {
 
   // Zonal banding: stretched hard in latitude, with slow turbulent shear so the
   // belts do not read as printed stripes.
-  float shear = fbm(vec3(sp.x * 1.7, sp.y * 0.6, sp.z * 1.7) + uTime * 0.008, 4);
+  float shear = textureCube(uFields, spinY(sp, uTime * 0.008)).r * 2.0 - 1.0;
   float lat = sp.y * 5.4 + shear * 0.72;
   float belts = sin(lat) * 0.5 + 0.5;
   belts = pow(belts, 1.5);
 
-  float grain = fbm(sp * 8.2 + uTime * 0.012, 4) * 0.5 + 0.5;
+  float grain = textureCube(uFields, spinY(sp, uTime * 0.012)).g;
 
   vec3 dark = vec3(0.128, 0.104, 0.076);
   vec3 mid = vec3(0.372, 0.312, 0.232);
@@ -122,9 +140,11 @@ export function RingedPlanet() {
   const planet = useRef<THREE.Mesh>(null);
   const fade = useRef(0);
   const opacity = useRef(0);
+  const fields = useBakedCube(fieldsFragment, 512);
 
   const uniforms = useMemo(
     () => ({
+      uFields: { value: fields },
       uSunDir: { value: SUN_DIR },
       uRingCenter: { value: POS.clone() },
       uRingNormal: { value: RING_NORMAL },
@@ -133,7 +153,7 @@ export function RingedPlanet() {
       uOpacity: { value: 0 },
       uTime: { value: 0 },
     }),
-    [],
+    [fields],
   );
 
   useFrame((_, delta) => {
