@@ -18,6 +18,7 @@ import "@fontsource-variable/onest";
 import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
+import { CookieBanner } from "@/components/cookie-banner";
 import { TranslationsProvider } from "@/components/i18n-provider";
 import { JsonLd } from "@/components/json-ld";
 import { LightVeilHost } from "@/components/light-veil";
@@ -89,6 +90,7 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
         >
           {props.children}
           <LightVeilHost />
+          <CookieBanner />
         </TranslationsProvider>
         <Analytics />
       </body>

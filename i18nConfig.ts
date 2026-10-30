@@ -14,6 +14,8 @@ const i18nConfig = {
   locales: ["en", "ru", "cs"],
   defaultLocale: "en",
   prefixDefault: true,
+  // The cookie is written client-side, and only after the reader accepts it.
+  serverSetCookie: "never",
 } satisfies Config;
 
 export type Locale = (typeof i18nConfig.locales)[number];
