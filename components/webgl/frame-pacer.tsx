@@ -5,10 +5,10 @@ import { useThree } from "@react-three/fiber";
 
 import { flight } from "@/lib/flight";
 
-const ACTIVE_FPS = 60;
+const MOVING_MIN_FPS = 60;
 const IDLE_FPS = 30;
 
-export const pacing = { target: ACTIVE_FPS, floor: ACTIVE_FPS };
+export const pacing = { target: MOVING_MIN_FPS, floor: MOVING_MIN_FPS };
 
 const POINTER_SETTLED = 0.965;
 
@@ -26,8 +26,8 @@ function moving() {
 }
 
 /**
- * Drives a `frameloop="never"` canvas at no less than 60fps while anything
- * moves and 30 at rest, by drawing every nth display frame.
+ * Drives a `frameloop="never"` canvas: every display frame while anything
+ * moves, every nth at rest for about 30fps.
  */
 export function FramePacer() {
   const advance = useThree((s) => s.advance);
@@ -46,11 +46,12 @@ export function FramePacer() {
       if (prev > -Infinity) refresh = refresh * 0.9 + Math.min(now - prev, 100) * 0.1;
       prev = now;
 
-      pacing.target = moving() ? ACTIVE_FPS : IDLE_FPS;
+      const active = moving();
+      pacing.target = active ? MOVING_MIN_FPS : IDLE_FPS;
       pacing.floor = Math.min(pacing.floor, pacing.target);
       // Whole display frames only: a time-based cap on a 75 or 144Hz screen
       // alternates short and long gaps, which reads as judder.
-      const every = Math.max(1, Math.floor(1000 / pacing.target / refresh + 0.1));
+      const every = active ? 1 : Math.max(1, Math.floor(1000 / IDLE_FPS / refresh + 0.1));
       if (++waited < every) return;
       waited = 0;
 
