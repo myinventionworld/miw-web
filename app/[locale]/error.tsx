@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ErrorScreen } from "@/modules/editorial";
+import { ErrorScreen } from "@/modules/shell";
 
 export default function Error({ error, retry }: { error: unknown; retry: () => void }) {
   const { t, i18n } = useTranslation("common");

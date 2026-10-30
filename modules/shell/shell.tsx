@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
-import { LocaleSwitch } from "@/modules/language";
+import { LocaleSwitch } from "./locale-switch";
 import { initTranslations } from "@/modules/i18n";
 import { localeHref } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
-import { SiteFooter } from "@/modules/footer";
+import { SiteFooter } from "./site-footer";
 
 /**
  * Chrome for the 2D routes.
@@ -15,7 +15,7 @@ import { SiteFooter } from "@/modules/footer";
  * typography and a scrollbar that behaves, and a case study rendered behind a
  * camera flight is a case study nobody finishes.
  */
-export async function EditorialShell({
+export async function PageShell({
   children,
   active,
   bleed = false,

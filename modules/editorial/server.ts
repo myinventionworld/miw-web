@@ -1,1 +1,0 @@
-export { EditorialShell } from "./shell";

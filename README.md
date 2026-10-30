@@ -119,14 +119,13 @@ modules/
     flight.ts              Shared flight state, camera spline, warp/proximity curves
     scene/                 The WebGL scene: <Canvas>, planets, rings, starfield, effects, GLSL
   work/                    Case studies: projects.ts, screenshots, showcase frames, diagrams
-  team/                    The people, the orbit cover and the team orbit
+  team/                    The people, the orbit cover, its ASCII version and the team orbit
   enquiry/                 The contact form, its options and validation, the server action
                            and delivery (Resend / Telegram), the contact address
-  editorial/               The shell of the light pages, the cover hero, the 404 art
-  footer/                  The line every page ends on: operator, legal links, contact
+  shell/                   The frame around the light pages: header, cover hero, footer,
+                           language switcher, error screen
   legal/                   The terms page and the operator facts it stands on
   i18n/                    Locale config, initTranslations(), provider, LocaleLink, hreflang
-  language/                The language switcher
   consent/                 The cookie banner and what it allows to be stored
   seo/                     siteUrl(), JSON-LD, the page list for the sitemap
 

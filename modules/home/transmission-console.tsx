@@ -7,7 +7,7 @@ import { AnimatePresence, motion, type MotionValue } from "motion/react";
 import { firePulse } from "./flight";
 import { CONTACT_EMAIL, mailtoHref } from "@/modules/enquiry";
 import { cn } from "@/shared/lib/cn";
-import { SiteFooter } from "@/modules/footer";
+import { SiteFooter } from "@/modules/shell";
 import {
   SignalStrip,
   Honeypot,

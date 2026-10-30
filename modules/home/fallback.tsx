@@ -3,8 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Cover, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { LocaleSwitch } from "@/modules/language";
-import { SiteFooter } from "@/modules/footer";
+import { LocaleSwitch, SiteFooter } from "@/modules/shell";
 import {
   Device,
   ProductShots,

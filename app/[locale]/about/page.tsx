@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { CoverHero } from "@/modules/editorial";
-import { EditorialShell } from "@/modules/editorial/server";
+import { CoverHero } from "@/modules/shell";
+import { PageShell } from "@/modules/shell/server";
 import { JsonLd, breadcrumbs, teamMembers } from "@/modules/seo";
 import { TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { HeroShots, PROJECTS } from "@/modules/work";
@@ -70,7 +70,7 @@ export default async function AboutPage() {
   ];
 
   return (
-    <EditorialShell active="about" bleed>
+    <PageShell active="about" bleed>
       <JsonLd
         graph={[
           breadcrumbs([
@@ -204,6 +204,6 @@ export default async function AboutPage() {
           </Link>
         </div>
       </section>
-    </EditorialShell>
+    </PageShell>
   );
 }

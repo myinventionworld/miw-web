@@ -1,7 +1,7 @@
 "use client";
 
 import { localeHref } from "@/modules/i18n";
-import { AsciiCover } from "./ascii-cover";
+import { AsciiCover } from "@/modules/team";
 import { CoverHero } from "./cover-hero";
 
 export interface ErrorScreenText {
