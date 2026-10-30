@@ -10,6 +10,7 @@ import { CosmosFlight } from "./cosmos-flight";
 import { Earth } from "./earth";
 import { Effects } from "./effects";
 import { FlightDriver } from "./flight-driver";
+import { FramePacer, pacing } from "./frame-pacer";
 import { IcePlanet } from "./ice-planet";
 import { LogoModel } from "./logo-model";
 import { ProductMoons } from "./product-moons";
@@ -72,6 +73,7 @@ export function CosmosScene() {
 
   return (
     <Canvas
+      frameloop="never"
       dpr={dpr}
       gl={{
         // Off on purpose: everything is drawn into the composer's buffer,
@@ -92,10 +94,17 @@ export function CosmosScene() {
       }}
       onCreated={({ gl }) => gl.setClearColor("#030305")}
     >
+      <FramePacer />
       <FlightDriver />
 
       <PerformanceMonitor
-        bounds={() => [50, 60]}
+        // The pacer drops to 30fps at rest on purpose. Judge each window by the
+        // lowest rate it asked for, or idling reads as the GPU falling behind.
+        bounds={() => {
+          const floor = pacing.floor;
+          pacing.floor = pacing.target;
+          return [floor * 0.83, floor];
+        }}
         onDecline={() => {
           setDpr(1);
           setQuality("low");
