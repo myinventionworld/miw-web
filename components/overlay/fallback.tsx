@@ -179,13 +179,17 @@ export function Fallback({ direct }: { direct: boolean }) {
                         className="text-comet hover:underline"
                       >
                         {t("project.liveAppOut")}
+                        {/* Every product has these two links; the name tells
+                            them apart for a screen reader. */}
+                        <span className="sr-only"> {project.name}</span>
                       </a>
                     )}
                     <LocaleLink
                       href={`/work/${project.slug}`}
                       className="text-comet hover:underline"
                     >
-                      {t("project.readCaseStudy")} ›
+                      {t("project.readCaseStudy")}
+                      <span className="sr-only">: {project.name}</span> ›
                     </LocaleLink>
                   </div>
                   {hasScreens(project) ? (

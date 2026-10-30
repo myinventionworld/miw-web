@@ -189,7 +189,9 @@ export function TeamOrbit({
             className="size-full object-cover"
           />
         ) : (
-          <span aria-hidden>{initials(p.name)}</span>
+          // Drawn by CSS, so the button's name is the person's full name and
+          // the letters on it are not a second, different label.
+          <span aria-hidden data-initials={initials(p.name)} className="before:content-[attr(data-initials)]" />
         )}
       </button>
     );
@@ -274,7 +276,9 @@ export function TeamOrbit({
             <span className="text-[max(10px,2.6cqw)] font-semibold tracking-[0.3em]">MIW</span>
           </div>
 
-          <div role="list" aria-label={title} className="absolute top-1/2 left-1/2">
+          {/* A group, not a list: the rings and slots between this box and
+              the buttons would each have to be list items for a list. */}
+          <div role="group" aria-label={title} className="absolute top-1/2 left-1/2">
             <OrbitRing
               radius="30cqw"
               period={70}
