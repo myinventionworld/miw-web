@@ -1,6 +1,6 @@
 "use client";
 
-import { LocaleLink } from "@/modules/language";
+import { LocaleLink } from "@/modules/i18n";
 import { useTranslation } from "react-i18next";
 
 import type { ProjectCase } from "../projects";

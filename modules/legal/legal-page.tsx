@@ -3,7 +3,7 @@ import { locale as currentLocale } from "next/root-params";
 
 import { PageLayout } from "@/modules/layout/server";
 import { CONTACT_EMAIL } from "@/modules/contact";
-import { initTranslations } from "@/modules/language";
+import { initTranslations } from "@/modules/i18n";
 import { LEGAL_UPDATED, OPERATOR } from "./operator";
 
 /** `legal:<page>.sections` — a heading and its paragraphs. */

@@ -2,7 +2,7 @@ import type { ProjectCase } from "@/modules/work";
 import { TEAM } from "@/modules/team";
 import { CONTACT_EMAIL } from "@/modules/contact";
 import { siteUrl } from "./site";
-import { i18nConfig } from "@/modules/language";
+import { i18nConfig } from "@/modules/i18n";
 
 const BRAND = "MIW Labs";
 const SHORT = "MIW";

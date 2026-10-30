@@ -1,4 +1,4 @@
-import { i18nConfig, type Locale } from "@/modules/language";
+import { i18nConfig, type Locale } from "@/modules/i18n";
 import {
   BUDGETS,
   CONSOLE_TABS,

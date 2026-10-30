@@ -4,7 +4,7 @@ import { locale as currentLocale } from "next/root-params";
 import { CoverHero } from "@/modules/layout";
 import { AsciiCover } from "@/modules/team";
 import { PageLayout } from "@/modules/layout/server";
-import { initTranslations, localeHref } from "@/modules/language";
+import { initTranslations, localeHref } from "@/modules/i18n";
 
 /**
  * The 404 page: the cover in characters, a line in plain words, and the three

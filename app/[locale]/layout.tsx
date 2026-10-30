@@ -27,7 +27,7 @@ import {
   alternates,
   i18nConfig,
   type Locale,
-} from "@/modules/language";
+} from "@/modules/i18n";
 import { JsonLd, siteGraph, siteUrl } from "@/modules/seo";
 
 /** Open Graph wants a region with the language. */

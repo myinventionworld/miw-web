@@ -1,4 +1,4 @@
-import { alternates, initTranslations } from "@/modules/language";
+import { alternates, initTranslations } from "@/modules/i18n";
 import { LegalPage } from "@/modules/legal";
 
 export async function generateMetadata(props: PageProps<"/[locale]/terms">) {

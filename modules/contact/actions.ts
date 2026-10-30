@@ -1,6 +1,6 @@
 "use server";
 
-import { initTranslations } from "@/modules/language";
+import { initTranslations } from "@/modules/i18n";
 import { canDeliver, deliver } from "./delivery";
 import {
   MIN_FILL_MS,

@@ -1,6 +1,6 @@
 "use client";
 
-import { localeHref } from "@/modules/language";
+import { localeHref } from "@/modules/i18n";
 import { AsciiCover } from "@/modules/team";
 import { CoverHero } from "./cover-hero";
 

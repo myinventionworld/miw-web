@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LocaleLink } from "@/modules/language";
+import { LocaleLink } from "@/modules/i18n";
 import { LocaleSwitch } from "@/modules/layout";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Bars, Caret, Cross } from "@/shared/ui/glyph";

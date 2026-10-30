@@ -125,7 +125,7 @@ modules/
   layout/                  The frame around the light pages: header, cover hero, footer,
                            language switcher, error screen
   legal/                   The terms page and the operator facts it stands on
-  language/                Locale config, initTranslations(), provider, LocaleLink, hreflang
+  i18n/                    Locale config, initTranslations(), provider, LocaleLink, hreflang
   cookies/                 The cookie banner and what it allows to be stored
   seo/                     siteUrl(), JSON-LD, the page list for the sitemap
 

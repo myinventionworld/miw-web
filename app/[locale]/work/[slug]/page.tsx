@@ -16,7 +16,7 @@ import {
 } from "@/modules/work";
 import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs, caseStudy } from "@/modules/seo";
-import { initTranslations, alternates, localeHref } from "@/modules/language";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 import { clsx } from "clsx";
 
 /**

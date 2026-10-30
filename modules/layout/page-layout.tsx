@@ -2,8 +2,8 @@ import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
 import { LocaleSwitch } from "./locale-switch";
-import { initTranslations } from "@/modules/language";
-import { localeHref } from "@/modules/language";
+import { initTranslations } from "@/modules/i18n";
+import { localeHref } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
 import { SiteFooter } from "./site-footer";
 

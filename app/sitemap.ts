@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { i18nConfig, alternates } from "@/modules/language";
+import { i18nConfig, alternates } from "@/modules/i18n";
 import { LEGAL_PAGES, PAGES, siteUrl } from "@/modules/seo";
 
 /**

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 import { projectBySlug } from "@/modules/work";
-import { initTranslations } from "@/modules/language";
+import { initTranslations } from "@/modules/i18n";
 import { siteUrl } from "@/modules/seo";
 
 export const contentType = "image/png";

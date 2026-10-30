@@ -6,7 +6,7 @@ import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs, teamMembers } from "@/modules/seo";
 import { TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { HeroShots, PROJECTS } from "@/modules/work";
-import { initTranslations, alternates, localeHref } from "@/modules/language";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 
 /** `about:what.items` and `about:values.items` — a label and one sentence. */
 interface Point {

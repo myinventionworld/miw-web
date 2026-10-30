@@ -4,7 +4,7 @@ import { locale as currentLocale } from "next/root-params";
 import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs } from "@/modules/seo";
 import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
-import { initTranslations, alternates, localeHref } from "@/modules/language";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 import { clsx } from "clsx";
 
 export async function generateMetadata(props: PageProps<"/[locale]/work">) {

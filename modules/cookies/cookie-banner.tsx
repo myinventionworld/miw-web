@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 
-import { useLocale } from "@/modules/language";
+import { useLocale } from "@/modules/i18n";
 import { setConsent, useConsent } from "./consent";
 
 import { Alien } from "./alien";

@@ -8,7 +8,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { LocaleLink } from "@/modules/language";
+import { LocaleLink } from "@/modules/i18n";
 
 import {
   STATIONS,
