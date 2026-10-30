@@ -14,8 +14,8 @@ export interface StoryStep {
 
 /**
  * The phone stays put while the steps scroll past it, and its screen follows
- * whichever step is in the middle of the window: library, store, reader,
- * player. Large screens only; a phone gets the swipeable row instead.
+ * whichever step is in the middle of the window. Large screens only; a phone
+ * gets the swipeable row instead.
  *
  * The step nearest the middle of the viewport is the active one
  * (IntersectionObserver on a thin band across the centre), so there is no
@@ -73,7 +73,7 @@ export function PhoneStory({ steps }: { steps: StoryStep[] }) {
               refs.current[i] = el;
             }}
             className={cn(
-              "flex min-h-[62vh] flex-col justify-center transition-opacity duration-500",
+              "flex min-h-[52vh] flex-col justify-center transition-opacity duration-500",
               i === active ? "opacity-100" : "opacity-35",
             )}
           >

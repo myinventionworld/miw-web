@@ -1,8 +1,11 @@
 import Image from "next/image";
 
-import boowieLibrary from "@/data/screens/boowie-library.webp";
+import boowieAppearance from "@/data/screens/boowie-appearance.webp";
+import boowieBook from "@/data/screens/boowie-book.webp";
+import boowieContents from "@/data/screens/boowie-contents.webp";
 import boowiePlayer from "@/data/screens/boowie-player.webp";
 import boowieReader from "@/data/screens/boowie-reader.webp";
+import boowieReading from "@/data/screens/boowie-reading.webp";
 import boowieStore from "@/data/screens/boowie-store.webp";
 import omnibusBooking from "@/data/screens/omnibus-booking.webp";
 import omnibusDesktop from "@/data/screens/omnibus-desktop.webp";
@@ -18,7 +21,9 @@ import wovieSignup from "@/data/screens/wovie-signup.webp";
 import wovieTrailer from "@/data/screens/wovie-trailer.webp";
 import type { ProjectCase } from "@/data/projects";
 import { BrowserFrame, PhoneFrame, type Shot } from "./frames";
+import { PhoneFan } from "./phone-fan";
 import { PhoneStory } from "./phone-story";
+import { PhoneSwitch } from "./phone-switch";
 import { Reveal } from "./reveal";
 import { ScrollingWindow } from "./scrolling-window";
 import type { CycleFrame } from "./screen-cycle";
@@ -48,10 +53,13 @@ const SHOTS = {
   omnibusBooking: omnibusBooking,
   omnibusSeats: omnibusSeats,
   omnibusHomeMobile: omnibusHomeMobile,
-  boowieLibrary: boowieLibrary,
   boowieStore: boowieStore,
-  boowiePlayer: boowiePlayer,
+  boowieBook: boowieBook,
+  boowieReading: boowieReading,
   boowieReader: boowieReader,
+  boowieAppearance: boowieAppearance,
+  boowieContents: boowieContents,
+  boowiePlayer: boowiePlayer,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
   wovieFilmHero: wovieFilmHero,
@@ -77,8 +85,11 @@ const BY_PROJECT: Record<
     desktop?: ShotId;
     phones: ShotId[];
     windows?: ShotId[];
-    /** Shown under "How it is built" in place of the working demo. */
-    built?: ShotId;
+    /** Shown under "How it is built" in place of the working demo; more
+     *  than one take turns on the same phone. */
+    built?: ShotId[];
+    journey?: ShotId[];
+    fan?: [ShotId, ShotId, ShotId];
     /** A full-length screenshot of the desktop page. When present, the main
      *  window scrolls through it as the visitor scrolls past (add the file to
      *  SHOTS and name it here). */
@@ -97,16 +108,21 @@ const BY_PROJECT: Record<
     desktop: "omnibusFlowStart",
     phones: ["omnibusSeats", "omnibusHomeMobile", "omnibusMobile"],
     windows: ["omnibusResults", "omnibusBooking"],
-    built: "omnibusSeats",
+    built: ["omnibusSeats"],
     video: { mp4: "/screens/omnibus-flow.mp4", webm: "/screens/omnibus-flow.webm" },
   },
   boowie: {
-    phones: ["boowieLibrary", "boowieStore", "boowiePlayer"],
-    built: "boowieReader",
+    phones: ["boowieReading", "boowieReader", "boowiePlayer"],
+    journey: ["boowieStore", "boowieBook", "boowieReading"],
+    fan: ["boowieAppearance", "boowieReader", "boowieContents"],
+    built: ["boowieReader", "boowiePlayer"],
     story: [
-      { shot: "boowieLibrary", key: "library" },
       { shot: "boowieStore", key: "store" },
+      { shot: "boowieBook", key: "book" },
+      { shot: "boowieReading", key: "reading" },
       { shot: "boowieReader", key: "reader" },
+      { shot: "boowieAppearance", key: "appearance" },
+      { shot: "boowieContents", key: "contents" },
       { shot: "boowiePlayer", key: "player" },
     ],
   },
@@ -219,8 +235,22 @@ export function ProductShots({
           <PhoneStory steps={steps} />
         </div>
         <div className="md:hidden">
-          <PhoneRow shots={phones} />
+          <PhoneRow shots={steps} />
         </div>
+      </>
+    );
+  }
+
+  if (!set.desktop && gallery && set.journey) {
+    const [left, center, right] = set.fan ?? [];
+    return (
+      <>
+        <PhoneRow shots={set.journey.map((id) => shot(id, t))} />
+        {left && center && right && (
+          <div className="mt-6 md:mt-16">
+            <PhoneFan left={shot(left, t)} center={shot(center, t)} right={shot(right, t)} />
+          </div>
+        )}
       </>
     );
   }
@@ -253,8 +283,9 @@ export function ProductShots({
   // A case study shows its `built` screen further down, under "How it is
   // built", so here the window leans on another phone and the swipe row leaves
   // that screen out. The Work page has no such section and leads with it.
-  const others = gallery && set.built
-    ? set.phones.filter((id) => id !== set.built).map((id) => shot(id, t))
+  const built = set.built ?? [];
+  const others = gallery && built.length
+    ? set.phones.filter((id) => !built.includes(id)).map((id) => shot(id, t))
     : phones;
   const lead = others[0] ?? phones[0];
   const windows = gallery ? (set.windows ?? []).map((id) => shot(id, t)) : [];
@@ -339,7 +370,7 @@ export const THUMBS: Record<string, CycleFrame[]> = {
     { src: omnibusSeats, kind: "phone" },
   ],
   boowie: [
-    { src: boowieLibrary, kind: "phone" },
+    { src: boowieReading, kind: "phone" },
     { src: boowieStore, kind: "phone" },
     { src: boowieReader, kind: "phone" },
     { src: boowiePlayer, kind: "phone" },
@@ -426,11 +457,11 @@ export function DockShots({
 }
 
 export function hasBuiltShot(project: ProjectCase) {
-  return Boolean(BY_PROJECT[project.slug]?.built);
+  return Boolean(BY_PROJECT[project.slug]?.built?.length);
 }
 
 /** The screen that shows the mechanism a case study's "How it is built" is
- *  about: Boowie's reader, where the same parsed book is read and listened;
+ *  about: Boowie's same book read and then listened, one place for both;
  *  Omnibus's seat map, the thing two passengers race for. */
 export function BuiltShot({
   project,
@@ -439,9 +470,12 @@ export function BuiltShot({
   project: ProjectCase;
   t: Translate;
 }) {
-  const id = BY_PROJECT[project.slug]?.built;
-  if (!id) return null;
+  const ids = BY_PROJECT[project.slug]?.built;
+  if (!ids?.length) return null;
+  if (ids.length > 1) {
+    return <PhoneSwitch shots={ids.map((id) => shot(id, t))} className="mx-auto w-[64%] max-w-[300px]" />;
+  }
   return (
-    <PhoneFrame shot={shot(id, t)} className="mx-auto w-[64%] max-w-[300px]" />
+    <PhoneFrame shot={shot(ids[0], t)} className="mx-auto w-[64%] max-w-[300px]" />
   );
 }

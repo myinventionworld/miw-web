@@ -205,17 +205,29 @@
       "lede": "Boowie is live: open it on a phone and add it to the home screen. Every figure here is checked in the code or on the live app."
     },
     "story": {
-      "library": {
-        "title": "Your shelf",
-        "body": "Books and audiobooks side by side, each showing how far you got."
-      },
       "store": {
         "title": "Free classics to start",
-        "body": "Twenty public-domain books in the built-in store, from Tolstoy to Dickens."
+        "body": "Twenty public-domain books in the built-in store, from Dickens to Conan Doyle."
+      },
+      "book": {
+        "title": "Chapters even without an outline",
+        "body": "Every book has a card. A PDF with no built-in table of contents still gets chapters: they are found by their large headings."
+      },
+      "reading": {
+        "title": "Back where you stopped",
+        "body": "The Reading tab opens on the current book: the chapter, how far in, and its audiobook waiting in the player."
       },
       "reader": {
         "title": "A reader that remembers",
         "body": "EPUB, FB2 and PDF open without internet, on the page where you stopped."
+      },
+      "appearance": {
+        "title": "The page, your way",
+        "body": "Three typefaces, size, line spacing and margins, four page colours, pages or scroll."
+      },
+      "contents": {
+        "title": "Contents and bookmarks",
+        "body": "Finished chapters are ticked and the current one is highlighted; bookmarks are one tab over."
       },
       "player": {
         "title": "Or listen instead",
@@ -293,14 +305,17 @@
     "omnibusBooking": "Omnibus booking page: passenger name, the seat map of the coach and a booking summary with a countdown",
     "omnibusSeats": "Omnibus seat map on a phone: free, taken and panoramic seats row by row",
     "omnibusHomeMobile": "Omnibus home page on a phone: route search and popular routes from the Czech Republic",
-    "boowieLibrary": "Boowie library: the books in progress, with how much of each is read",
-    "boowieStore": "Boowie store: an editor's pick and new free classics",
-    "boowiePlayer": "Boowie audiobook player with chapter progress, playback speed and a sleep timer",
+    "boowieStore": "Boowie store: free classics, from Jane Eyre and A Christmas Carol to Moby Dick, each with its format",
+    "boowieBook": "A book's card in the Boowie store: Flatland with its rating, genres, description and a button to download it to the library",
+    "boowieReading": "Boowie's Reading tab: A Christmas Carol at 3%, with buttons to continue reading or listen and the audiobook in the mini player",
+    "boowieReader": "Boowie reader: a page of A Christmas Carol with the chapter, page and book progress at the bottom",
+    "boowieAppearance": "Boowie reader settings: typeface, size, line spacing, margins, page colour, pages or scroll, justified or left",
+    "boowieContents": "Boowie table of contents: finished chapters ticked, the current one highlighted, bookmarks in a second tab",
+    "boowiePlayer": "Boowie audiobook player: the preface of A Christmas Carol with playback speed, sleep timer and chapters",
     "wovieHome": "Wovie home page: a featured film with rating, genres and a Continue where you left off button",
     "wovieFilm": "Wovie film page: poster, TMDB score, Rotten Tomatoes rating, genres and running time",
     "wovieFilmHero": "Wovie film page for Project Hail Mary: poster, title, TMDB rating and genres over the film's backdrop",
     "wovieTrailer": "Wovie trailer player on a film page",
-    "wovieSignup": "Wovie sign-up: avatar, username, email and password, with Google and Apple sign-in",
-    "boowieReader": "Boowie reader: the first page of A Christmas Carol, with the chapter title and page counter"
+    "wovieSignup": "Wovie sign-up: avatar, username, email and password, with Google and Apple sign-in"
   }
 }
