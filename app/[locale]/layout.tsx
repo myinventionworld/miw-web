@@ -1,4 +1,5 @@
 import type { Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { notFound } from "next/navigation";
 /**
  * Self-hosted from npm rather than fetched from Google Fonts at build time, for
@@ -89,6 +90,7 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
           {props.children}
           <LightVeilHost />
         </TranslationsProvider>
+        <Analytics />
       </body>
     </html>
   );
