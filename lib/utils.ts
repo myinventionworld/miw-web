@@ -42,14 +42,34 @@ export function bindUniforms(uniforms: Record<string, { value: unknown }>) {
   };
 }
 
-export function detectWebGL(): boolean {
+/**
+ * Whether this browser can run the flight deck: WebGL with a real GPU behind
+ * it, not just WebGL.
+ *
+ * A context the browser can only give through software rendering
+ * (SwiftShader, llvmpipe, Microsoft Basic Render Driver: a VM, a remote
+ * desktop, a blocklisted driver, headless Chrome on a server) draws this scene
+ * at a frame every few seconds and locks the page up. PageSpeed's desktop run
+ * timed out on exactly that, 39 s of blocked main thread. Such a browser gets
+ * the flat page. `failIfMajorPerformanceCaveat` asks the browser to refuse a
+ * software context; the renderer's name catches the ones that hand it out
+ * anyway. The test context is released straight away.
+ */
+export function detectHardwareWebGL(): boolean {
   if (typeof window === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(
-      (window.WebGL2RenderingContext && canvas.getContext("webgl2")) ||
-        (window.WebGLRenderingContext && canvas.getContext("webgl")),
+    const options: WebGLContextAttributes = { failIfMajorPerformanceCaveat: true };
+    const gl: WebGLRenderingContext | WebGL2RenderingContext | null =
+      (window.WebGL2RenderingContext ? canvas.getContext("webgl2", options) : null) ??
+      (window.WebGLRenderingContext ? canvas.getContext("webgl", options) : null);
+    if (!gl) return false;
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(
+      gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
     );
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
   } catch {
     return false;
   }

@@ -77,6 +77,7 @@ export default async function WorkIndexPage() {
                   className="text-comet hover:underline"
                 >
                   {t("common:project.liveAppOut")}
+                  <span className="sr-only"> {p.name}</span>
                 </a>
               ) : (
                 p.repoUrl && (
@@ -87,6 +88,7 @@ export default async function WorkIndexPage() {
                     className="text-comet hover:underline"
                   >
                     {t("common:project.sourceOut")}
+                    <span className="sr-only"> {p.name}</span>
                   </a>
                 )
               )}
@@ -94,7 +96,8 @@ export default async function WorkIndexPage() {
                 href={localeHref(locale, `/work/${p.slug}`)}
                 className="text-comet hover:underline"
               >
-                {t("common:project.readCaseStudyLong")} ›
+                {t("common:project.readCaseStudyLong")}
+                <span className="sr-only">: {p.name}</span> ›
               </Link>
             </div>
 

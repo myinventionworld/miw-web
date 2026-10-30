@@ -18,8 +18,8 @@ is a timeline rather than a layout.
 | npm | 10+ (built on 11.16.0) |
 | Browser | Any with WebGL 2 (Chrome, Safari 16+, Firefox, Edge) |
 
-A discrete or modern integrated GPU is recommended. Machines without WebGL fall back to a
-static text-only page automatically.
+A discrete or modern integrated GPU is recommended. Browsers without WebGL, or whose WebGL is
+drawn in software (no GPU, as in headless Chrome), get the flat page instead, as do touch screens.
 
 ---
 
@@ -126,18 +126,18 @@ components/
   overlay/
     stage.tsx              Scroll-window primitive
     transmission-console.tsx  Contact console (composes an email — see below)
-    fallback.tsx           No-WebGL page
+    fallback.tsx           The flat page: touch screens, no GPU
 
 lib/
   flight.ts                Shared flight state, camera spline, warp/proximity curves
   stations.ts              The four stations, their projects, and their scroll anchors
   glsl.ts                  Simplex noise + fbm, ring scattering — shared by shaders
-  utils.ts                 cn(), bindUniforms(), detectWebGL()
+  utils.ts                 cn(), bindUniforms(), detectHardwareWebGL()
 ```
 
 Structure lives in `lib/stations.ts` and `data/projects.ts` — ids, scroll anchors, stack lists,
 diagram coordinates, metric figures. Every word lives in `locales/<lang>/`, keyed by those same
-ids. The navbar, the dock, the HUD and the no-WebGL fallback all read from both.
+ids. The navbar, the dock, the HUD and the flat page all read from both.
 
 ---
 
@@ -226,9 +226,11 @@ when it is between you and the star.
 
 - `prefers-reduced-motion` is watched live and damps warp intensity to 45% in
   `webgl/flight-driver.tsx`.
-- WebGL is feature-detected on mount. When it is unavailable, `overlay/fallback.tsx` serves a
-  complete static document — the hero, all four stations with their projects, and a `mailto:`
-  contact — instead of an empty canvas.
+- WebGL is feature-detected on mount, and a context only software can draw (SwiftShader,
+  llvmpipe, Microsoft Basic Render Driver) counts as none: the flight would run at a few frames a
+  second and block the page. Then, and on touch screens, `overlay/fallback.tsx` serves a complete
+  document — the hero, all four stations with their projects, the team and the contact form —
+  instead of the camera flight.
 - The console requires at least one engagement type and a valid return address before it will
   fire, and reports failures inline.
 - Decorative layers are marked `aria-hidden`, and controls carry explicit `aria-label` /

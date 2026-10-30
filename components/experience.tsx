@@ -14,7 +14,7 @@ import {
   type Mode,
   type StationId,
 } from "@/lib/stations";
-import { detectWebGL, prefersFlatDeck } from "@/lib/utils";
+import { detectHardwareWebGL, prefersFlatDeck } from "@/lib/utils";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./overlay/fallback";
@@ -196,7 +196,7 @@ export function Experience({ direct }: { direct: boolean }) {
   const [flight3d, setFlight3d] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setFlight3d(detectWebGL() && !prefersFlatDeck());
+    setFlight3d(detectHardwareWebGL() && !prefersFlatDeck());
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => {
@@ -217,16 +217,10 @@ export function Experience({ direct }: { direct: boolean }) {
     };
   }, []);
 
-  // Touch and no-WebGL both land on the same flat route. It is not a downgrade
+  // Touch and no GPU both land on the same flat page. It is not a downgrade
   // path with missing content — it carries the whole page as a normal document
   // that scrolls the way the device expects.
-  if (flight3d === false) return <Fallback direct={direct} />;
-
-  // `null` renders the deck shell with no scene rather than nothing: the server
-  // pass lands here, and a blank first paint would cost the LCP on the one device
-  // class that does get the deck. The scene mounts on the next commit.
-
-  return (
+  const deck = (
     <ReactLenis
       root
       options={{
@@ -240,5 +234,27 @@ export function Experience({ direct }: { direct: boolean }) {
     >
       <Deck webgl={Boolean(flight3d)} direct={direct} />
     </ReactLenis>
+  );
+
+  // `null` is the server render and the first paint, before anyone knows which
+  // page this device gets. Both are in that HTML and CSS shows one: the flat
+  // page on a touch screen (the same media query `prefersFlatDeck` reads), the
+  // deck shell elsewhere. A phone used to paint the dark deck first and swap to
+  // the flat page only after the script ran, which put its largest paint a
+  // second or more behind the first. Once known, the other one is dropped; the
+  // slots stay where they are, so the one that stays is not mounted twice.
+  return (
+    <>
+      {flight3d !== true && (
+        <div className={flight3d === false ? undefined : "hidden [@media(pointer:coarse)_and_(hover:none)]:block"}>
+          <Fallback direct={direct} />
+        </div>
+      )}
+      {flight3d !== false && (
+        <div className={flight3d === true ? undefined : "[@media(pointer:coarse)_and_(hover:none)]:hidden"}>
+          {deck}
+        </div>
+      )}
+    </>
   );
 }

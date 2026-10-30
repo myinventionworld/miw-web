@@ -21,8 +21,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * The flat deck. Served to two audiences that want the same thing: browsers
- * without WebGL, and touch devices, where the scroll-pinned camera has no wheel
- * gesture to read and the station card fills the screen anyway.
+ * without a GPU behind WebGL, and touch devices, where the scroll-pinned
+ * camera has no wheel gesture to read and the station card fills the screen
+ * anyway.
  *
  * Same content model as the flight deck — every string here is read from the
  * same locale files, so the two versions of the page cannot drift into
@@ -179,13 +180,17 @@ export function Fallback({ direct }: { direct: boolean }) {
                         className="text-comet hover:underline"
                       >
                         {t("project.liveAppOut")}
+                        {/* Every product has these two links; the name tells
+                            them apart for a screen reader. */}
+                        <span className="sr-only"> {project.name}</span>
                       </a>
                     )}
                     <LocaleLink
                       href={`/work/${project.slug}`}
                       className="text-comet hover:underline"
                     >
-                      {t("project.readCaseStudy")} ›
+                      {t("project.readCaseStudy")}
+                      <span className="sr-only">: {project.name}</span> ›
                     </LocaleLink>
                   </div>
                   {hasScreens(project) ? (
