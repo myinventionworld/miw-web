@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import { NOISE_GLSL } from "@/lib/glsl";
+import { useBakedCube } from "./baked-cube";
 import { bindUniforms } from "@/lib/utils";
 import { BODY, damp, flight, smoothstep } from "@/lib/flight";
 
@@ -27,9 +28,30 @@ void main() {
 }
 `;
 
+const surfaceFields = /* glsl */ `
+${NOISE_GLSL}
+
+void main() {
+  vec3 sp = normalize(vDir);
+
+  float continents = fbm(sp * 1.55, 6);
+  float ridges = fbm(sp * 4.1 + 11.7, 4);
+  float land = smoothstep(0.015, 0.155, continents + ridges * 0.19);
+  float detail = fbm(sp * 9.3 - 4.2, 4) * 0.5 + 0.5;
+  float shelf = smoothstep(-0.42, 0.26, continents);
+
+  float lat = abs(sp.y);
+  float density = fbm(sp * 23.0, 3) * 0.5 + 0.5;
+  float cities = smoothstep(0.63, 0.90, density) * land * smoothstep(0.92, 0.38, lat);
+
+  gl_FragColor = vec4(shelf, land, detail, cities);
+}
+`;
+
 const surfaceFragment = /* glsl */ `
 ${NOISE_GLSL}
 
+uniform samplerCube uFields;
 uniform vec3 uSunDir;
 uniform float uOpacity;
 
@@ -41,20 +63,22 @@ void main() {
   vec3 n = normalize(vNormalW);
   vec3 sp = normalize(vUnit);
 
-  float continents = fbm(sp * 1.55, 6);
-  float ridges = fbm(sp * 4.1 + 11.7, 4);
-  float land = smoothstep(0.015, 0.155, continents + ridges * 0.19);
-  float detail = fbm(sp * 9.3 - 4.2, 4) * 0.5 + 0.5;
+  vec4 fields = textureCube(uFields, sp);
+  float land = fields.g;
+  float detail = fields.b;
 
   vec3 abyss = vec3(0.002, 0.008, 0.028);
   vec3 shelf = vec3(0.010, 0.047, 0.104);
-  vec3 ocean = mix(abyss, shelf, smoothstep(-0.42, 0.26, continents));
+  vec3 ocean = mix(abyss, shelf, fields.r);
 
   vec3 ground = mix(vec3(0.028, 0.055, 0.046), vec3(0.098, 0.104, 0.086), detail);
   ground = mix(ground, vec3(0.148, 0.152, 0.158), smoothstep(0.58, 0.96, detail));
 
+  // Not baked: all four channels are taken. The branch skips the noise wherever
+  // it cannot lift the latitude past the cap's threshold.
   float lat = abs(sp.y);
-  float ice = smoothstep(0.80, 0.945, lat + fbm(sp * 3.0, 3) * 0.07);
+  float ice = 0.0;
+  if (lat > 0.73) ice = smoothstep(0.80, 0.945, lat + fbm(sp * 3.0, 3) * 0.07);
 
   vec3 albedo = mix(ocean, ground, land);
   albedo = mix(albedo, vec3(0.70, 0.77, 0.86), ice);
@@ -65,16 +89,12 @@ void main() {
   vec3 h = normalize(uSunDir + vView);
   float spec = pow(max(dot(n, h), 0.0), 64.0) * (1.0 - land) * (1.0 - ice) * day;
 
-  // Night side: sodium-lamp city clusters clinging to habitable latitudes.
-  float density = fbm(sp * 23.0, 3) * 0.5 + 0.5;
-  float cities = smoothstep(0.63, 0.90, density) * land * smoothstep(0.92, 0.38, lat);
-  vec3 lights = vec3(1.0, 0.70, 0.34) * cities * (1.0 - day) * 2.1;
+  vec3 lights = vec3(1.0, 0.70, 0.34) * fields.a * (1.0 - day) * 2.1;
 
   vec3 col = albedo * (day * 1.18 + 0.016);
   col += spec * vec3(0.72, 0.86, 1.0) * 0.85;
   col += lights;
 
-  // Atmospheric scatter bleeding over the limb.
   float fres = pow(1.0 - max(dot(n, vView), 0.0), 3.2);
   col += vec3(0.16, 0.42, 0.98) * fres * (day * 0.95 + 0.06);
 
@@ -82,9 +102,19 @@ void main() {
 }
 `;
 
-const cloudFragment = /* glsl */ `
+const cloudFields = /* glsl */ `
 ${NOISE_GLSL}
 
+void main() {
+  vec3 sp = normalize(vDir);
+  float band = fbm(sp * vec3(2.3, 4.6, 2.3), 5);
+  float wisp = fbm(sp * 7.4, 4) * 0.5 + 0.5;
+  gl_FragColor = vec4(smoothstep(0.06, 0.46, band), wisp, 0.0, 1.0);
+}
+`;
+
+const cloudFragment = /* glsl */ `
+uniform samplerCube uFields;
 uniform vec3 uSunDir;
 uniform float uTime;
 uniform float uOpacity;
@@ -93,15 +123,22 @@ varying vec3 vNormalW;
 varying vec3 vUnit;
 varying vec3 vView;
 
+vec3 spinY(vec3 p, float a) {
+  float c = cos(a);
+  float s = sin(a);
+  return vec3(c * p.x + s * p.z, p.y, c * p.z - s * p.x);
+}
+
 void main() {
   vec3 sp = normalize(vUnit);
   vec3 n = normalize(vNormalW);
 
-  vec3 drift = vec3(uTime * 0.011, 0.0, uTime * 0.004);
-  float band = fbm(sp * vec3(2.3, 4.6, 2.3) + drift, 5);
-  float wisp = fbm(sp * 7.4 + drift * 2.0, 4) * 0.5 + 0.5;
+  // The two layers turn at different rates, so the cloud cover keeps
+  // re-forming instead of riding the sphere as one rigid decal.
+  float band = textureCube(uFields, spinY(sp, uTime * 0.011)).r;
+  float wisp = textureCube(uFields, spinY(sp, uTime * 0.026)).g;
 
-  float mask = smoothstep(0.06, 0.46, band) * wisp;
+  float mask = band * wisp;
   float day = smoothstep(-0.10, 0.34, dot(n, uSunDir));
 
   vec3 col = vec3(0.80, 0.86, 0.96) * (day * 1.05 + 0.018);
@@ -143,13 +180,18 @@ export function Earth() {
   const clouds = useRef<THREE.Mesh>(null);
   const opacity = useRef(1);
 
+  const surfaceMap = useBakedCube(surfaceFields, 1024);
+  const cloudMap = useBakedCube(cloudFields, 512);
+
   const uniforms = useMemo(
     () => ({
       surface: {
+        uFields: { value: surfaceMap },
         uSunDir: { value: SUN_DIR },
         uOpacity: { value: 1 },
       },
       cloud: {
+        uFields: { value: cloudMap },
         uSunDir: { value: SUN_DIR },
         uTime: { value: 0 },
         uOpacity: { value: 1 },
@@ -159,7 +201,7 @@ export function Earth() {
         uOpacity: { value: 1 },
       },
     }),
-    [],
+    [surfaceMap, cloudMap],
   );
 
   useFrame((_, delta) => {
