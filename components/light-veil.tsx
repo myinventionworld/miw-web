@@ -16,7 +16,7 @@ import { useEffect } from "react";
  */
 
 const VEIL_ID = "light-veil";
-const LIGHT_ROUTES = ["/work", "/about"];
+const LIGHT_ROUTES = ["/work", "/about", "/terms"];
 
 export function isLightRoute(href: string) {
   return LIGHT_ROUTES.some((r) => href === r || href.startsWith(`${r}/`));

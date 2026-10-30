@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import i18nConfig from "@/i18nConfig";
 import { alternates } from "@/lib/locale";
-import { PAGES, siteUrl } from "@/lib/site";
+import { LEGAL_PAGES, PAGES, siteUrl } from "@/lib/site";
 
 /**
  * Every page in every language, each listing its translations, so a search
@@ -21,7 +21,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       return {
         url: base + canonical,
         changeFrequency: "monthly" as const,
-        priority: path === "/" ? 1 : path.startsWith("/work/") ? 0.7 : 0.8,
+        priority:
+          path === "/"
+            ? 1
+            : LEGAL_PAGES.includes(path)
+              ? 0.2
+              : path.startsWith("/work/")
+                ? 0.7
+                : 0.8,
         alternates: { languages: absolute(languages) },
       };
     }),

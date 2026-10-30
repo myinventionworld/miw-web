@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, type MotionValue } from "motion/react";
 
+import { SiteFooter } from "@/components/site-footer";
 import { firePulse } from "@/lib/flight";
 import {
   BUDGETS,
@@ -165,8 +166,15 @@ export function TransmissionConsole({
     <Stage progress={progress} window={WINDOW} lift={60} exit={false}>
       {/* Clears the status strip and nav rather than passing under them. The
           clearance holds at every width: the nav is 97px tall on desktop too,
-          and a short landscape window is exactly where the panel grows into it. */}
-      <div className="flex h-full items-center justify-center px-5 pt-[104px] pb-6 md:px-10">
+          and a short landscape window is exactly where the panel grows into it.
+
+          A column, so the site footer can take the last row under the panel:
+          the end of the runway is the deck's last screen, and anything placed
+          after the runway would scroll in underneath this fixed stage. The
+          panel's `my-auto` keeps it centred in what the footer leaves, and as
+          a scroll container it is the one that gives way when the two do not
+          fit — the footer keeps its line. */}
+      <div className="flex h-full flex-col px-5 pt-[104px] md:px-10">
         {/* This used to carry a comment claiming the form was laid out to fit a
             13" window, so it needed no scrollbar. Measured, that was false: at
             1366x640 — a 1366x768 laptop once the browser chrome is subtracted —
@@ -187,7 +195,7 @@ export function TransmissionConsole({
             The `deck-short` trims below exist so the scrollbar is a guarantee
             rather than the normal experience: on a short deck the form gives up
             padding first, and only scrolls when that is not enough. */}
-        <div className="panel-solid thin-scroll pointer-events-auto mx-auto max-h-full w-full max-w-5xl overflow-y-auto overscroll-contain rounded-2xl p-5 shadow-2xl deck-short:p-4 md:p-7 md:deck-short:p-5">
+        <div className="panel-solid thin-scroll pointer-events-auto mx-auto my-auto max-h-full w-full max-w-5xl overflow-y-auto overscroll-contain rounded-2xl p-5 shadow-2xl deck-short:p-4 md:p-7 md:deck-short:p-5">
           {/* Two audiences, one console. The tab is chosen before any field
               is asked for, so a shop owner is never asked about a seed round. */}
           <div
@@ -483,6 +491,15 @@ export function TransmissionConsole({
             )}
           </AnimatePresence>
         </div>
+
+        {/* No motion of its own: it arrives with the console and holds with
+            it. `contentinfo` because a footer inside a section is not one by
+            default, and this is the only footer the deck has. */}
+        <SiteFooter
+          role="contentinfo"
+          className="pointer-events-auto mx-auto w-full max-w-5xl shrink-0"
+          frame="text-lift py-3 deck-short:py-2"
+        />
       </div>
     </Stage>
   );
