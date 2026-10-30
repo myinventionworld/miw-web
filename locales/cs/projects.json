@@ -205,17 +205,29 @@
       "lede": "Boowie běží: otevřete ho v telefonu a přidejte na plochu. Každý údaj tady je ověřený v kódu nebo v běžící aplikaci."
     },
     "story": {
-      "library": {
-        "title": "Vaše police",
-        "body": "Knihy a audioknihy vedle sebe, u každé vidíte, kolik máte přečteno."
-      },
       "store": {
         "title": "Klasika zdarma na začátek",
-        "body": "Dvacet volných děl ve vestavěném obchodě, od Tolstého po Dickense."
+        "body": "Dvacet volných děl ve vestavěném obchodě, od Dickense po Conana Doyla."
+      },
+      "book": {
+        "title": "Kapitoly i bez obsahu",
+        "body": "Každá kniha má svou kartu. PDF bez vestavěného obsahu kapitoly stejně dostane: najdou se podle velkých nadpisů."
+      },
+      "reading": {
+        "title": "Tam, kde jste skončili",
+        "body": "Karta Čtu otevře rozečtenou knihu: kapitolu, kolik máte za sebou, a audioverzi připravenou v přehrávači."
       },
       "reader": {
         "title": "Čtečka, která si pamatuje",
         "body": "EPUB, FB2 a PDF se otevřou bez internetu, na stránce, kde jste skončili."
+      },
+      "appearance": {
+        "title": "Stránka podle vás",
+        "body": "Tři písma, velikost, řádkování a okraje, čtyři barvy stránky, listování nebo posouvání."
+      },
+      "contents": {
+        "title": "Obsah a záložky",
+        "body": "Dočtené kapitoly jsou odškrtnuté, aktuální zvýrazněná, záložky na vedlejší kartě."
       },
       "player": {
         "title": "Nebo poslouchejte",
@@ -293,14 +305,17 @@
     "omnibusBooking": "Rezervace v Omnibusu: jméno cestujícího, plánek míst v autobusu a souhrn objednávky s odpočtem",
     "omnibusSeats": "Plánek míst Omnibusu v telefonu: volná, obsazená a panoramatická místa po řadách",
     "omnibusHomeMobile": "Úvodní stránka Omnibusu v telefonu: vyhledání spoje a oblíbené trasy z Česka",
-    "boowieLibrary": "Knihovna Boowie: rozečtené knihy a kolik je z nich přečteno",
-    "boowieStore": "Obchod Boowie: výběr redakce a nové klasiky zdarma",
-    "boowiePlayer": "Přehrávač audioknih Boowie: průběh kapitol, rychlost přehrávání a časovač spánku",
+    "boowieStore": "Obchod Boowie: klasika zdarma, od Jany Eyrové a Vánoční koledy po Bílou velrybu, u každé knihy formát",
+    "boowieBook": "Karta knihy v obchodě Boowie: Plochozemě s hodnocením, žánry, popisem a tlačítkem pro stažení do knihovny",
+    "boowieReading": "Karta Čtu v Boowie: Vánoční koleda na 3 %, tlačítka pro pokračování ve čtení a poslech, audiokniha v mini přehrávači",
+    "boowieReader": "Čtečka Boowie: stránka Vánoční koledy, dole kapitola, stránka a postup v knize",
+    "boowieAppearance": "Nastavení čtečky Boowie: písmo, velikost, řádkování, okraje, barva stránky, stránky nebo posouvání, do bloku nebo vlevo",
+    "boowieContents": "Obsah v Boowie: dočtené kapitoly odškrtnuté, aktuální zvýrazněná, záložky na druhé kartě",
+    "boowiePlayer": "Přehrávač audioknih Boowie: předmluva Vánoční koledy s rychlostí přehrávání, časovačem spánku a kapitolami",
     "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
     "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
     "wovieFilmHero": "Stránka filmu Project Hail Mary ve Wovie: plakát, název, hodnocení TMDB a žánry na pozadí záběru z filmu",
     "wovieTrailer": "Přehrávač traileru na stránce filmu ve Wovie",
-    "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple",
-    "boowieReader": "Čtečka Boowie: první stránka Vánoční koledy s názvem kapitoly a počítadlem stran"
+    "wovieSignup": "Registrace ve Wovie: avatar, uživatelské jméno, e-mail a heslo, přihlášení přes Google a Apple"
   }
 }
