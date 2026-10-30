@@ -6,7 +6,7 @@ name: PR title
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
-    branches: [redesign/product, main]
+    branches: [redesign/product, master]
 
 permissions: {}
 
