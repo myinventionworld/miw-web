@@ -6,15 +6,6 @@ import { projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
 import { siteUrl } from "@/lib/site";
 
-/**
- * The share card for a case study: the product's name in its own colour and
- * its headline in the reader's language, on the same white page and orbits as
- * the site-wide card, so a link to Boowie previews as Boowie rather than as
- * the studio's logo.
- *
- * Onest from `@fontsource/onest`, the static package: the image renderer reads
- * WOFF but not the WOFF2 the pages use, and the default face has no Cyrillic.
- */
 export const contentType = "image/png";
 const size = { width: 1200, height: 630 };
 
@@ -36,6 +27,10 @@ export async function generateImageMetadata({
   ];
 }
 
+/**
+ * Onest from `@fontsource/onest`, the static package: the image renderer reads
+ * WOFF but not the WOFF2 the pages use, and its default face has no Cyrillic.
+ */
 const SUBSETS = ["latin", "latin-ext", "cyrillic"] as const;
 
 const font = (subset: string, weight: number) =>

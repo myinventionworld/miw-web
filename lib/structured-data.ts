@@ -4,14 +4,6 @@ import { CONTACT_EMAIL } from "@/lib/contact";
 import { siteUrl } from "@/lib/site";
 import i18nConfig from "@/i18nConfig";
 
-/**
- * schema.org for search engines, as one `@graph` per page. The organization and
- * the site carry fixed `@id`s, so a page that names its publisher points at the
- * one node the layout already declares instead of describing it again.
- *
- * The brand is "MIW Labs"; the page titles say "MIW", so both are declared and
- * a search engine reads them as one name.
- */
 const BRAND = "MIW Labs";
 const SHORT = "MIW";
 
@@ -32,7 +24,6 @@ export function serializeJsonLd(graph: object[]) {
   );
 }
 
-/** Who publishes the site, and the site itself. Shared by every page. */
 export function siteGraph(locale: string, description: string) {
   const base = siteUrl();
   return [
@@ -73,7 +64,6 @@ export function siteGraph(locale: string, description: string) {
   ];
 }
 
-/** The trail from the home page to `items`' last entry, names already translated. */
 export function breadcrumbs(items: { name: string; href: string }[]) {
   const base = siteUrl();
   return {
@@ -87,7 +77,6 @@ export function breadcrumbs(items: { name: string; href: string }[]) {
   };
 }
 
-/** A case study, and the product it describes. */
 export function caseStudy(
   project: ProjectCase,
   copy: { headline: string; pitch: string; category: string },
@@ -119,7 +108,6 @@ export function caseStudy(
   };
 }
 
-/** The team as people who work for the organization, roles already translated. */
 export function teamMembers(roles: Record<string, string>) {
   const base = siteUrl();
   return TEAM.map((p) => ({

@@ -42,9 +42,6 @@ export async function generateMetadata(
   const { t } = await initTranslations(locale, ["projects"]);
 
   return {
-    // The product's name and its promise. A codename in capitals and a brand
-    // tail ran past the ~60 characters a result shows; the brand is already in
-    // `og:site_name` and the structured data.
     title: `${project.name} — ${t(`${project.id}.headline`)}`,
     description: t(`${project.id}.pitch`),
     alternates: alternates(locale, `/work/${slug}`),
