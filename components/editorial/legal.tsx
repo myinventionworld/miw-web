@@ -12,16 +12,23 @@ export interface LegalSection {
   body: string[];
 }
 
-/**
- * A fact `lib/legal.ts` does not have yet. Drawn so nobody can mistake it for
- * the real thing, and in English whatever the page language, because it is a
- * note to whoever fills it in rather than copy for a reader.
- */
-function Unset({ what }: { what: string }) {
+interface Fact {
+  label: string;
+  value: ReactNode;
+}
+
+function Section({ section }: { section: LegalSection }) {
   return (
-    <span className="rounded border border-dashed border-amber-500 px-1.5 py-0.5 font-mono text-label text-amber-700">
-      TODO: {what}
-    </span>
+    <section className="mt-12">
+      <h2 className="text-title leading-snug font-bold tracking-[-0.02em] text-white">
+        {section.title}
+      </h2>
+      {section.body.map((p) => (
+        <p key={p} className="mt-3 text-copy leading-relaxed text-zinc">
+          {p}
+        </p>
+      ))}
+    </section>
   );
 }
 
@@ -52,32 +59,29 @@ export async function LegalPage({ page }: { page: "terms" }) {
     ? new Intl.DisplayNames([locale], { type: "region" }).of(OPERATOR.governingLaw)
     : null;
 
-  const facts: { label: string; value: ReactNode }[] = [
-    {
-      label: t("operator.legalName"),
-      value: OPERATOR.legalName ?? <Unset what="legal name" />,
-    },
-    {
-      label: t("operator.companyId"),
-      value: OPERATOR.companyId ?? <Unset what="IČO" />,
-    },
-    {
-      label: t("operator.address"),
-      value: OPERATOR.address ?? <Unset what="registered address" />,
-    },
-    {
-      label: t("operator.governingLaw"),
-      value: law ?? <Unset what="governing law (country code)" />,
-    },
-    {
-      label: t("operator.email"),
-      value: (
-        <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-comet hover:underline">
-          {CONTACT_EMAIL}
-        </a>
-      ),
-    },
+  // Only what is true today. Until there is a registered company the operator
+  // is the team under its own name, and the rows for a company ID, an address
+  // and a governing law are left out rather than shown empty.
+  const facts: Fact[] = [
+    { label: t("operator.legalName"), value: OPERATOR.legalName ?? "MIW Labs" },
   ];
+  if (OPERATOR.companyId) {
+    facts.push({ label: t("operator.companyId"), value: OPERATOR.companyId });
+  }
+  facts.push(
+    OPERATOR.address
+      ? { label: t("operator.address"), value: OPERATOR.address }
+      : { label: t("operator.location"), value: t("common:availability.scope") },
+  );
+  if (law) facts.push({ label: t("operator.governingLaw"), value: law });
+  facts.push({
+    label: t("operator.email"),
+    value: (
+      <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-comet hover:underline">
+        {CONTACT_EMAIL}
+      </a>
+    ),
+  });
 
   return (
     <EditorialShell>
@@ -94,17 +98,15 @@ export async function LegalPage({ page }: { page: "terms" }) {
         </p>
 
         {sections.map((s) => (
-          <section key={s.title} className="mt-12">
-            <h2 className="text-title leading-snug font-bold tracking-[-0.02em] text-white">
-              {s.title}
-            </h2>
-            {s.body.map((p) => (
-              <p key={p} className="mt-3 text-copy leading-relaxed text-zinc">
-                {p}
-              </p>
-            ))}
-          </section>
+          <Section key={s.title} section={s} />
         ))}
+        {/* Points at the governing-law row below, so it comes and goes with
+            it. */}
+        {law && (
+          <Section
+            section={t(`${page}.law`, { returnObjects: true }) as LegalSection}
+          />
+        )}
 
         <section className="mt-14 border-t border-line pt-10">
           <h2 className="text-title leading-snug font-bold tracking-[-0.02em] text-white">

@@ -6,6 +6,7 @@
     "legalName": "Provozovatel",
     "companyId": "IČO",
     "address": "Sídlo",
+    "location": "Místo",
     "governingLaw": "Rozhodné právo",
     "email": "E-mail"
   },
@@ -55,17 +56,17 @@
         ]
       },
       {
-        "title": "Rozhodné právo",
-        "body": [
-          "Tyto podmínky se řídí právem země uvedené níže v části „Kdo provozuje tento web“. Pokud web užíváte jako spotřebitel, zůstává vám ochrana, kterou vám poskytují kogentní předpisy vaší země."
-        ]
-      },
-      {
         "title": "Změny podmínek",
         "body": [
           "Tyto podmínky můžeme aktualizovat. Datum nahoře ukazuje, kdy se naposledy změnily; platí verze zveřejněná zde."
         ]
       }
-    ]
+    ],
+    "law": {
+      "title": "Rozhodné právo",
+      "body": [
+        "Tyto podmínky se řídí právem země uvedené níže v části „Kdo provozuje tento web“. Pokud web užíváte jako spotřebitel, zůstává vám ochrana, kterou vám poskytují kogentní předpisy vaší země."
+      ]
+    }
   }
 }

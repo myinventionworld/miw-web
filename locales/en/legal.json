@@ -6,6 +6,7 @@
     "legalName": "Operator",
     "companyId": "Company ID (IČO)",
     "address": "Registered address",
+    "location": "Location",
     "governingLaw": "Governing law",
     "email": "Email"
   },
@@ -55,17 +56,17 @@
         ]
       },
       {
-        "title": "Applicable law",
-        "body": [
-          "These terms are governed by the law of the country named under “Who runs this site” below. If you use the site as a consumer, you keep the protection that the mandatory law of your own country gives you."
-        ]
-      },
-      {
         "title": "Changes to these terms",
         "body": [
           "We may update these terms. The date at the top shows when they last changed, and the version published here is the one that applies."
         ]
       }
-    ]
+    ],
+    "law": {
+      "title": "Applicable law",
+      "body": [
+        "These terms are governed by the law of the country named under “Who runs this site” below. If you use the site as a consumer, you keep the protection that the mandatory law of your own country gives you."
+      ]
+    }
   }
 }
