@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Pull requests
+
+PR titles follow Conventional Commits, `type(scope): summary`, for example `fix(team): spell a name correctly`. Types, scopes and how to write the description are in [CONTRIBUTING.md](CONTRIBUTING.md).
