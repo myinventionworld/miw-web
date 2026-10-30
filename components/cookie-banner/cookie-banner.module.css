@@ -1,0 +1,74 @@
+.dock {
+  animation: dock 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.starfield {
+  background-image:
+    radial-gradient(circle at 18% 30%, rgb(255 255 255 / 0.35) 0.5px, transparent 1px),
+    radial-gradient(circle at 72% 80%, rgb(255 255 255 / 0.25) 0.5px, transparent 1px),
+    radial-gradient(circle at 90% 20%, rgb(127 168 255 / 0.4) 0.5px, transparent 1px);
+  background-size: 53px 41px, 67px 59px, 89px 71px;
+}
+
+.blink {
+  display: inline-block;
+  animation: blink 4s steps(1) infinite;
+}
+
+.flicker {
+  animation: flicker 2.4s steps(1) infinite;
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock,
+  .blink,
+  .flicker,
+  .pulse {
+    animation: none;
+  }
+}
+
+@keyframes dock {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes flicker {
+  0%,
+  48%,
+  76%,
+  100% {
+    opacity: 1;
+  }
+  40%,
+  70% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}

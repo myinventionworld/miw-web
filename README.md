@@ -63,7 +63,7 @@ components. There is no `tailwind.config.*`.
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every push and pull request to `redesign/product` and `main`:
+`.github/workflows/ci.yml` runs on every push and pull request to `redesign/product` and `master`:
 `npm ci`, `next typegen` + `tsc --noEmit`, `next build`, then `next start` and a Playwright smoke test,
 `scripts/ci/smoke.mjs`. The smoke test fails the run if any page in any language answers
 anything but 200 (robots.txt and sitemap.xml included), if a page throws, or if a page scrolls
@@ -150,8 +150,8 @@ ids. The navbar, the dock, the HUD and the flat page all read from both.
 
 English, Russian and Czech. Every locale is prefixed, including the default: `/en/work/omnibus`,
 `/ru/work/omnibus`, `/cs/about`. A bare `/work` is matched against `Accept-Language` and
-redirected, and the choice is remembered in the `NEXT_LOCALE` cookie so a reader who switched by
-hand is not overruled by their browser on the next page.
+redirected. A language picked by hand is remembered in the `NEXT_LOCALE` cookie, but only for a
+reader who accepted the cookie banner; until then nothing is stored.
 
 The root layout loads all five namespaces (`common`, `stations`, `projects`, `console`, `about`) for the requested language plus English as a fallback,
 then hands the resources to the client through `TranslationsProvider` — so the browser

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
 import { LocaleSwitch } from "@/components/locale-switch";
+import { SiteFooter } from "@/components/site-footer";
 import { initTranslations } from "@/i18n";
 import { localeHref } from "@/lib/locale";
 import { cn } from "@/lib/utils";
@@ -110,22 +111,18 @@ export async function EditorialShell({
           3.6px, so a third control up there is the thing that puts every
           editorial route back into horizontal scroll. The footer row already
           wraps, so it can carry one more item for free. */}
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-8 sm:px-6 md:px-8">
-          <p className="text-meta text-zinc">
-            {t("brand.tagline")}
-          </p>
-          <div className="flex flex-wrap items-center gap-5">
-            <LocaleSwitch />
-            <Link
-              href={localeHref(locale, "/")}
-              className="-my-2 rounded-md py-2 text-meta text-zinc transition-colors hover:text-white"
-            >
-              {t("footer.back")}
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter
+        className="border-t border-line"
+        frame="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:px-8"
+      >
+        <LocaleSwitch />
+        <Link
+          href={localeHref(locale, "/")}
+          className="-my-2 rounded-md py-2 text-meta text-zinc transition-colors hover:text-white"
+        >
+          {t("footer.back")}
+        </Link>
+      </SiteFooter>
     </div>
   );
 }

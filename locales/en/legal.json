@@ -1,0 +1,72 @@
+{
+  "eyebrow": "Legal",
+  "updated": "Last updated {{date}}",
+  "operator": {
+    "title": "Who runs this site",
+    "legalName": "Operator",
+    "companyId": "Company ID (IČO)",
+    "address": "Registered address",
+    "location": "Location",
+    "governingLaw": "Governing law",
+    "email": "Email"
+  },
+  "terms": {
+    "metaTitle": "Terms of use — MIW",
+    "metaDescription": "The terms for using the MIW Labs website: what the site is, writing to us, content, links and liability.",
+    "title": "Terms of use",
+    "lede": "These terms cover this website: reading it, following its links and writing to us through it.",
+    "sections": [
+      {
+        "title": "What this site is",
+        "body": [
+          "This is where MIW Labs, a team in Prague, shows who we are, what we build and the products we run. The site is here to inform. Nothing on it is an offer to enter into a contract: any work we do for you is agreed separately, in writing."
+        ]
+      },
+      {
+        "title": "Writing to us",
+        "body": [
+          "A message you send through the form or by email reaches the team so that we can reply. We use the details you give us only to reply to you.",
+          "Sending a message does not create a contract or commit either side to anything. The budget and timeline options in the form help us understand the request; they are not prices or quotes.",
+          "Please send only what you are entitled to share, and nothing you need kept confidential before we have agreed how to handle it."
+        ]
+      },
+      {
+        "title": "Content and rights",
+        "body": [
+          "The text, design, illustrations, 3D scenes, screenshots and recordings on this site belong to MIW Labs or to their respective owners. Some parts, such as the fonts, are used under their own open licences.",
+          "You are welcome to read the site, link to it and quote short passages with a link back. Copying or reusing more than that needs our permission first. Names of other companies' products and technologies belong to those companies."
+        ]
+      },
+      {
+        "title": "Links to other sites",
+        "body": [
+          "Links to our live products, to source code and to other sites open separate services. These terms cover only this website, and we are not responsible for the content of sites we do not run."
+        ]
+      },
+      {
+        "title": "Accuracy and availability",
+        "body": [
+          "We work to keep what is written here accurate and current, but it can be incomplete and can change without notice. The site is provided as it is; we do not promise that it will always be available or free of errors."
+        ]
+      },
+      {
+        "title": "Liability",
+        "body": [
+          "To the extent the law allows, we are not liable for loss or damage that comes from using this site or from relying on what it says. Nothing in these terms limits liability that the law does not allow to be limited."
+        ]
+      },
+      {
+        "title": "Changes to these terms",
+        "body": [
+          "We may update these terms. The date at the top shows when they last changed, and the version published here is the one that applies."
+        ]
+      }
+    ],
+    "law": {
+      "title": "Applicable law",
+      "body": [
+        "These terms are governed by the law of the country named under “Who runs this site” below. If you use the site as a consumer, you keep the protection that the mandatory law of your own country gives you."
+      ]
+    }
+  }
+}

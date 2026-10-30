@@ -23,7 +23,9 @@
     "about": "About us"
   },
   "footer": {
-    "back": "Back to home"
+    "back": "Back to home",
+    "legal": "Legal",
+    "terms": "Terms of use"
   },
   "project": {
     "caseStudy": "Case study",
@@ -56,6 +58,14 @@
   "notFound": {
     "title": "This page is not on our map.",
     "body": "The link may be old, or there is a typo in the address. Everything we do is one click from here."
+  },
+  "cookies": {
+    "label": "Cookies",
+    "channel": "Incoming transmission",
+    "title": "A small request from the crew",
+    "body": "May we keep one cookie in the cargo hold? It only remembers your language. No tracking, no analytics.",
+    "accept": "Accept",
+    "decline": "Decline"
   },
   "error": {
     "label": "Error",

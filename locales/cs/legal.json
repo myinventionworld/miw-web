@@ -1,0 +1,72 @@
+{
+  "eyebrow": "Právní informace",
+  "updated": "Aktualizováno {{date}}",
+  "operator": {
+    "title": "Kdo provozuje tento web",
+    "legalName": "Provozovatel",
+    "companyId": "IČO",
+    "address": "Sídlo",
+    "location": "Místo",
+    "governingLaw": "Rozhodné právo",
+    "email": "E-mail"
+  },
+  "terms": {
+    "metaTitle": "Podmínky užívání — MIW",
+    "metaDescription": "Podmínky užívání webu MIW Labs: co je tento web, jak nám psát, obsah, odkazy a odpovědnost.",
+    "title": "Podmínky užívání",
+    "lede": "Tyto podmínky se vztahují na tento web: na jeho čtení, na odkazy z něj a na zprávy, které nám přes něj posíláte.",
+    "sections": [
+      {
+        "title": "Co je tento web",
+        "body": [
+          "Tady MIW Labs, tým z Prahy, ukazuje, kdo jsme, co stavíme a jaké produkty provozujeme. Web slouží k informování. Nic na něm není nabídkou k uzavření smlouvy: jakákoli práce pro vás se sjednává zvlášť a písemně."
+        ]
+      },
+      {
+        "title": "Když nám napíšete",
+        "body": [
+          "Zpráva odeslaná formulářem nebo e-mailem se dostane k týmu, abychom vám mohli odpovědět. Údaje, které uvedete, použijeme jen k odpovědi.",
+          "Odesláním zprávy nevzniká smlouva a nikoho k ničemu nezavazuje. Možnosti rozpočtu a termínu ve formuláři nám pomáhají pochopit poptávku; nejsou to ceny ani nabídka.",
+          "Posílejte prosím jen to, co smíte sdílet, a nic důvěrného, dokud se nedohodneme, jak s tím naložíme."
+        ]
+      },
+      {
+        "title": "Obsah a práva",
+        "body": [
+          "Texty, design, ilustrace, 3D scény, snímky obrazovky a nahrávky na tomto webu patří MIW Labs nebo jejich příslušným vlastníkům. Některé části, například písma, používáme na základě jejich vlastních otevřených licencí.",
+          "Web můžete číst, odkazovat na něj a citovat krátké pasáže s odkazem na zdroj. Kopírování nebo jiné užití ve větším rozsahu vyžaduje náš předchozí souhlas. Názvy produktů a technologií jiných společností patří těmto společnostem."
+        ]
+      },
+      {
+        "title": "Odkazy na jiné weby",
+        "body": [
+          "Odkazy na naše běžící produkty, na zdrojový kód a na jiné weby otevírají samostatné služby. Tyto podmínky se týkají jen tohoto webu a za obsah webů, které neprovozujeme, neodpovídáme."
+        ]
+      },
+      {
+        "title": "Přesnost a dostupnost",
+        "body": [
+          "Snažíme se, aby zde uvedené informace byly přesné a aktuální, mohou však být neúplné a mohou se bez upozornění změnit. Web poskytujeme tak, jak je; neslibujeme, že bude vždy dostupný a bez chyb."
+        ]
+      },
+      {
+        "title": "Odpovědnost",
+        "body": [
+          "V rozsahu, který zákon připouští, neodpovídáme za ztrátu ani škodu vzniklou užíváním tohoto webu nebo tím, že jste se spolehli na jeho obsah. Nic v těchto podmínkách neomezuje odpovědnost, kterou zákon omezit nedovoluje."
+        ]
+      },
+      {
+        "title": "Změny podmínek",
+        "body": [
+          "Tyto podmínky můžeme aktualizovat. Datum nahoře ukazuje, kdy se naposledy změnily; platí verze zveřejněná zde."
+        ]
+      }
+    ],
+    "law": {
+      "title": "Rozhodné právo",
+      "body": [
+        "Tyto podmínky se řídí právem země uvedené níže v části „Kdo provozuje tento web“. Pokud web užíváte jako spotřebitel, zůstává vám ochrana, kterou vám poskytují kogentní předpisy vaší země."
+      ]
+    }
+  }
+}
