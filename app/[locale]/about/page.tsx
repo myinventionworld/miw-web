@@ -3,12 +3,14 @@ import { locale as currentLocale } from "next/root-params";
 
 import { CoverHero } from "@/components/editorial/cover-hero";
 import { EditorialShell } from "@/components/editorial/shell";
+import { JsonLd } from "@/components/json-ld";
 import { TeamOrbit, type TeamMember } from "@/components/editorial/team-orbit";
 import { HeroShots } from "@/components/showcase/screens";
 import { PROJECTS } from "@/data/projects";
 import { TEAM } from "@/data/team";
 import { initTranslations } from "@/i18n";
 import { alternates, localeHref } from "@/lib/locale";
+import { breadcrumbs, teamMembers } from "@/lib/structured-data";
 
 /** `about:what.items` and `about:values.items` — a label and one sentence. */
 interface Point {
@@ -73,6 +75,17 @@ export default async function AboutPage() {
 
   return (
     <EditorialShell active="about" bleed>
+      <JsonLd
+        graph={[
+          breadcrumbs([
+            { name: "MIW Labs", href: localeHref(locale, "/") },
+            { name: t("common:nav.about"), href: localeHref(locale, "/about") },
+          ]),
+          ...teamMembers(
+            Object.fromEntries(people.map((p) => [p.id, p.role])),
+          ),
+        ]}
+      />
       {/* Drop `people` to keep only the products on the cover. */}
       <CoverHero people={people}>
         <p className="text-small font-medium text-zinc">{t("eyebrow")}</p>

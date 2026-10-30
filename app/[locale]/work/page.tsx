@@ -2,11 +2,13 @@ import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
 import { EditorialShell } from "@/components/editorial/shell";
+import { JsonLd } from "@/components/json-ld";
 import { Device } from "@/components/showcase/device";
 import { ProductShots, hasScreens } from "@/components/showcase/screens";
 import { PROJECTS } from "@/data/projects";
 import { initTranslations } from "@/i18n";
 import { alternates, localeHref } from "@/lib/locale";
+import { breadcrumbs } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(props: PageProps<"/[locale]/work">) {
@@ -35,6 +37,14 @@ export default async function WorkIndexPage() {
 
   return (
     <EditorialShell active="work" bleed>
+      <JsonLd
+        graph={[
+          breadcrumbs([
+            { name: "MIW Labs", href: localeHref(locale, "/") },
+            { name: t("common:nav.work"), href: localeHref(locale, "/work") },
+          ]),
+        ]}
+      />
       <section className={`${FRAME} pt-20 pb-20 text-center md:pt-28 md:pb-24`}>
         <p className="text-small font-medium text-zinc">{t("index.eyebrow")}</p>
         <h1 className="mx-auto mt-5 max-w-4xl text-[clamp(2.5rem,6.4vw,4.75rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">

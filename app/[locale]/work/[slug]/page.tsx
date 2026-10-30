@@ -11,10 +11,12 @@ import {
   hasScreens,
 } from "@/components/showcase/screens";
 import { EditorialShell } from "@/components/editorial/shell";
+import { JsonLd } from "@/components/json-ld";
 import { PROJECTS, projectBySlug } from "@/data/projects";
 import { initTranslations } from "@/i18n";
 import { STATUS_TONE } from "@/lib/stations";
 import { alternates, localeHref } from "@/lib/locale";
+import { breadcrumbs, caseStudy } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
 
 /**
@@ -40,7 +42,7 @@ export async function generateMetadata(
   const { t } = await initTranslations(locale, ["projects"]);
 
   return {
-    title: `${project.codename} — ${t(`${project.id}.headline`)} — MIW`,
+    title: `${project.name} — ${t(`${project.id}.headline`)}`,
     description: t(`${project.id}.pitch`),
     alternates: alternates(locale, `/work/${slug}`),
   };
@@ -70,6 +72,24 @@ export default async function WorkCasePage(
   const locale = await currentLocale();
   const { t } = await initTranslations(locale, ["projects", "common"]);
   const tr = (key: string) => t(key);
+  const href = localeHref(locale, `/work/${project.slug}`);
+  const structured = [
+    caseStudy(
+      project,
+      {
+        headline: t(`${project.id}.headline`),
+        pitch: t(`${project.id}.pitch`),
+        category: t(`${project.id}.category`),
+      },
+      locale,
+      href,
+    ),
+    breadcrumbs([
+      { name: "MIW Labs", href: localeHref(locale, "/") },
+      { name: t("common:nav.work"), href: localeHref(locale, "/work") },
+      { name: project.name, href },
+    ]),
+  ];
   const explainer =
     project.slug === "omnibus" ? (
       <SeatRace t={tr} />
@@ -103,6 +123,7 @@ export default async function WorkCasePage(
 
   return (
     <EditorialShell active="work">
+      <JsonLd graph={structured} />
       <header>
         {/* The only way back out of a case study, and it measured 95x13 — a
             target you have to aim at with a thumb. `inline-block` plus the

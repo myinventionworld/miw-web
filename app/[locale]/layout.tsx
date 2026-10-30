@@ -18,11 +18,12 @@ import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
 import { TranslationsProvider } from "@/components/i18n-provider";
+import { JsonLd } from "@/components/json-ld";
 import { LightVeilHost } from "@/components/light-veil";
 import { initTranslations, NAMESPACES } from "@/i18n";
-import { CONTACT_EMAIL } from "@/lib/contact";
 import { alternates } from "@/lib/locale";
 import { siteUrl } from "@/lib/site";
+import { siteGraph } from "@/lib/structured-data";
 import i18nConfig, { type Locale } from "@/i18nConfig";
 
 /** Open Graph wants a region with the language. */
@@ -66,30 +67,6 @@ export async function generateMetadata(props: LayoutProps<"/[locale]">) {
   };
 }
 
-/**
- * Who publishes the site, for search engines: schema.org Organization. `<`
- * is escaped so nothing in the strings can close the script tag.
- */
-function organizationJsonLd(description: string) {
-  const base = siteUrl();
-  const data = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "MIW Labs",
-    url: `${base}/`,
-    logo: `${base}/logo.png`,
-    email: CONTACT_EMAIL,
-    description,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Prague",
-      addressCountry: "CZ",
-    },
-    sameAs: ["https://github.com/myinventionworld"],
-  };
-  return JSON.stringify(data).replace(/</g, "\\u003c");
-}
-
 export default async function RootLayout(props: LayoutProps<"/[locale]">) {
   const { locale } = await props.params;
 
@@ -103,12 +80,7 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
   return (
     <html lang={locale} className="antialiased">
       <body className="bg-void font-sans text-white">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: organizationJsonLd(t("meta.description")),
-          }}
-        />
+        <JsonLd graph={siteGraph(locale, t("meta.description"))} />
         <TranslationsProvider
           locale={locale}
           namespaces={NAMESPACES}

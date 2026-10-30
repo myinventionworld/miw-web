@@ -8,6 +8,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Comments
+
+Write no comments by default. Add one only when the code would otherwise be wrong to change: a workaround for a library or platform bug, a security measure, or a constraint nobody could infer from the code. No docstrings that restate a name, no notes on what the code does or how it got here, no rationale for ordinary choices. The existing comments in the codebase are not a style to match.
+
 ## Pull requests
 
 PR titles follow Conventional Commits, `type(scope): summary`, for example `fix(team): spell a name correctly`. Types, scopes and how to write the description are in [CONTRIBUTING.md](CONTRIBUTING.md).
