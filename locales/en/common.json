@@ -66,5 +66,12 @@
     "body": "May we keep one cookie in the cargo hold? It only remembers your language. No tracking, no analytics.",
     "accept": "Accept",
     "decline": "Decline"
-  }
+  },
+  "error": {
+    "label": "Error",
+    "title": "Something broke on our side.",
+    "body": "The page could not be shown. Try again; if it fails a second time, the rest of the site is one click away.",
+    "retry": "Try again"
+  },
+  "signalLost": "Lost the connection to the 3D scene. Reconnecting…"
 }

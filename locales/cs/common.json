@@ -66,5 +66,12 @@
     "body": "Smíme si v nákladovém prostoru nechat jeden soubor cookie? Pamatuje si jen váš jazyk. Žádné sledování ani analytika.",
     "accept": "Přijmout",
     "decline": "Odmítnout"
-  }
+  },
+  "error": {
+    "label": "Chyba",
+    "title": "Něco se pokazilo na naší straně.",
+    "body": "Stránku se nepodařilo zobrazit. Zkuste to znovu, a pokud to nepůjde ani podruhé, zbytek webu je odsud na jedno kliknutí.",
+    "retry": "Zkusit znovu"
+  },
+  "signalLost": "Spojení s 3D scénou se přerušilo. Připojujeme se znovu…"
 }
