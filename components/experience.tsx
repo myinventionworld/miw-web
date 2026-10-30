@@ -14,7 +14,7 @@ import {
   type Mode,
   type StationId,
 } from "@/lib/stations";
-import { detectWebGL, prefersFlatDeck } from "@/lib/utils";
+import { detectHardwareWebGL, prefersFlatDeck } from "@/lib/utils";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./overlay/fallback";
@@ -196,7 +196,7 @@ export function Experience({ direct }: { direct: boolean }) {
   const [flight3d, setFlight3d] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setFlight3d(detectWebGL() && !prefersFlatDeck());
+    setFlight3d(detectHardwareWebGL() && !prefersFlatDeck());
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => {
@@ -217,7 +217,7 @@ export function Experience({ direct }: { direct: boolean }) {
     };
   }, []);
 
-  // Touch and no-WebGL both land on the same flat page. It is not a downgrade
+  // Touch and no GPU both land on the same flat page. It is not a downgrade
   // path with missing content — it carries the whole page as a normal document
   // that scrolls the way the device expects.
   const deck = (
