@@ -64,7 +64,9 @@ function ChromeEnvironment() {
 }
 
 export function CosmosScene() {
-  const [dpr, setDpr] = useState(1.5);
+  // Native density, not a 1.5 compromise. Below 1.75 `Effects` turns on 4x
+  // MSAA, which measured costlier than a 2x frame with SMAA alone.
+  const [dpr, setDpr] = useState(() => Math.min(2, window.devicePixelRatio));
   const [quality, setQuality] = useState<"high" | "low">("high");
 
   const dense =
