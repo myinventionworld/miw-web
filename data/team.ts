@@ -22,7 +22,7 @@ export interface Person {
 export const TEAM: Person[] = [
   { id: "mykhailo", name: "Mykhailo Plokhin", orbit: "inner", photo: "/team/mykhailo.webp" },
   { id: "ivan", name: "Ivan Shestachenko", orbit: "inner", photo: "/team/ivan.webp" },
-  { id: "denis", name: "Denis Yazan", orbit: "inner", photo: "/team/denis.webp" },
+  { id: "denys", name: "Denys Yazan", orbit: "inner", photo: "/team/denys.webp" },
   { id: "mykola", name: "Mykola Volovod", orbit: "outer", photo: "/team/mykola.webp" },
   { id: "illia", name: "Illia Hoznoferov", orbit: "outer", photo: "/team/illia.webp" },
   { id: "rosztiszlav", name: "Rosztiszlav Halász", orbit: "outer" },
