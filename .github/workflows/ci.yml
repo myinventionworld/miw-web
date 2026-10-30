@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [redesign/product, main]
+    branches: [redesign/product, master]
   pull_request:
-    branches: [redesign/product, main]
+    branches: [redesign/product, master]
 
 # A newer push to the same branch makes the running check pointless.
 concurrency:
