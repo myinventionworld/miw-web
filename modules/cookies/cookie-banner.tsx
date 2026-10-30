@@ -6,8 +6,8 @@ import { useLocale } from "@/modules/i18n";
 import { setConsent, useConsent } from "./consent";
 
 import { Alien } from "./alien";
-import { ConsoleKey } from "./console-key";
-import { StationPanel } from "./station-panel";
+import { ConsoleKey } from "@/shared/ui/console-key";
+import { StationPanel } from "@/shared/ui/station-panel";
 
 export function CookieBanner() {
   const locale = useLocale();

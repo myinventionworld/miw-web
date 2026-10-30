@@ -16,6 +16,7 @@ import { SignalLost } from "./signal-lost";
 import { Stage } from "./stage";
 import { TransmissionConsole } from "./transmission-console";
 import type { StationId } from "@/shared/station-id";
+import { ConsoleKey, ConsoleKeys } from "@/shared/ui/console-key";
 import { detectHardwareWebGL, prefersFlatDeck } from "./webgl-support";
 
 const CosmosScene = dynamic(
@@ -61,22 +62,14 @@ function Hero({
           </p>
         </div>
 
-        <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onDiscovery}
-            className="flex items-center gap-2 rounded-full bg-action px-6 py-3 text-lead font-semibold text-on-action transition-colors hover:bg-action-hover"
-          >
+        <ConsoleKeys className="pointer-events-auto mt-8 text-small">
+          <ConsoleKey code="01" tone="primary" onClick={onDiscovery}>
             {t("home.ctaContact")}
-          </button>
-          <button
-            type="button"
-            onClick={onExplore}
-            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/90 hover:bg-white/10"
-          >
+          </ConsoleKey>
+          <ConsoleKey code="02" onClick={onExplore}>
             {t("home.ctaStations")}
-          </button>
-        </div>
+          </ConsoleKey>
+        </ConsoleKeys>
 
       </div>
     </Stage>

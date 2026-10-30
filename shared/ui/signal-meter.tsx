@@ -1,4 +1,4 @@
-import s from "./cookie-banner.module.css";
+import s from "./station-panel.module.css";
 
 const BARS = [0.3, 0.55, 0.8, 1];
 

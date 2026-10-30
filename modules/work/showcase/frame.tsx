@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import type { ProjectCase } from "../projects";
 import { cn } from "@/shared/lib/cn";
+import { ConsoleKey } from "@/shared/ui/console-key";
 import { Prototype } from "./prototypes";
 import { STATUS_TONE } from "../status";
 
@@ -64,52 +65,38 @@ export function ShowcaseFrame({
   );
 }
 
-const ACTION =
-  "flex items-center gap-1.5 rounded-full border border-white/25 px-3.5 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10";
-
-/**
- * Split out of the frame so the station can put these on the same row as its
- * own call to action. Three buttons stacked in three rows was a third of the
- * card's height spent on chrome, on a card that has to fit a 13" deck.
- *
- * `Live app` is rendered only where there is a deployment a stranger can open,
- * and source is labelled as source. A button that says "Live app" and lands on
- * a repository costs more trust than the case study buys back.
- *
- * Only the two outbound links take a mark, and it is the same mark: this leaves
- * the site. The internal link is bare — an arrow on every button is how a row
- * of controls stops distinguishing between them.
- */
-export function ProjectActions({ project }: { project: ProjectCase }) {
+export function ProjectActions({
+  project,
+  start = 1,
+}: {
+  project: ProjectCase;
+  start?: number;
+}) {
   const { t } = useTranslation("common");
+  const code = (offset: number) => String(start + offset).padStart(2, "0");
+  const outbound = project.liveUrl ?? project.repoUrl;
 
   return (
     <>
-      {project.liveUrl && (
-        <a
-          href={project.liveUrl}
+      {outbound && (
+        <ConsoleKey
+          as="a"
+          code={code(0)}
+          href={outbound}
           target="_blank"
           rel="noopener noreferrer"
-          className={ACTION}
         >
-          {t("project.liveApp")}
-        </a>
+          {t(project.liveUrl ? "project.liveApp" : "project.source")}
+        </ConsoleKey>
       )}
 
-      {!project.liveUrl && project.repoUrl && (
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={ACTION}
-        >
-          {t("project.source")}
-        </a>
-      )}
-
-      <LocaleLink href={`/work/${project.slug}`} className={ACTION}>
+      <ConsoleKey
+        as={LocaleLink}
+        code={code(outbound ? 1 : 0)}
+        href={`/work/${project.slug}`}
+      >
         {t("project.readCaseStudy")}
-      </LocaleLink>
+      </ConsoleKey>
     </>
   );
 }

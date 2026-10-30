@@ -26,6 +26,8 @@ import {
   hasScreens,
 } from "@/modules/work";
 import { cn } from "@/shared/lib/cn";
+import { ConsoleKey } from "@/shared/ui/console-key";
+import { StationPanel } from "@/shared/ui/station-panel";
 import type { StationId } from "@/shared/station-id";
 
 /**
@@ -141,7 +143,7 @@ function ProgramBody({
       {points.map((p) => (
         <div
           key={p.label}
-          className="rounded-lg border border-white/12 bg-white/4 px-3.5 py-2.5"
+          className="border border-white/15 bg-white/4 px-3.5 py-2.5"
         >
           <dt className="text-body font-semibold text-white">{p.label}</dt>
           <dd className="mt-0.5 text-small leading-snug text-zinc">{p.body}</dd>
@@ -158,29 +160,21 @@ function StationCta({
   station: Station;
   onAction?: (station: Station) => void;
 }) {
-  // Sits in a row with the artifact's links rather than on its own line. Still
-  // the only filled button on the card, so it still reads as the primary path —
-  // fill and weight carry that, not size. Sized to match `ACTION` in
-  // `modules/work/showcase/frame.tsx` to the pixel: a 39px button next to a 33px link left
-  // the row visibly ragged, and on a 13" deck those 6px were not free.
-  const style =
-    "flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover";
-
   const { t } = useTranslation("stations");
   const label = t(`${station.id}.cta`);
 
   if (station.ctaHref) {
     return (
-      <LocaleLink href={station.ctaHref} className={style}>
+      <ConsoleKey as={LocaleLink} code="01" tone="primary" href={station.ctaHref}>
         {label}
-      </LocaleLink>
+      </ConsoleKey>
     );
   }
 
   return (
-    <button type="button" onClick={() => onAction?.(station)} className={style}>
+    <ConsoleKey code="01" tone="primary" onClick={() => onAction?.(station)}>
       {label}
-    </button>
+    </ConsoleKey>
   );
 }
 
@@ -214,7 +208,7 @@ function CardBrief({
   return (
     <div
       className={cn(
-        "mb-3.5 border-b border-white/12 pb-3.5 deck-short:mb-2.5 deck-short:pb-2.5",
+        "mb-3.5 border-b border-white/15 pb-3.5 deck-short:mb-2.5 deck-short:pb-2.5",
         !always && "deck-wide:hidden",
       )}
     >
@@ -258,6 +252,7 @@ function Card({
   // No `featured` flag any more: a station shows a frame when a real system is
   // registered against it in `modules/work/projects.ts`, and shows none when there is
   // nothing a stranger could open.
+  const { t } = useTranslation("stations");
   const project = projectForStation(station.id);
   const centred = DOCK_SIDE[station.id] === "center";
 
@@ -278,13 +273,24 @@ function Card({
      * back. The objection was to unconditional capture, which is what
      * `data-lenis-prevent` does and what this deliberately does not use.
      */
-    <div
+    <StationPanel
+      label={t(`${station.id}.nav`)}
+      channel={t(`${station.id}.nav`)}
+      station={`ST-${station.index}`}
+      animated={false}
+      bodyClassName="deck-short:px-3.5 deck-short:pt-3.5"
       className={cn(
-        "panel pointer-events-auto rounded-2xl p-4 lg:p-5 deck-short:p-3.5",
+        "pointer-events-auto",
         centred
           ? "w-full"
           : "w-[min(92vw,440px)] xl:w-[540px] deck-short:w-[min(92vw,660px)]",
       )}
+      actions={
+        <>
+          <StationCta station={station} onAction={onAction} />
+          {project && <ProjectActions project={project} start={2} />}
+        </>
+      }
     >
       <CardBrief station={station} mode={mode} always={centred} />
 
@@ -293,12 +299,7 @@ function Card({
       ) : project ? (
         <ArtifactBody project={project} />
       ) : null}
-
-      <div className="mt-3 flex flex-wrap items-center gap-2 deck-short:mt-2">
-        <StationCta station={station} onAction={onAction} />
-        {project && <ProjectActions project={project} />}
-      </div>
-    </div>
+    </StationPanel>
   );
 }
 

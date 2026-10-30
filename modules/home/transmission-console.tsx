@@ -23,6 +23,8 @@ import {
   type EngagementId,
 } from "@/modules/contact";
 import { Stage } from "./stage";
+import { ConsoleKey, ConsoleKeys } from "@/shared/ui/console-key";
+import { StationFrame } from "@/shared/ui/station-panel";
 
 /**
  * Scroll band the console occupies — the end of the runway, held open.
@@ -39,7 +41,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 /** Mono, like the readouts elsewhere on the deck: a label, not a heading. */
 const LEGEND = "mb-2 block font-mono text-label text-zinc";
 
-const FIELD = "field w-full rounded-lg px-3.5 py-2.5 text-body";
+const FIELD = "field w-full px-3.5 py-2.5 text-body";
 
 function Label({ children }: { children: ReactNode }) {
   return <span className={LEGEND}>{children}</span>;
@@ -73,7 +75,7 @@ function Segmented({
   return (
     <fieldset>
       <legend className={LEGEND}>{legend}</legend>
-      <div className="flex flex-wrap gap-px overflow-hidden rounded-lg border border-white/12 bg-white/12">
+      <div className="flex flex-wrap gap-px overflow-hidden border border-white/15 bg-white/15">
         {options.map((o) => {
           const active = o.id === value;
           return (
@@ -87,8 +89,8 @@ function Segmented({
                 // Selected is the tab's own mark: a comet rule along the
                 // bottom, on a cell lifted just enough to read without it.
                 active
-                  ? "bg-space-800 text-white shadow-[inset_0_-2px_0_var(--color-comet)]"
-                  : "bg-carbon text-zinc hover:bg-space-800/60 hover:text-white",
+                  ? "bg-white/10 text-white shadow-[inset_0_-2px_0_#fff]"
+                  : "bg-black text-zinc hover:bg-white/5 hover:text-white",
               )}
             >
               {o.label}
@@ -108,7 +110,7 @@ export function TransmissionConsole({
   /** The server can send the message itself (see `modules/contact/delivery.ts`). */
   direct: boolean;
 }) {
-  const { t } = useTranslation(["console", "common"]);
+  const { t } = useTranslation(["console", "common", "stations"]);
   const [tab, setTab] = useState<ConsoleTab>("business");
   const [engagement, setEngagement] = useState<EngagementId>("website");
   const [name, setName] = useState("");
@@ -151,7 +153,17 @@ export function TransmissionConsole({
     event.preventDefault();
     // Checked again on the server; here so the message lands next to the
     // button instead of after a round trip.
-    submit({ name, org, email, scope, budget, tab, engagement, stage, timeline });
+    submit({
+      name,
+      org,
+      email,
+      scope,
+      budget,
+      tab,
+      engagement,
+      stage,
+      timeline,
+    });
   }
 
   async function copyMessage(text: string) {
@@ -196,302 +208,320 @@ export function TransmissionConsole({
             The `deck-short` trims below exist so the scrollbar is a guarantee
             rather than the normal experience: on a short deck the form gives up
             padding first, and only scrolls when that is not enough. */}
-        <div className="panel-solid thin-scroll pointer-events-auto mx-auto my-auto max-h-full w-full max-w-5xl overflow-y-auto overscroll-contain rounded-2xl p-5 shadow-2xl deck-short:p-4 md:p-7 md:deck-short:p-5">
-          {/* Two audiences, one console. The tab is chosen before any field
+        <StationFrame
+          label={t("stations:sections.transmission.label")}
+          channel={t("stations:sections.transmission.label")}
+          station="ST-05"
+          animated={false}
+          className="pointer-events-auto mx-auto my-auto max-h-full w-full max-w-5xl shadow-2xl"
+        >
+          <div className="thin-scroll min-h-0 overflow-y-auto overscroll-contain p-5 deck-short:p-4 md:p-7 md:deck-short:p-5">
+            {/* Two audiences, one console. The tab is chosen before any field
               is asked for, so a shop owner is never asked about a seed round. */}
-          <div
-            role="tablist"
-            aria-label={t("tablist")}
-            className="flex flex-wrap gap-x-6 border-b border-white/10"
-          >
-            {CONSOLE_TABS.map((c) => {
-              const active = c.id === tab;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => pickTab(c.id)}
-                  className={cn(
-                    "relative pb-3 text-small font-medium whitespace-nowrap transition-colors duration-200 deck-short:pb-2.5",
-                    active ? "text-white" : "text-zinc hover:text-white",
-                  )}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="console-tab"
-                      transition={{ duration: 0.35, ease: EASE }}
-                      className="absolute inset-x-0 -bottom-px h-0.5 bg-comet"
-                    />
-                  )}
-                  {t(`tabs.${c.id}.label`)}
-                </button>
-              );
-            })}
-          </div>
-
-          <AnimatePresence mode="wait" initial={false}>
-            {status.kind === "delivered" ? (
-              <motion.div
-                key="delivered"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="py-10 text-center"
-              >
-                <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
-                <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
-                  {t("receipt.sentTitle")}
-                </h3>
-                <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
-                  {t("receipt.sentBody", {
-                    reply: t("common:contact.replyTime"),
-                    email: status.email,
-                  })}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setScope("");
-                    setStatus({ kind: "idle" });
-                  }}
-                  className="mt-6 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
-                >
-                  {t("receipt.another")}
-                </button>
-              </motion.div>
-            ) : status.kind === "mailto" ? (
-              <motion.div
-                key="receipt"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="py-10 text-center"
-              >
-                <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
-                <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
-                  {t("receipt.title")}
-                </h3>
-                <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
-                  {t("receipt.body", { email: CONTACT_EMAIL })}
-                </p>
-
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-                  <a
-                    href={mailtoHref(status.subject, status.body)}
-                    className="rounded-full bg-white px-6 py-2.5 text-small font-semibold text-void transition-colors hover:bg-platinum"
+            <div
+              role="tablist"
+              aria-label={t("tablist")}
+              className="flex flex-wrap gap-x-6 border-b border-white/15"
+            >
+              {CONSOLE_TABS.map((c) => {
+                const active = c.id === tab;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => pickTab(c.id)}
+                    className={cn(
+                      "relative pb-3 text-small font-medium whitespace-nowrap transition-colors duration-200 deck-short:pb-2.5",
+                      active ? "text-white" : "text-zinc hover:text-white",
+                    )}
                   >
-                    {t("receipt.reopen")}
-                  </a>
+                    {active && (
+                      <motion.span
+                        layoutId="console-tab"
+                        transition={{ duration: 0.35, ease: EASE }}
+                        className="absolute inset-x-0 -bottom-px h-0.5 bg-comet"
+                      />
+                    )}
+                    {t(`tabs.${c.id}.label`)}
+                  </button>
+                );
+              })}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              {status.kind === "delivered" ? (
+                <motion.div
+                  key="delivered"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="py-10 text-center"
+                >
+                  <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
+                  <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
+                    {t("receipt.sentTitle")}
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
+                    {t("receipt.sentBody", {
+                      reply: t("common:contact.replyTime"),
+                      email: status.email,
+                    })}
+                  </p>
                   <button
                     type="button"
-                    onClick={() => copyMessage(status.body)}
-                    className="rounded-full border border-white/20 px-6 py-2.5 text-small font-medium text-white transition-colors hover:border-white/50 hover:bg-white/[0.06]"
+                    onClick={() => {
+                      setScope("");
+                      setStatus({ kind: "idle" });
+                    }}
+                    className="mt-6 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
                   >
-                    {copied ? t("receipt.copied") : t("receipt.copy")}
+                    {t("receipt.another")}
                   </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setStatus({ kind: "idle" })}
-                  className="mt-5 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
+                </motion.div>
+              ) : status.kind === "mailto" ? (
+                <motion.div
+                  key="receipt"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="py-10 text-center"
                 >
-                  {t("receipt.amend")}
-                </button>
-              </motion.div>
-            ) : (
-              <motion.form
-                key="form"
-                onSubmit={onSubmit}
-                onFocusCapture={touch}
-                onChangeCapture={touch}
-                aria-busy={sending}
-                // Native bubbles would pre-empt the status line and land a
-                // system-styled popover in the middle of the console.
-                noValidate
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="pt-6 deck-short:pt-4 lg:grid lg:grid-cols-[1.1fr_1fr] lg:gap-x-10"
-              >
-                {/* Two columns on desktop: what the work is on the left, who is
+                  <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
+                  <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
+                    {t("receipt.title")}
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
+                    {t("receipt.body", { email: CONTACT_EMAIL })}
+                  </p>
+
+                  <ConsoleKeys className="mx-auto mt-6 text-small">
+                    <ConsoleKey
+                      as="a"
+                      code="01"
+                      tone="primary"
+                      href={mailtoHref(status.subject, status.body)}
+                    >
+                      {t("receipt.reopen")}
+                    </ConsoleKey>
+                    <ConsoleKey
+                      code="02"
+                      onClick={() => copyMessage(status.body)}
+                    >
+                      {copied ? t("receipt.copied") : t("receipt.copy")}
+                    </ConsoleKey>
+                  </ConsoleKeys>
+
+                  <button
+                    type="button"
+                    onClick={() => setStatus({ kind: "idle" })}
+                    className="mt-5 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
+                  >
+                    {t("receipt.amend")}
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  onSubmit={onSubmit}
+                  onFocusCapture={touch}
+                  onChangeCapture={touch}
+                  aria-busy={sending}
+                  // Native bubbles would pre-empt the status line and land a
+                  // system-styled popover in the middle of the console.
+                  noValidate
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="pt-6 deck-short:pt-4 lg:grid lg:grid-cols-[1.1fr_1fr] lg:gap-x-10"
+                >
+                  {/* Two columns on desktop: what the work is on the left, who is
                     asking and the task itself on the right. The flight deck is a
                     fixed viewport, so whichever column is taller decides whether
                     the send row is reachable; the task field takes up whatever
                     the right column has spare, so the two end level. */}
-                <div className="space-y-5 deck-short:space-y-3">
-                  <div>
-                    <h2 className="text-heading-lg leading-[1.08] font-bold tracking-[-0.035em] text-white deck-short:text-heading md:text-heading-xl">
-                      {t(`tabs.${tab}.heading`)}
-                    </h2>
-                    <p
-                      aria-live="polite"
-                      className="mt-2 text-body leading-relaxed text-zinc deck-short:hidden"
-                    >
-                      {t(`tabs.${tab}.note`)}
-                    </p>
-                  </div>
-
-                  <Segmented
-                    legend={t("form.engagement")}
-                    value={engagement}
-                    onChange={(v) => setEngagement(v as EngagementId)}
-                    options={offered.map((id) => ({
-                      id,
-                      label: t(`engagements.${id}.label`),
-                    }))}
-                  />
-                  <Segmented
-                    legend={t("form.budget")}
-                    value={budget}
-                    onChange={setBudget}
-                    options={BUDGETS.map((id) => ({
-                      id,
-                      label: t(`budgets.${id}`),
-                    }))}
-                  />
-                  <Segmented
-                    legend={t("form.timeline")}
-                    value={timeline}
-                    onChange={setTimeline}
-                    options={TIMELINES.map((id) => ({
-                      id,
-                      label: t(`timelines.${id}`),
-                    }))}
-                  />
-                </div>
-
-                <div className="mt-5 flex flex-col gap-5 deck-short:mt-3 deck-short:gap-3 lg:mt-0">
-                  <div>
-                    <Label>{t("form.identity")}</Label>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder={t("form.name")}
-                        aria-label={t("form.name")}
-                        autoComplete="name"
-                        required
-                        className={FIELD}
-                      />
-                      <input
-                        value={org}
-                        onChange={(e) => setOrg(e.target.value)}
-                        placeholder={t("form.company")}
-                        aria-label={t("form.company")}
-                        autoComplete="organization"
-                        required
-                        className={FIELD}
-                      />
+                  <div className="space-y-5 deck-short:space-y-3">
+                    <div>
+                      <h2 className="text-heading-lg leading-[1.08] font-bold tracking-[-0.035em] text-white deck-short:text-heading md:text-heading-xl">
+                        {t(`tabs.${tab}.heading`)}
+                      </h2>
+                      <p
+                        aria-live="polite"
+                        className="mt-2 text-body leading-relaxed text-zinc deck-short:hidden"
+                      >
+                        {t(`tabs.${tab}.note`)}
+                      </p>
                     </div>
-                    <input
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t("form.email")}
-                      aria-label={t("form.email")}
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      required
-                      className={cn(FIELD, "mt-2")}
-                    />
-                  </div>
 
-                  {/* Next to the details rather than with the work: it is about
-                      who is asking. Only the startup tab has a choice to make. */}
-                  {stages.length > 1 && (
                     <Segmented
-                      legend={t("form.stage")}
-                      value={stage}
-                      onChange={setStage}
-                      options={stages.map((id) => ({
+                      legend={t("form.engagement")}
+                      value={engagement}
+                      onChange={(v) => setEngagement(v as EngagementId)}
+                      options={offered.map((id) => ({
                         id,
-                        label: t(`stages.${id}`),
+                        label: t(`engagements.${id}.label`),
                       }))}
                     />
-                  )}
-
-                  <div className="flex flex-1 flex-col">
-                    {/* The prompt follows the engagement — a rescue and a
-                        greenfield MVP are not the same question. */}
-                    <Label>{t("form.scope")}</Label>
-                    <textarea
-                      value={scope}
-                      onChange={(e) => setScope(e.target.value)}
-                      rows={4}
-                      placeholder={t(`engagements.${engagement}.prompt`)}
-                      aria-label={t("form.scope")}
-                      required
-                      // The height here is a floor, not the size: the field
-                      // grows to end level with the left column. It has to be
-                      // set, because left to `rows` the field's own height is
-                      // what the grid row measures, and on a short deck that
-                      // alone pushed the send row out of reach.
-                      className={cn(
-                        FIELD,
-                        "thin-scroll h-24 flex-auto resize-none leading-relaxed deck-short:h-[68px] deck-short:py-2",
-                      )}
+                    <Segmented
+                      legend={t("form.budget")}
+                      value={budget}
+                      onChange={setBudget}
+                      options={BUDGETS.map((id) => ({
+                        id,
+                        label: t(`budgets.${id}`),
+                      }))}
+                    />
+                    <Segmented
+                      legend={t("form.timeline")}
+                      value={timeline}
+                      onChange={setTimeline}
+                      options={TIMELINES.map((id) => ({
+                        id,
+                        label: t(`timelines.${id}`),
+                      }))}
                     />
                   </div>
-                </div>
 
-                {/* The send row runs under both columns: the fine print on the
+                  <div className="mt-5 flex flex-col gap-5 deck-short:mt-3 deck-short:gap-3 lg:mt-0">
+                    <div>
+                      <Label>{t("form.identity")}</Label>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <input
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder={t("form.name")}
+                          aria-label={t("form.name")}
+                          autoComplete="name"
+                          required
+                          className={FIELD}
+                        />
+                        <input
+                          value={org}
+                          onChange={(e) => setOrg(e.target.value)}
+                          placeholder={t("form.company")}
+                          aria-label={t("form.company")}
+                          autoComplete="organization"
+                          required
+                          className={FIELD}
+                        />
+                      </div>
+                      <input
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t("form.email")}
+                        aria-label={t("form.email")}
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        required
+                        className={cn(FIELD, "mt-2")}
+                      />
+                    </div>
+
+                    {/* Next to the details rather than with the work: it is about
+                      who is asking. Only the startup tab has a choice to make. */}
+                    {stages.length > 1 && (
+                      <Segmented
+                        legend={t("form.stage")}
+                        value={stage}
+                        onChange={setStage}
+                        options={stages.map((id) => ({
+                          id,
+                          label: t(`stages.${id}`),
+                        }))}
+                      />
+                    )}
+
+                    <div className="flex flex-1 flex-col">
+                      {/* The prompt follows the engagement — a rescue and a
+                        greenfield MVP are not the same question. */}
+                      <Label>{t("form.scope")}</Label>
+                      <textarea
+                        value={scope}
+                        onChange={(e) => setScope(e.target.value)}
+                        rows={4}
+                        placeholder={t(`engagements.${engagement}.prompt`)}
+                        aria-label={t("form.scope")}
+                        required
+                        // The height here is a floor, not the size: the field
+                        // grows to end level with the left column. It has to be
+                        // set, because left to `rows` the field's own height is
+                        // what the grid row measures, and on a short deck that
+                        // alone pushed the send row out of reach.
+                        className={cn(
+                          FIELD,
+                          "thin-scroll h-24 flex-auto resize-none leading-relaxed deck-short:h-[68px] deck-short:py-2",
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* The send row runs under both columns: the fine print on the
                     left where it is read, the button on the right where the eye
                     ends. It used to be a full-width grey bar under a paragraph,
                     which read as the end of a document rather than an action. */}
-                <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 deck-short:mt-4 deck-short:gap-3 deck-short:pt-3 lg:col-span-2 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                  <Honeypot value={website} onChange={setWebsite} />
-                  <div className="min-w-0 space-y-1">
-                    <p
-                      role="status"
-                      aria-live="polite"
-                      className={cn(
-                        "text-meta leading-relaxed",
-                        status.kind === "error" || status.kind === "failed"
-                          ? "text-amber-300"
-                          : "text-zinc",
-                      )}
-                    >
-                      {status.kind === "error"
-                        ? status.message
-                        : status.kind === "failed"
-                          ? t("form.errSend", { email: CONTACT_EMAIL })
-                          : direct
-                            ? t("form.idleDirect")
-                            : t("form.idle", { email: CONTACT_EMAIL })}
-                    </p>
-                    <p className="text-meta text-steel">{t("form.privacy")}</p>
-                    {status.kind === "failed" && (
-                      <a
-                        href={mailtoHref(status.subject, status.body)}
-                        className="mt-2 inline-flex rounded-full border border-white/20 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/50 hover:bg-white/[0.06]"
+                  <div className="mt-6 flex flex-col gap-4 border-t border-white/15 pt-5 deck-short:mt-4 deck-short:gap-3 deck-short:pt-3 lg:col-span-2 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <Honeypot value={website} onChange={setWebsite} />
+                    <div className="min-w-0 space-y-1">
+                      <p
+                        role="status"
+                        aria-live="polite"
+                        className={cn(
+                          "text-meta leading-relaxed",
+                          status.kind === "error" || status.kind === "failed"
+                            ? "text-amber-300"
+                            : "text-zinc",
+                        )}
                       >
-                        {t("form.openMail")}
-                      </a>
-                    )}
-                  </div>
+                        {status.kind === "error"
+                          ? status.message
+                          : status.kind === "failed"
+                            ? t("form.errSend", { email: CONTACT_EMAIL })
+                            : direct
+                              ? t("form.idleDirect")
+                              : t("form.idle", { email: CONTACT_EMAIL })}
+                      </p>
+                      <p className="text-meta text-steel">
+                        {t("form.privacy")}
+                      </p>
+                      {status.kind === "failed" && (
+                        <ConsoleKeys className="mt-2 text-label">
+                          <ConsoleKey
+                            as="a"
+                            code="02"
+                            href={mailtoHref(status.subject, status.body)}
+                          >
+                            {t("form.openMail")}
+                          </ConsoleKey>
+                        </ConsoleKeys>
+                      )}
+                    </div>
 
-                  <button
-                    type="submit"
-                    disabled={sending}
-                    className="flex w-full shrink-0 items-center justify-center rounded-full bg-white px-7 py-3 text-body font-semibold text-void transition-colors hover:bg-platinum disabled:opacity-70 sm:w-auto"
-                  >
-                    {sending
-                      ? t("form.sending")
-                      : direct
-                        ? t("form.send")
-                        : t("form.submit")}
-                  </button>
-                </div>
-              </motion.form>
-            )}
-          </AnimatePresence>
-        </div>
+                    <ConsoleKeys className="w-full shrink-0 text-small sm:w-fit">
+                      <ConsoleKey
+                        type="submit"
+                        code="01"
+                        tone="primary"
+                        disabled={sending}
+                        className="disabled:opacity-70"
+                      >
+                        {sending
+                          ? t("form.sending")
+                          : direct
+                            ? t("form.send")
+                            : t("form.submit")}
+                      </ConsoleKey>
+                    </ConsoleKeys>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </div>
+        </StationFrame>
 
         {/* No motion of its own: it arrives with the console and holds with
             it. `contentinfo` because a footer inside a section is not one by
