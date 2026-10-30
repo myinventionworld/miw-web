@@ -52,5 +52,9 @@
     "reply": "Odpověď",
     "replyTime": "Do jednoho pracovního dne",
     "replyNote": "Odpovídá člověk z týmu, ne bot."
+  },
+  "notFound": {
+    "title": "Tahle stránka na naší mapě není.",
+    "body": "Odkaz je možná starý, nebo je v adrese překlep. Všechno, co děláme, je odsud na jeden klik."
   }
 }

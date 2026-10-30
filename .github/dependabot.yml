@@ -1,0 +1,25 @@
+# Dependency updates as pull requests into the working branch, once a week.
+# Minor and patch bumps come as one PR so they can be checked and merged in
+# one go; a major version gets a PR of its own. CI runs on each of them.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: redesign/product
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: redesign/product
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]

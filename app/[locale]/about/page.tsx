@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { Cover } from "@/components/editorial/cover";
+import { CoverHero } from "@/components/editorial/cover-hero";
 import { EditorialShell } from "@/components/editorial/shell";
 import { TeamOrbit, type TeamMember } from "@/components/editorial/team-orbit";
 import { HeroShots } from "@/components/showcase/screens";
@@ -73,41 +73,30 @@ export default async function AboutPage() {
 
   return (
     <EditorialShell active="about" bleed>
-      {/* The brand cover, alive, set out the way the cover itself is: the
-          words on the left, the picture on the right half running from the
-          header to the first grey band, so the body bleeds off the top and
-          the moon rises from the band. The text column starts on the same
-          rule as every section below. On a phone the picture comes first,
-          as a banner under the header. */}
-      <section className="md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
-        <div className="aspect-[3/2] w-full border-b border-line md:col-start-3 md:row-start-1 md:self-stretch md:border-0">
-          {/* Drop `people` to keep only the products on the cover. */}
-          <Cover people={people} />
+      {/* Drop `people` to keep only the products on the cover. */}
+      <CoverHero people={people}>
+        <p className="text-small font-medium text-zinc">{t("eyebrow")}</p>
+        <h1 className="mt-5 text-[clamp(2.5rem,4.4vw,4rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
+          {t("title")}
+        </h1>
+        <p className="mt-6 max-w-xl text-copy-lg leading-relaxed text-zinc md:text-[1.1875rem]">
+          {t("lede")}
+        </p>
+        <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+          <Link
+            href={localeHref(locale, "/#transmission")}
+            className="rounded-full bg-action px-6 py-3 text-lead font-medium text-on-action transition-colors hover:bg-action-hover"
+          >
+            {t("cta.action")}
+          </Link>
+          <Link
+            href={localeHref(locale, "/work")}
+            className="text-lead font-medium text-comet hover:underline"
+          >
+            {t("work.action")} ›
+          </Link>
         </div>
-        <div className="px-4 pt-12 pb-20 sm:px-6 md:col-start-2 md:row-start-1 md:self-center md:px-0 md:py-16 md:pr-12">
-          <p className="text-small font-medium text-zinc">{t("eyebrow")}</p>
-          <h1 className="mt-5 text-[clamp(2.5rem,4.4vw,4rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
-            {t("title")}
-          </h1>
-          <p className="mt-6 max-w-xl text-copy-lg leading-relaxed text-zinc md:text-[1.1875rem]">
-            {t("lede")}
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-            <Link
-              href={localeHref(locale, "/#transmission")}
-              className="rounded-full bg-action px-6 py-3 text-lead font-medium text-on-action transition-colors hover:bg-action-hover"
-            >
-              {t("cta.action")}
-            </Link>
-            <Link
-              href={localeHref(locale, "/work")}
-              className="text-lead font-medium text-comet hover:underline"
-            >
-              {t("work.action")} ›
-            </Link>
-          </div>
-        </div>
-      </section>
+      </CoverHero>
 
       <section className="bg-carbon">
         <div className={`${FRAME} grid gap-14 py-24 md:grid-cols-2 md:gap-16 md:py-28`}>
