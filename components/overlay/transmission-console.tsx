@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, type MotionValue } from "motion/react";
-import { Tick } from "@/components/glyph";
 
 import { firePulse } from "@/lib/flight";
 import {
@@ -19,6 +18,7 @@ import {
 } from "@/lib/stations";
 import { CONTACT_EMAIL, mailtoHref } from "@/lib/contact";
 import { cn } from "@/lib/utils";
+import { SignalStrip } from "./signal-strip";
 import { Stage } from "./stage";
 import { Honeypot, useEnquiry } from "./use-enquiry";
 
@@ -232,10 +232,8 @@ export function TransmissionConsole({
                 transition={{ duration: 0.45, ease: EASE }}
                 className="py-10 text-center"
               >
-                <div className="mx-auto flex size-12 items-center justify-center rounded-full border border-signal/50 bg-signal/12">
-                  <Tick className="text-title text-signal" />
-                </div>
-                <h3 className="mt-5 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
+                <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
+                <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
                   {t("receipt.sentTitle")}
                 </h3>
                 <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
@@ -264,10 +262,8 @@ export function TransmissionConsole({
                 transition={{ duration: 0.45, ease: EASE }}
                 className="py-10 text-center"
               >
-                <div className="mx-auto flex size-12 items-center justify-center rounded-full border border-signal/50 bg-signal/12">
-                  <Tick className="text-title text-signal" />
-                </div>
-                <h3 className="mt-5 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
+                <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
+                <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
                   {t("receipt.title")}
                 </h3>
                 <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">

@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
+import { AsciiCover } from "@/components/editorial/ascii-cover";
 import { CoverHero } from "@/components/editorial/cover-hero";
 import { EditorialShell } from "@/components/editorial/shell";
 import { initTranslations } from "@/i18n";
 import { localeHref } from "@/lib/locale";
 
 /**
- * The 404 page: the cover with only the products drifting on it, a line in
- * plain words, and the three ways back. Next adds `noindex` and the 404 status.
+ * The 404 page: the cover in characters, a line in plain words, and the three
+ * ways back. Next adds `noindex` and the 404 status.
  */
 export default async function NotFound() {
   const locale = (await currentLocale()) ?? "en";
@@ -16,7 +17,7 @@ export default async function NotFound() {
 
   return (
     <EditorialShell bleed>
-      <CoverHero>
+      <CoverHero picture={<AsciiCover />}>
         <p className="text-small font-medium text-zinc tabular-nums">404</p>
         <h1 className="mt-5 text-[clamp(2.5rem,4.4vw,4rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
           {t("notFound.title")}

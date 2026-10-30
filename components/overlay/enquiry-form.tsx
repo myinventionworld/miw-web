@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Tick } from "@/components/glyph";
 import { CONTACT_EMAIL, mailtoHref } from "@/lib/contact";
 import { BUDGETS } from "@/lib/stations";
 import { cn } from "@/lib/utils";
+import { SignalStrip } from "./signal-strip";
 import { Honeypot, useEnquiry } from "./use-enquiry";
 
 const FIELD =
@@ -27,14 +27,13 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
   const [scope, setScope] = useState("");
   const { status, setStatus, submit, touch, website, setWebsite } = useEnquiry(direct);
   const sending = status.kind === "sending";
+  const [inside, setInside] = useState(false);
 
   if (status.kind === "delivered" || status.kind === "mailto") {
     const delivered = status.kind === "delivered";
     return (
       <div className="mt-8 text-left" role="status">
-        <div className="flex size-10 items-center justify-center rounded-full bg-carbon">
-          <Tick className="text-title text-white" />
-        </div>
+        <SignalStrip state="sent" />
         <h3 className="mt-4 text-title font-bold tracking-[-0.02em] text-white">
           {delivered ? t("receipt.sentTitle") : t("receipt.title")}
         </h3>
@@ -58,6 +57,7 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
           type="button"
           onClick={() => {
             if (delivered) setScope("");
+            setInside(false);
             setStatus({ kind: "idle" });
           }}
           className="mt-5 block text-small text-comet hover:underline"
@@ -72,7 +72,13 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
     <form
       noValidate
       aria-busy={sending}
-      onFocusCapture={touch}
+      onFocusCapture={() => {
+        touch();
+        setInside(true);
+      }}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setInside(false);
+      }}
       onChangeCapture={touch}
       onSubmit={(e) => {
         e.preventDefault();
@@ -80,6 +86,7 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
       }}
       className="relative mt-8 space-y-3 text-left"
     >
+      <SignalStrip state={sending ? "sending" : inside ? "still" : "idle"} className="mb-4" />
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
