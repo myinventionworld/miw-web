@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 
-import { i18nConfig } from "@/modules/i18n";
+import { i18nConfig } from "@/modules/language";
 
 /**
  * Locale routing. `middleware` is deprecated in this version of Next, so the

@@ -18,7 +18,7 @@ import "@fontsource-variable/onest";
 import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
-import { CookieBanner } from "@/modules/consent";
+import { CookieBanner } from "@/modules/cookies";
 import {
   TranslationsProvider,
   LightVeilHost,
@@ -27,7 +27,7 @@ import {
   alternates,
   i18nConfig,
   type Locale,
-} from "@/modules/i18n";
+} from "@/modules/language";
 import { JsonLd, siteGraph, siteUrl } from "@/modules/seo";
 
 /** Open Graph wants a region with the language. */

@@ -3,8 +3,8 @@
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { CONTACT_EMAIL } from "@/modules/enquiry";
-import { LocaleLink } from "@/modules/i18n";
+import { CONTACT_EMAIL } from "@/modules/contact";
+import { LocaleLink } from "@/modules/language";
 import { cn } from "@/shared/lib/cn";
 
 /** Same tap-target trick as the page shell header: padding, cancelled margin. */

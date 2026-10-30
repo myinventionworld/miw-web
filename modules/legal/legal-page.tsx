@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { locale as currentLocale } from "next/root-params";
 
-import { PageShell } from "@/modules/shell/server";
-import { CONTACT_EMAIL } from "@/modules/enquiry";
-import { initTranslations } from "@/modules/i18n";
+import { PageLayout } from "@/modules/layout/server";
+import { CONTACT_EMAIL } from "@/modules/contact";
+import { initTranslations } from "@/modules/language";
 import { LEGAL_UPDATED, OPERATOR } from "./operator";
 
 /** `legal:<page>.sections` — a heading and its paragraphs. */
@@ -84,7 +84,7 @@ export async function LegalPage({ page }: { page: "terms" }) {
   });
 
   return (
-    <PageShell>
+    <PageLayout>
       <article className="max-w-2xl">
         <p className="text-small font-medium text-zinc">{t("eyebrow")}</p>
         <h1 className="mt-4 text-[clamp(2.2rem,4.4vw,3.2rem)] leading-[1.04] font-bold tracking-[-0.045em] text-white">
@@ -125,6 +125,6 @@ export async function LegalPage({ page }: { page: "terms" }) {
           </dl>
         </section>
       </article>
-    </PageShell>
+    </PageLayout>
   );
 }

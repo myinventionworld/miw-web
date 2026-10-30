@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { CoverHero } from "@/modules/shell";
-import { PageShell } from "@/modules/shell/server";
+import { CoverHero } from "@/modules/layout";
+import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs, teamMembers } from "@/modules/seo";
 import { TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { HeroShots, PROJECTS } from "@/modules/work";
-import { initTranslations, alternates, localeHref } from "@/modules/i18n";
+import { initTranslations, alternates, localeHref } from "@/modules/language";
 
 /** `about:what.items` and `about:values.items` — a label and one sentence. */
 interface Point {
@@ -70,7 +70,7 @@ export default async function AboutPage() {
   ];
 
   return (
-    <PageShell active="about" bleed>
+    <PageLayout active="about" bleed>
       <JsonLd
         graph={[
           breadcrumbs([
@@ -204,6 +204,6 @@ export default async function AboutPage() {
           </Link>
         </div>
       </section>
-    </PageShell>
+    </PageLayout>
   );
 }

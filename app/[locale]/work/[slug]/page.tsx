@@ -14,9 +14,9 @@ import {
   projectBySlug,
   STATUS_TONE,
 } from "@/modules/work";
-import { PageShell } from "@/modules/shell/server";
+import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs, caseStudy } from "@/modules/seo";
-import { initTranslations, alternates, localeHref } from "@/modules/i18n";
+import { initTranslations, alternates, localeHref } from "@/modules/language";
 import { clsx } from "clsx";
 
 /**
@@ -122,7 +122,7 @@ export default async function WorkCasePage(
   }));
 
   return (
-    <PageShell active="work">
+    <PageLayout active="work">
       <JsonLd graph={structured} />
       <header>
         {/* The only way back out of a case study, and it measured 95x13 — a
@@ -379,6 +379,6 @@ export default async function WorkCasePage(
           {t("case.cta.action")}
         </Link>
       </section>
-    </PageShell>
+    </PageLayout>
   );
 }

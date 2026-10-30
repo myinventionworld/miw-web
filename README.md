@@ -120,13 +120,13 @@ modules/
     scene/                 The WebGL scene: <Canvas>, planets, rings, starfield, effects, GLSL
   work/                    Case studies: projects.ts, screenshots, showcase frames, diagrams
   team/                    The people, the orbit cover, its ASCII version and the team orbit
-  enquiry/                 The contact form, its options and validation, the server action
+  contact/                 The contact form, its options and validation, the server action
                            and delivery (Resend / Telegram), the contact address
-  shell/                   The frame around the light pages: header, cover hero, footer,
+  layout/                  The frame around the light pages: header, cover hero, footer,
                            language switcher, error screen
   legal/                   The terms page and the operator facts it stands on
-  i18n/                    Locale config, initTranslations(), provider, LocaleLink, hreflang
-  consent/                 The cookie banner and what it allows to be stored
+  language/                Locale config, initTranslations(), provider, LocaleLink, hreflang
+  cookies/                 The cookie banner and what it allows to be stored
   seo/                     siteUrl(), JSON-LD, the page list for the sitemap
 
 shared/                    Code with no feature of its own: cn(), useIdle(), glyphs,
@@ -250,7 +250,7 @@ when it is between you and the star.
 
 The console has no backend. Submitting validates the form, composes an email with every field
 and opens it in the visitor's mail app (`mailto:` to the address in
-`modules/enquiry/contact.ts`); the receipt says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
+`modules/contact/contact.ts`); the receipt says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
 real endpoint (a route handler with Resend, or a form service) is a change to `submit()` in
 `modules/home/transmission-console.tsx`.
 

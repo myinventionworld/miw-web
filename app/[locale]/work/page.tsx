@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { PageShell } from "@/modules/shell/server";
+import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs } from "@/modules/seo";
 import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
-import { initTranslations, alternates, localeHref } from "@/modules/i18n";
+import { initTranslations, alternates, localeHref } from "@/modules/language";
 import { clsx } from "clsx";
 
 export async function generateMetadata(props: PageProps<"/[locale]/work">) {
@@ -32,7 +32,7 @@ export default async function WorkIndexPage() {
   const tr = (key: string) => t(key);
 
   return (
-    <PageShell active="work" bleed>
+    <PageLayout active="work" bleed>
       <JsonLd
         graph={[
           breadcrumbs([
@@ -136,6 +136,6 @@ export default async function WorkIndexPage() {
           {t("common:home.ctaContact")}
         </Link>
       </section>
-    </PageShell>
+    </PageLayout>
   );
 }

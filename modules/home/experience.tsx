@@ -226,7 +226,7 @@ function Deck({
   );
 }
 
-/** `direct`: the contact form can send on its own (`modules/enquiry/delivery.ts`). */
+/** `direct`: the contact form can send on its own (`modules/contact/delivery.ts`). */
 export function Experience({ direct }: { direct: boolean }) {
   /**
    * `null` until the first client effect, because both inputs are runtime

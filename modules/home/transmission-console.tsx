@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, type MotionValue } from "motion/react";
 
 import { firePulse } from "./flight";
-import { CONTACT_EMAIL, mailtoHref } from "@/modules/enquiry";
+import { CONTACT_EMAIL, mailtoHref } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
-import { SiteFooter } from "@/modules/shell";
+import { SiteFooter } from "@/modules/layout";
 import {
   SignalStrip,
   Honeypot,
@@ -21,7 +21,7 @@ import {
   TIMELINES,
   type ConsoleTab,
   type EngagementId,
-} from "@/modules/enquiry";
+} from "@/modules/contact";
 import { Stage } from "./stage";
 
 /**
@@ -105,7 +105,7 @@ export function TransmissionConsole({
   direct,
 }: {
   progress: MotionValue<number>;
-  /** The server can send the message itself (see `modules/enquiry/delivery.ts`). */
+  /** The server can send the message itself (see `modules/contact/delivery.ts`). */
   direct: boolean;
 }) {
   const { t } = useTranslation(["console", "common"]);
