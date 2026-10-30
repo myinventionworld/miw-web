@@ -1,6 +1,7 @@
 # Dependency updates as pull requests into the working branch, once a week.
 # Minor and patch bumps come as one PR so they can be checked and merged in
 # one go; a major version gets a PR of its own. CI runs on each of them.
+# Titles read chore(deps): bump …, as CONTRIBUTING.md asks of every PR.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -10,6 +11,8 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
     groups:
       minor-and-patch:
         update-types: [minor, patch]
@@ -20,6 +23,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    commit-message:
+      prefix: chore(deps)
     groups:
       actions:
         patterns: ["*"]

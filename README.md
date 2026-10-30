@@ -69,9 +69,13 @@ anything but 200 (robots.txt and sitemap.xml included), if a page throws, or if 
 sideways at 320 or 390 px. Screenshots of the main pages, desktop and phone, are attached to the
 run as the `smoke-screenshots` artifact.
 
+`.github/workflows/pr-title.yml` fails a pull request whose title is not
+`type(scope): summary`, as in [CONTRIBUTING.md](CONTRIBUTING.md). It runs again when the title
+is edited.
+
 Dependabot (`.github/dependabot.yml`) opens a pull request into `redesign/product` every
 Monday: minor and patch updates of npm packages together, each major on its own, and the
-GitHub Actions in one more. CI runs on each of them.
+GitHub Actions in one more. Their titles start with `chore(deps):`. CI runs on each of them.
 
 To run it locally against your own build, with the Chrome you already have:
 
