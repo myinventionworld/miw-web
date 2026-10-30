@@ -22,7 +22,8 @@ export const config = {
   // through a redirect is how a site ships a page with no CSS — or, for the
   // product recordings in `public/screens`, a video that never loads.
   // robots.txt, sitemap.xml and llms.txt live at the root and only there: a
-  // crawler redirected to `/en/robots.txt` finds nothing.
+  // crawler redirected to `/en/robots.txt` finds nothing. `/_vercel` is
+  // Vercel's own: the analytics script and the beacon it reports to.
   matcher:
-    "/((?!api|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|llms\\.txt|.*\\.svg$|.*\\.png$|.*\\.jpg$|.*\\.webp$|.*\\.mp4$|.*\\.webm$).*)",
+    "/((?!api|_next/static|_next/image|_vercel|favicon.ico|robots\\.txt|sitemap\\.xml|llms\\.txt|.*\\.svg$|.*\\.png$|.*\\.jpg$|.*\\.webp$|.*\\.mp4$|.*\\.webm$).*)",
 };
