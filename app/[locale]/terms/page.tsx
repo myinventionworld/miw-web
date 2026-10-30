@@ -1,6 +1,5 @@
-import { LegalPage } from "@/components/editorial/legal";
-import { initTranslations } from "@/i18n";
-import { alternates } from "@/lib/locale";
+import { alternates, initTranslations } from "@/modules/i18n";
+import { LegalPage } from "@/modules/legal";
 
 export async function generateMetadata(props: PageProps<"/[locale]/terms">) {
   const { locale } = await props.params;

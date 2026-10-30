@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { siteUrl } from "@/lib/site";
+import { siteUrl } from "@/modules/seo";
 
 /** Every page is public, and the sitemap lists them all. */
 export default function robots(): MetadataRoute.Robots {

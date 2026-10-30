@@ -2,9 +2,9 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-import { projectBySlug } from "@/data/projects";
-import { initTranslations } from "@/i18n";
-import { siteUrl } from "@/lib/site";
+import { projectBySlug } from "@/modules/work";
+import { initTranslations } from "@/modules/i18n";
+import { siteUrl } from "@/modules/seo";
 
 export const contentType = "image/png";
 const size = { width: 1200, height: 630 };

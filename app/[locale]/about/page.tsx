@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { CoverHero } from "@/components/editorial/cover-hero";
-import { EditorialShell } from "@/components/editorial/shell";
-import { JsonLd } from "@/components/json-ld";
-import { TeamOrbit, type TeamMember } from "@/components/editorial/team-orbit";
-import { HeroShots } from "@/components/showcase/screens";
-import { PROJECTS } from "@/data/projects";
-import { TEAM } from "@/data/team";
-import { initTranslations } from "@/i18n";
-import { alternates, localeHref } from "@/lib/locale";
-import { breadcrumbs, teamMembers } from "@/lib/structured-data";
+import { CoverHero } from "@/modules/editorial";
+import { EditorialShell } from "@/modules/editorial/server";
+import { JsonLd, breadcrumbs, teamMembers } from "@/modules/seo";
+import { TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
+import { HeroShots, PROJECTS } from "@/modules/work";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 
 /** `about:what.items` and `about:values.items` — a label and one sentence. */
 interface Point {

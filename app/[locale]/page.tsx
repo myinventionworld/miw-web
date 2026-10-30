@@ -1,5 +1,5 @@
-import { Experience } from "@/components/experience";
-import { canDeliver } from "@/lib/delivery";
+import { Experience } from "@/modules/home";
+import { canDeliver } from "@/modules/enquiry/server";
 
 export default function Home() {
   // Read when the page is built: Vercel has the variables then, and changing

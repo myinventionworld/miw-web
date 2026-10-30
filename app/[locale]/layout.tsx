@@ -18,15 +18,17 @@ import "@fontsource-variable/onest";
 import "@fontsource-variable/jetbrains-mono";
 import "../globals.css";
 
-import { CookieBanner } from "@/components/cookie-banner";
-import { TranslationsProvider } from "@/components/i18n-provider";
-import { JsonLd } from "@/components/json-ld";
-import { LightVeilHost } from "@/components/light-veil";
-import { initTranslations, NAMESPACES } from "@/i18n";
-import { alternates } from "@/lib/locale";
-import { siteUrl } from "@/lib/site";
-import { siteGraph } from "@/lib/structured-data";
-import i18nConfig, { type Locale } from "@/i18nConfig";
+import { CookieBanner } from "@/modules/consent";
+import {
+  TranslationsProvider,
+  LightVeilHost,
+  initTranslations,
+  NAMESPACES,
+  alternates,
+  i18nConfig,
+  type Locale,
+} from "@/modules/i18n";
+import { JsonLd, siteGraph, siteUrl } from "@/modules/seo";
 
 /** Open Graph wants a region with the language. */
 const OG_LOCALE: Record<Locale, string> = {
