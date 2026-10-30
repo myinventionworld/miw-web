@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "check:boundaries": "node scripts/ci/boundaries.mjs",
     "i18n:pull": "i18nexus pull -p ./locales",
     "i18n:listen": "i18nexus listen -p ./locales",
     "i18n:import": "for ns in common stations projects console about legal; do i18nexus import ./locales/en/$ns.json -ns $ns; done"

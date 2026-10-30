@@ -89,60 +89,67 @@ SMOKE_CHANNEL=chrome node scripts/ci/smoke.mjs
 
 ## Project structure
 
+The code is cut into vertical slices. Each folder under `modules/` is one part of the site, with
+its components, data, hooks and server code side by side, and a public entry (`index.ts`, plus
+`server.ts` for what must stay on the server, so a client file can import `index.ts` safely). Routes in `app/` are thin: they read
+params, set metadata and compose modules.
+
 ```
-i18nConfig.ts              Locales, default, prefix policy — read by proxy.ts and i18n.ts
-i18n.ts                    initTranslations(): one i18next instance per render
 proxy.ts                   Locale detection and redirect (this Next version has no middleware)
+locales/en|ru|cs/*.json    Every word on the site: common, stations, projects, console, about
 
-locales/
-  en|ru|cs/
-    common.json            Chrome: nav, HUD, hero, availability, standards
-    stations.json          The four stations: headline, lede, CTA, service list
-    projects.json          Case studies: pitches, problems, decisions, metric notes, demo widgets
-    console.json           The contact console and its two tabs
-    about.json             The About page: what we do, team roles, how we work
-
-app/
-  [locale]/
-    layout.tsx             Fonts (Onest, JetBrains Mono — self-hosted), TranslationsProvider
-    page.tsx               Renders <Experience />
-    work/                  Case study index and [slug]
-    about/                 Team, what we do, how we work
+app/                       Routes only
+  [locale]/layout.tsx      Fonts, TranslationsProvider, cookie banner, light veil
+  [locale]/page.tsx        Renders <Experience />
+  [locale]/work/           Case study index and [slug]
+  [locale]/about/          Team, what we do, how we work
+  [locale]/terms/          Terms of use
+  sitemap.ts robots.ts llms.txt/
   globals.css              @theme tokens, .panel / .drawer / .copy-scrim / .field / .range
 
-components/
-  experience.tsx           Lenis root, scroll bridge, overlay stack, scroll runway
-  navbar.tsx               Fixed glass header, sliding nav pill, mega-menu drawer
-  project-dock.tsx         Station brief + docked project card with prototype frame
-
-  webgl/
-    cosmos-scene.tsx       <Canvas>, lighting rig, quality tiers, scene graph
-    flight-driver.tsx      Damps scroll into flight state at priority -10
-    cosmos-flight.tsx      Moves the camera along the spline + pointer parallax
-    earth.tsx              Procedural planet: continents, clouds, cities, atmosphere
-    ringed-planet.tsx      Station 02 body
-    ice-planet.tsx         Station 03 body
-    pulsar.tsx             Station 04 body
-    rings.tsx              Flat accretion rings — shared by the ringed planet and pulsar
-    logo-model.tsx         Extruded MIW logo, orbital ring, satellite node
-    starfield.tsx          3,200 instanced stars that stretch into warp streaks
-    effects.tsx            Post-processing chain
-
-  overlay/
-    stage.tsx              Scroll-window primitive
-    transmission-console.tsx  Contact console (composes an email — see below)
+modules/
+  home/                    The scroll flight
+    experience.tsx         Lenis root, scroll bridge, overlay stack, scroll runway
+    navbar.tsx             Fixed glass header, sliding nav pill, mega-menu drawer
+    project-dock.tsx       Station brief + docked project card with prototype frame
+    transmission-console.tsx  The contact console at the end of the flight
     fallback.tsx           The flat page: touch screens, no GPU
+    stage.tsx              Scroll-window primitive
+    stations.ts            The four stations, their scroll anchors, the header sections
+    flight.ts              Shared flight state, camera spline, warp/proximity curves
+    scene/                 The WebGL scene: <Canvas>, planets, rings, starfield, effects, GLSL
+  work/                    Case studies: projects.ts, screenshots, showcase frames, diagrams
+  team/                    The people, the orbit cover, its ASCII version and the team orbit
+  contact/                 The contact form, its options and validation, the server action
+                           and delivery (Resend / Telegram), the contact address
+  layout/                  The frame around the light pages: header, cover hero, footer,
+                           language switcher, error screen
+  legal/                   The terms page and the operator facts it stands on
+  i18n/                    Locale config, initTranslations(), provider, LocaleLink, hreflang
+  cookies/                 The cookie banner and what it allows to be stored
+  seo/                     siteUrl(), JSON-LD, the page list for the sitemap
 
-lib/
-  flight.ts                Shared flight state, camera spline, warp/proximity curves
-  stations.ts              The four stations, their projects, and their scroll anchors
-  glsl.ts                  Simplex noise + fbm, ring scattering — shared by shaders
-  utils.ts                 cn(), bindUniforms(), detectHardwareWebGL()
+shared/                    Code with no feature of its own: cn(), useIdle(), glyphs,
+                           the ASCII canvas, the station ids
 ```
 
-Structure lives in `lib/stations.ts` and `data/projects.ts` — ids, scroll anchors, stack lists,
-diagram coordinates, metric figures. Every word lives in `locales/<lang>/`, keyed by those same
-ids. The navbar, the dock, the HUD and the flat page all read from both.
+The rules, checked in CI by `scripts/ci/boundaries.mjs` (`npm run check:boundaries`):
+
+- `app/` imports modules only, through `@/modules/<name>` or `@/modules/<name>/server`.
+- A module imports another module the same way, never a file inside it, and its own files by
+  relative path.
+- `shared/` imports no module. Modules never import `app/`.
+- A `"use client"` file never imports a `server` entry.
+- No two modules depend on each other, directly or around a loop.
+
+To add a feature, give it a folder in `modules/`, export what other code needs from its
+`index.ts`, and use it from a route. When two modules need the same piece and it belongs to
+neither, it goes to `shared/`.
+
+Structure lives in `modules/home/stations.ts` and `modules/work/projects.ts` — ids, scroll
+anchors, stack lists, diagram coordinates, metric figures. Every word lives in
+`locales/<lang>/`, keyed by those same ids. The navbar, the dock, the HUD and the flat page all
+read from both.
 
 ---
 
@@ -189,20 +196,20 @@ down — or, worse, quietly ship a half-translated page.
 
 ## Architecture notes
 
-**Scroll state bypasses React.** `lib/flight.ts` exports a single mutable object read inside
+**Scroll state bypasses React.** `modules/home/flight.ts` exports a single mutable object read inside
 `useFrame` at 60–120 Hz. Routing per-frame scroll through `useState` would spend the entire
 frame budget in the reconciler. The HUD writes straight to the DOM in `requestAnimationFrame`
 for the same reason.
 
 **Uniforms are attached by ref, not by prop.** React Three Fiber *clones* a `uniforms` object
 passed as a JSX prop, so per-frame mutations of your original never reach the GPU. Every shader
-here uses `ref={bindUniforms(...)}` from `lib/utils.ts` instead.
+here uses `ref={bindUniforms(...)}` from `modules/home/scene/bind-uniforms.ts` instead.
 
 **Scroll-linked keyframes must span 0 to 1.** `motion` promotes scroll-linked `opacity`,
 `transform`, and `filter` to a native `ScrollTimeline` animation on the compositor. Chrome fills
 whatever slice of that timeline the keyframes leave uncovered by interpolating back toward the
 element's *underlying* style — so a window ending at `0.036` faded the hero out on cue and then
-quietly faded it back in across the remaining 96% of the page. `ramp()` in `overlay/stage.tsx`
+quietly faded it back in across the remaining 96% of the page. `ramp()` in `modules/home/stage.tsx`
 pads every window out to the full range. The same promotion means a scroll-linked MotionValue
 cannot be driven by hand from JS; only real scroll moves it.
 
@@ -210,12 +217,12 @@ cannot be driven by hand from JS; only real scroll moves it.
 outside the source MotionValue's domain crashes the renderer. `sanitizeWindow()` clamps every
 window and keeps its stops strictly increasing.
 
-**Camera waypoints are pinned to station anchors.** `WAYPOINTS` in `lib/flight.ts` and `anchor`
-in `lib/stations.ts` are the same numbers, so each station's framing is exact at the scroll
+**Camera waypoints are pinned to station anchors.** `WAYPOINTS` in `modules/home/flight.ts` and
+`anchor` in `modules/home/stations.ts` are the same numbers, so each station's framing is exact at the scroll
 position where its copy is fully open. `warpAt` and `proximityAt` are computed from the same
 segment function and are exact inverses of each other.
 
-**Rings are integrated, not textured.** `rings.tsx` derives the orbital radius per fragment from
+**Rings are integrated, not textured.** `scene/rings.tsx` derives the orbital radius per fragment from
 `length(vLocal.xy)` over a `RingGeometry`, then accumulates opacity with Beer–Lambert:
 `alpha = 1 - exp(-density * path)`, where `path = 1/max(cosI, 0.055)`. Grazing angles thicken;
 face-on stays razor thin. The planet's shadow across the ring plane is an analytic ray–sphere
@@ -230,10 +237,10 @@ when it is between you and the star.
 ## Accessibility & fallbacks
 
 - `prefers-reduced-motion` is watched live and damps warp intensity to 45% in
-  `webgl/flight-driver.tsx`.
+  `modules/home/scene/flight-driver.tsx`.
 - WebGL is feature-detected on mount, and a context only software can draw (SwiftShader,
   llvmpipe, Microsoft Basic Render Driver) counts as none: the flight would run at a few frames a
-  second and block the page. Then, and on touch screens, `overlay/fallback.tsx` serves a complete
+  second and block the page. Then, and on touch screens, `modules/home/fallback.tsx` serves a complete
   document — the hero, all four stations with their projects, the team and the contact form —
   instead of the camera flight.
 - The console requires at least one engagement type and a valid return address before it will
@@ -242,10 +249,10 @@ when it is between you and the star.
   `aria-pressed` / `aria-expanded`.
 
 The console has no backend. Submitting validates the form, composes an email with every field
-and opens it in the visitor's mail app (`mailto:` to the address in `lib/contact.ts`); the receipt
-says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
+and opens it in the visitor's mail app (`mailto:` to the address in
+`modules/contact/contact.ts`); the receipt says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
 real endpoint (a route handler with Resend, or a form service) is a change to `submit()` in
-`overlay/transmission-console.tsx`.
+`modules/home/transmission-console.tsx`.
 
 ---
 
@@ -253,11 +260,11 @@ real endpoint (a route handler with Resend, or a form service) is a change to `s
 
 Most of the direction lives in three files.
 
-- `lib/stations.ts` — the `anchor` per station. Moving one retimes the narrative; move the
+- `modules/home/stations.ts` — the `anchor` per station. Moving one retimes the narrative; move the
   matching entry in `WAYPOINTS` with it. The words are in `locales/<lang>/stations.json`.
-- `lib/flight.ts` — `WAYPOINTS` (the camera spline), `warpAt` (when warp ramps), `BODY`
+- `modules/home/flight.ts` — `WAYPOINTS` (the camera spline), `warpAt` (when warp ramps), `BODY`
   (where each body sits and how big it is).
-- `components/webgl/effects.tsx` — bloom intensity and threshold, aberration, vignette, grain.
+- `modules/home/scene/effects.tsx` — bloom intensity and threshold, aberration, vignette, grain.
 
-The scroll runway length is `RUNWAY` at the top of `components/experience.tsx`. Shorten it for a
+The scroll runway length is `RUNWAY` at the top of `modules/home/experience.tsx`. Shorten it for a
 faster, denser edit; lengthen it to let each station breathe.

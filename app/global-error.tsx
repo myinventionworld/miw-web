@@ -7,7 +7,7 @@ import "./globals.css";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { ErrorScreen } from "@/components/editorial/error-screen";
+import { ErrorScreen } from "@/modules/layout";
 import cs from "@/locales/cs/common.json";
 import en from "@/locales/en/common.json";
 import ru from "@/locales/ru/common.json";

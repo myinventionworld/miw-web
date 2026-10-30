@@ -36,6 +36,9 @@ jobs:
       - name: Type check
         run: npx next typegen && npx tsc --noEmit
 
+      - name: Module boundaries
+        run: node scripts/ci/boundaries.mjs
+
       - name: Build
         run: npx next build
 

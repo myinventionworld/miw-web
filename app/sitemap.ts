@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 
-import i18nConfig from "@/i18nConfig";
-import { alternates } from "@/lib/locale";
-import { LEGAL_PAGES, PAGES, siteUrl } from "@/lib/site";
+import { i18nConfig, alternates } from "@/modules/i18n";
+import { LEGAL_PAGES, PAGES, siteUrl } from "@/modules/seo";
 
 /**
  * Every page in every language, each listing its translations, so a search

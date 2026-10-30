@@ -1,30 +1,30 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
-import { ArchDiagram } from "@/components/editorial/arch-diagram";
-import { Device } from "@/components/showcase/device";
-import { ReadListen, SeatRace } from "@/components/showcase/explainers";
 import {
+  ArchDiagram,
+  Device,
+  ReadListen,
+  SeatRace,
   BuiltShot,
   ProductShots,
   hasBuiltShot,
   hasScreens,
-} from "@/components/showcase/screens";
-import { EditorialShell } from "@/components/editorial/shell";
-import { JsonLd } from "@/components/json-ld";
-import { PROJECTS, projectBySlug } from "@/data/projects";
-import { initTranslations } from "@/i18n";
-import { STATUS_TONE } from "@/lib/stations";
-import { alternates, localeHref } from "@/lib/locale";
-import { breadcrumbs, caseStudy } from "@/lib/structured-data";
-import { cn } from "@/lib/utils";
+  PROJECTS,
+  projectBySlug,
+  STATUS_TONE,
+} from "@/modules/work";
+import { PageLayout } from "@/modules/layout/server";
+import { JsonLd, breadcrumbs, caseStudy } from "@/modules/seo";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
+import { clsx } from "clsx";
 
 /**
  * The case study. Five sections in a fixed order, because a reader evaluating a
  * studio is running a checklist whether they say so or not: what is it, what was
  * hard, how is it shaped, what did you decide, what does it hold.
  *
- * Statically rendered from `data/projects.ts` and `projects:<id>` — there are
+ * Statically rendered from `modules/work/projects.ts` and `projects:<id>` — there are
  * three of these in three languages and they change when the systems change, so
  * a build is the right cache.
  */
@@ -122,7 +122,7 @@ export default async function WorkCasePage(
   }));
 
   return (
-    <EditorialShell active="work">
+    <PageLayout active="work">
       <JsonLd graph={structured} />
       <header>
         {/* The only way back out of a case study, and it measured 95x13 — a
@@ -145,7 +145,7 @@ export default async function WorkCasePage(
             {project.name}
           </span>
           <span
-            className={cn(
+            className={clsx(
               "flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-label",
               STATUS_TONE[project.status],
             )}
@@ -243,7 +243,7 @@ export default async function WorkCasePage(
             switch. Projects without one keep the working demo. */}
         {explainer || hasBuiltShot(project) ? (
           <div
-            className={cn(
+            className={clsx(
               "mt-12 grid items-center gap-12",
               hasBuiltShot(project) && explainer && "md:grid-cols-[minmax(0,300px)_1fr]",
             )}
@@ -337,7 +337,7 @@ export default async function WorkCasePage(
                   </td>
                   <td className="hidden py-5 align-top sm:table-cell">
                     <span
-                      className={cn(
+                      className={clsx(
                         "text-small font-medium",
                         m.basis === "observed" ? "text-signal" : "text-zinc",
                       )}
@@ -379,6 +379,6 @@ export default async function WorkCasePage(
           {t("case.cta.action")}
         </Link>
       </section>
-    </EditorialShell>
+    </PageLayout>
   );
 }

@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { AsciiCover } from "@/components/editorial/ascii-cover";
-import { CoverHero } from "@/components/editorial/cover-hero";
-import { EditorialShell } from "@/components/editorial/shell";
-import { initTranslations } from "@/i18n";
-import { localeHref } from "@/lib/locale";
+import { CoverHero } from "@/modules/layout";
+import { AsciiCover } from "@/modules/team";
+import { PageLayout } from "@/modules/layout/server";
+import { initTranslations, localeHref } from "@/modules/i18n";
 
 /**
  * The 404 page: the cover in characters, a line in plain words, and the three
@@ -16,7 +15,7 @@ export default async function NotFound() {
   const { t } = await initTranslations(locale, ["common"]);
 
   return (
-    <EditorialShell bleed>
+    <PageLayout bleed>
       <CoverHero picture={<AsciiCover />}>
         <p className="text-small font-medium text-zinc tabular-nums">404</p>
         <h1 className="mt-5 text-[clamp(2.5rem,4.4vw,4rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
@@ -40,6 +39,6 @@ export default async function NotFound() {
           </Link>
         </div>
       </CoverHero>
-    </EditorialShell>
+    </PageLayout>
   );
 }
