@@ -69,6 +69,10 @@ anything but 200 (robots.txt and sitemap.xml included), if a page throws, or if 
 sideways at 320 or 390 px. Screenshots of the main pages, desktop and phone, are attached to the
 run as the `smoke-screenshots` artifact.
 
+Dependabot (`.github/dependabot.yml`) opens a pull request into `redesign/product` every
+Monday: minor and patch updates of npm packages together, each major on its own, and the
+GitHub Actions in one more. CI runs on each of them.
+
 To run it locally against your own build, with the Chrome you already have:
 
 ```bash

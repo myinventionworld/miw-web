@@ -52,5 +52,9 @@
     "reply": "Reply",
     "replyTime": "Within one working day",
     "replyNote": "A person from the team, not a bot."
+  },
+  "notFound": {
+    "title": "This page is not on our map.",
+    "body": "The link may be old, or there is a typo in the address. Everything we do is one click from here."
   }
 }
