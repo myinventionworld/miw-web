@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { AsciiCover } from "@/components/editorial/ascii-cover";
-import { CoverHero } from "@/components/editorial/cover-hero";
-import { EditorialShell } from "@/components/editorial/shell";
-import { initTranslations } from "@/i18n";
-import { localeHref } from "@/lib/locale";
+import { AsciiCover, CoverHero, EditorialShell } from "@/modules/editorial";
+import { initTranslations, localeHref } from "@/modules/i18n";
 
 /**
  * The 404 page: the cover in characters, a line in plain words, and the three

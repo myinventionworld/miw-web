@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 
-import { EditorialShell } from "@/components/editorial/shell";
-import { JsonLd } from "@/components/json-ld";
-import { Device } from "@/components/showcase/device";
-import { ProductShots, hasScreens } from "@/components/showcase/screens";
-import { PROJECTS } from "@/data/projects";
-import { initTranslations } from "@/i18n";
-import { alternates, localeHref } from "@/lib/locale";
-import { breadcrumbs } from "@/lib/structured-data";
-import { cn } from "@/lib/utils";
+import { EditorialShell } from "@/modules/editorial";
+import { JsonLd, breadcrumbs } from "@/modules/seo";
+import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
+import { initTranslations, alternates, localeHref } from "@/modules/i18n";
+import { clsx } from "clsx";
 
 export async function generateMetadata(props: PageProps<"/[locale]/work">) {
   const { locale } = await props.params;
@@ -59,7 +55,7 @@ export default async function WorkIndexPage() {
       </section>
 
       {PROJECTS.map((p, i) => (
-        <section key={p.slug} className={cn(i % 2 === 0 && "bg-carbon")}>
+        <section key={p.slug} className={clsx(i % 2 === 0 && "bg-carbon")}>
           <div className={`${FRAME} py-24 text-center md:py-28`}>
             <p className="inline-flex items-center gap-2 text-small font-semibold text-white">
               <span

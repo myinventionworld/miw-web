@@ -2,10 +2,10 @@ import about from "@/locales/en/about.json";
 import common from "@/locales/en/common.json";
 import projects from "@/locales/en/projects.json";
 import stations from "@/locales/en/stations.json";
-import { PROJECTS } from "@/data/projects";
-import { TEAM } from "@/data/team";
-import { CONTACT_EMAIL } from "@/lib/contact";
-import { siteUrl } from "@/lib/site";
+import { PROJECTS } from "@/modules/work";
+import { TEAM } from "@/modules/team";
+import { CONTACT_EMAIL } from "@/modules/enquiry";
+import { siteUrl } from "@/modules/seo";
 
 /**
  * /llms.txt (llmstxt.org): the site in one Markdown page for language models

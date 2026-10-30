@@ -376,7 +376,7 @@ h2 {
   border-color: color-mix(in srgb, var(--tint) 60%, transparent);
 }
 
-/* ── explainers (components/showcase/explainers.tsx) ─────────────────── */
+/* ── explainers (modules/work/showcase/explainers.tsx) ────────────── */
 
 /* Omnibus seat race, a 9s loop: A takes seat 12, B arrives and waits, A's
    booking commits and B is told the seat is taken. */
@@ -530,7 +530,7 @@ h2 {
   }
 }
 
-/* ── cover (components/editorial/cover.tsx) ──────────────────────────── */
+/* ── cover (modules/team/cover.tsx) ────────────────────────────────── */
 
 /* The orbits draw in from the top edge, the planets come out once their
    orbit is there, and the moon rises the last few units into place. Delays
