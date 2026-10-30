@@ -56,5 +56,12 @@
   "notFound": {
     "title": "Tahle stránka na naší mapě není.",
     "body": "Odkaz je možná starý, nebo je v adrese překlep. Všechno, co děláme, je odsud na jeden klik."
-  }
+  },
+  "error": {
+    "label": "Chyba",
+    "title": "Něco se pokazilo na naší straně.",
+    "body": "Stránku se nepodařilo zobrazit. Zkuste to znovu, a pokud to nepůjde ani podruhé, zbytek webu je odsud na jedno kliknutí.",
+    "retry": "Zkusit znovu"
+  },
+  "signalLost": "Spojení s 3D scénou se přerušilo. Připojujeme se znovu…"
 }

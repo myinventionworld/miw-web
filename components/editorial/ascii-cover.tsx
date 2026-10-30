@@ -19,10 +19,6 @@ const ORBITS = [
 
 const SIZE = 10;
 const ASSEMBLE_SECONDS = 1.2;
-const BAND_EVERY = 9;
-const BAND_FOR = 2.4;
-const FIRST_BAND_AT = 5;
-const STILL_AT = ASSEMBLE_SECONDS + 0.4;
 const LIGHT = [-0.5, -0.62, 0.6];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -63,39 +59,58 @@ function bodyAndOrbits(ux: number, uy: number, px: number, cell: AsciiCell) {
   if (ORBITS.some((o) => Math.abs(d - o.r) < 0.45 * px)) cell.density = 0.2;
 }
 
-const field: AsciiField = (x, y, frame, cell) => {
-  const s = frame.width / W;
-  const h = Math.max(BASE_H, frame.height / s);
-  const px = SIZE / s;
-  const { t } = frame;
-  const ix = Math.floor(x);
-  const iy = Math.floor(y);
-
-  let sx = x;
-  const phase = (t - FIRST_BAND_AT + BAND_EVERY) % BAND_EVERY;
-  if (phase < BAND_FOR) {
-    const band = (phase / BAND_FOR) * (frame.height + 8 * SIZE) - 4 * SIZE;
-    if (Math.abs(y - band) < 1.5 * SIZE) {
-      const tick = Math.floor(t * 10);
-      sx += (hash(iy, tick) - 0.5) * 7 * SIZE;
-      if (hash(ix, iy, tick) < 0.3) {
-        cell.density = 0.15 + 0.5 * hash(iy, ix, tick);
-        return;
-      }
-    }
-  }
-
-  const ux = sx / s;
-  const uy = y / s;
-  if (!moon(ux, uy, h, px, cell) && !product(ux, uy, t, px, cell)) bodyAndOrbits(ux, uy, px, cell);
-
-  if (t < ASSEMBLE_SECONDS && cell.density > 0 && t < hash(ix, iy, 7) * ASSEMBLE_SECONDS) {
-    cell.density = hash(ix, iy, Math.floor(t * 20));
-  }
-
-  if (cell.density === 0 && hash(ix, iy, Math.floor(t * 4)) > 0.994) cell.density = 0.12;
+const SIGNALS = {
+  weak: { bandEvery: 9, bandFor: 2.4, firstBandAt: 5, bandRows: 1.5, torn: 0.3, droppedRows: 0, staticAbove: 0.994 },
+  lost: { bandEvery: 3.2, bandFor: 1.6, firstBandAt: 1.4, bandRows: 3, torn: 0.55, droppedRows: 0.07, staticAbove: 0.982 },
 };
 
-export function AsciiCover() {
-  return <AsciiCanvas field={field} colors={COLORS} size={SIZE} still={STILL_AT} />;
+type Signal = keyof typeof SIGNALS;
+
+const stillAt = (signal: Signal) => {
+  const { firstBandAt, bandFor } = SIGNALS[signal];
+  return signal === "lost" ? firstBandAt + bandFor / 2 : ASSEMBLE_SECONDS + 0.4;
+};
+
+const fieldFor = (signal: Signal): AsciiField => {
+  const { bandEvery, bandFor, firstBandAt, bandRows, torn, droppedRows, staticAbove } = SIGNALS[signal];
+  return (x, y, frame, cell) => {
+    const s = frame.width / W;
+    const h = Math.max(BASE_H, frame.height / s);
+    const px = SIZE / s;
+    const { t } = frame;
+    const ix = Math.floor(x);
+    const iy = Math.floor(y);
+
+    if (droppedRows && hash(iy, Math.floor(t * 3), 11) < droppedRows) return;
+
+    let sx = x;
+    const phase = (t - firstBandAt + bandEvery) % bandEvery;
+    if (phase < bandFor) {
+      const band = (phase / bandFor) * (frame.height + 8 * SIZE) - 4 * SIZE;
+      if (Math.abs(y - band) < bandRows * SIZE) {
+        const tick = Math.floor(t * 10);
+        sx += (hash(iy, tick) - 0.5) * 7 * SIZE;
+        if (hash(ix, iy, tick) < torn) {
+          cell.density = 0.15 + 0.5 * hash(iy, ix, tick);
+          return;
+        }
+      }
+    }
+
+    const ux = sx / s;
+    const uy = y / s;
+    if (!moon(ux, uy, h, px, cell) && !product(ux, uy, t, px, cell)) bodyAndOrbits(ux, uy, px, cell);
+
+    if (t < ASSEMBLE_SECONDS && cell.density > 0 && t < hash(ix, iy, 7) * ASSEMBLE_SECONDS) {
+      cell.density = hash(ix, iy, Math.floor(t * 20));
+    }
+
+    if (cell.density === 0 && hash(ix, iy, Math.floor(t * 4)) > staticAbove) cell.density = 0.12;
+  };
+};
+
+const FIELDS = { weak: fieldFor("weak"), lost: fieldFor("lost") };
+
+export function AsciiCover({ signal = "weak" }: { signal?: Signal }) {
+  return <AsciiCanvas field={FIELDS[signal]} colors={COLORS} size={SIZE} still={stillAt(signal)} />;
 }

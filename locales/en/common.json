@@ -56,5 +56,12 @@
   "notFound": {
     "title": "This page is not on our map.",
     "body": "The link may be old, or there is a typo in the address. Everything we do is one click from here."
-  }
+  },
+  "error": {
+    "label": "Error",
+    "title": "Something broke on our side.",
+    "body": "The page could not be shown. Try again; if it fails a second time, the rest of the site is one click away.",
+    "retry": "Try again"
+  },
+  "signalLost": "Lost the connection to the 3D scene. Reconnecting…"
 }
