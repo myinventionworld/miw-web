@@ -8,6 +8,7 @@ import { NOISE_GLSL } from "./glsl";
 import { BODY, damp, flight, smoothstep } from "../flight";
 import { useBakedCube } from "./baked-cube";
 import { bindUniforms } from "./bind-uniforms";
+import { useCull } from "./cull";
 
 const POS = new THREE.Vector3(...BODY.labs.pos);
 const R = BODY.labs.radius;
@@ -110,8 +111,10 @@ void main() {
 `;
 
 export function IcePlanet() {
+  const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const opacity = useRef(0);
+  const cull = useCull();
   const fields = useBakedCube(fieldsFragment, 1024);
 
   const uniforms = useMemo(
@@ -130,13 +133,14 @@ export function IcePlanet() {
     opacity.current = damp(opacity.current, target, 6, delta);
 
     uniforms.uOpacity.value = opacity.current;
+    cull(root.current, opacity.current);
     uniforms.uTime.value += delta;
 
     if (planet.current) planet.current.rotation.y += delta * 0.014;
   });
 
   return (
-    <group position={POS} rotation={[0, 0, 0.22]}>
+    <group ref={root} position={POS} rotation={[0, 0, 0.22]}>
       <mesh ref={planet}>
         <sphereGeometry args={[R, 112, 56]} />
         <shaderMaterial

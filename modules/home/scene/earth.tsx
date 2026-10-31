@@ -8,6 +8,7 @@ import { NOISE_GLSL } from "./glsl";
 import { useBakedCube } from "./baked-cube";
 import { BODY, damp, flight, smoothstep } from "../flight";
 import { bindUniforms } from "./bind-uniforms";
+import { useCull } from "./cull";
 
 const EARTH_ORIGIN = BODY.backend.pos;
 const EARTH_RADIUS = BODY.backend.radius;
@@ -176,9 +177,11 @@ void main() {
 `;
 
 export function Earth() {
+  const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const clouds = useRef<THREE.Mesh>(null);
   const opacity = useRef(1);
+  const cull = useCull();
 
   const surfaceMap = useBakedCube(surfaceFields, 1024);
   const cloudMap = useBakedCube(cloudFields, 512);
@@ -212,6 +215,7 @@ export function Earth() {
     const target = 1 - smoothstep(0.16, 0.26, p);
     opacity.current = damp(opacity.current, target, 6, delta);
     const fade = opacity.current;
+    cull(root.current, fade);
 
     uniforms.surface.uOpacity.value = fade;
     uniforms.cloud.uOpacity.value = fade * 0.9;
@@ -225,7 +229,7 @@ export function Earth() {
   });
 
   return (
-    <group position={EARTH_ORIGIN} rotation={[0, 0, 0.36]}>
+    <group ref={root} position={EARTH_ORIGIN} rotation={[0, 0, 0.36]}>
       <mesh ref={planet}>
         <sphereGeometry args={[EARTH_RADIUS, 128, 64]} />
         <shaderMaterial

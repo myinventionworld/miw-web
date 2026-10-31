@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { BODY, damp, flight, smoothstep } from "../flight";
 import { Rings } from "./rings";
 import { bindUniforms } from "./bind-uniforms";
+import { useCull } from "./cull";
 
 const POS = new THREE.Vector3(...BODY.guild.pos);
 const R = BODY.guild.radius;
@@ -95,6 +96,7 @@ export function Pulsar() {
   const core = useRef<THREE.Mesh>(null);
   const shock = useRef<THREE.Mesh>(null);
   const ringFade = useRef(0);
+  const cull = useCull();
 
   const uniforms = useMemo(
     () => ({
@@ -148,6 +150,7 @@ export function Pulsar() {
 
     if (core.current) core.current.rotation.y += delta * 0.12;
 
+    cull(shock.current, pulse);
     if (shock.current) {
       shock.current.scale.setScalar(pulse > 0.001 ? 1 + (1 - pulse) * 7 : 0.0001);
       shock.current.quaternion.copy(camera.quaternion);

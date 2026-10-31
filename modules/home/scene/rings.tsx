@@ -6,6 +6,7 @@ import * as THREE from "three";
 
 import { RING_GLSL } from "./glsl";
 import { bindUniforms } from "./bind-uniforms";
+import { useCull } from "./cull";
 
 /**
  * A flat, razor-thin debris ring. Deliberately not a glow sprite: the radius is
@@ -122,6 +123,7 @@ export function Rings({
   glow = 0,
 }: RingsProps) {
   const mesh = useRef<THREE.Mesh>(null);
+  const cull = useCull();
   const uniforms = useMemo(
     () => ({
       uInner: { value: inner },
@@ -144,6 +146,7 @@ export function Rings({
 
   useFrame((_, delta) => {
     uniforms.uOpacity.value = fade.current;
+    cull(mesh.current, fade.current);
     uniforms.uPlanetPos.value.copy(planetPosition);
     // Rotating in the ring's own plane keeps the band structure static while
     // the dust drifts, which is what the eye actually reads as orbital motion.
