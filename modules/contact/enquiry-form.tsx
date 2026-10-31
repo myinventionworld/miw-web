@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { CONTACT_EMAIL, mailtoHref } from "./contact";
+import { mailtoHref } from "./contact";
 import { cn } from "@/shared/lib/cn";
 import { SignalStrip } from "./signal-strip";
 import { Honeypot, useEnquiry } from "./use-enquiry";
@@ -18,51 +18,43 @@ const FIELD =
  * of that page. Same server action and the same checks as the 3D console; the
  * tab, stage and timeline stay on the deck, where there is room for them.
  */
-export function EnquiryForm({ direct }: { direct: boolean }) {
+export function EnquiryForm() {
   const { t } = useTranslation(["console", "common"]);
   const [name, setName] = useState("");
   const [org, setOrg] = useState("");
   const [email, setEmail] = useState("");
   const [budget, setBudget] = useState<string>(BUDGETS[0]);
   const [scope, setScope] = useState("");
-  const { status, setStatus, submit, touch, website, setWebsite } = useEnquiry(direct);
+  const { status, setStatus, submit, touch, website, setWebsite, humanCheck } = useEnquiry({
+    theme: "light",
+  });
   const sending = status.kind === "sending";
+  const failed = status.kind === "failed";
   const [inside, setInside] = useState(false);
 
-  if (status.kind === "delivered" || status.kind === "mailto") {
-    const delivered = status.kind === "delivered";
+  if (status.kind === "delivered") {
     return (
       <div className="mt-8 text-left" role="status">
         <SignalStrip state="sent" />
         <h3 className="mt-4 text-title font-bold tracking-[-0.02em] text-white">
-          {delivered ? t("receipt.sentTitle") : t("receipt.title")}
+          {t("receipt.sentTitle")}
         </h3>
         <p className="mt-2 text-body leading-relaxed text-zinc">
-          {delivered
-            ? t("receipt.sentBody", {
-                reply: t("common:contact.replyTime"),
-                email: status.email,
-              })
-            : t("receipt.body", { email: CONTACT_EMAIL })}
+          {t("receipt.sentBody", {
+            reply: t("common:contact.replyTime"),
+            email: status.email,
+          })}
         </p>
-        {status.kind === "mailto" && (
-          <a
-            href={mailtoHref(status.subject, status.body)}
-            className="mt-5 inline-flex rounded-full bg-action px-5 py-2.5 text-small font-semibold text-on-action transition-colors hover:bg-action-hover"
-          >
-            {t("receipt.reopen")}
-          </a>
-        )}
         <button
           type="button"
           onClick={() => {
-            if (delivered) setScope("");
+            setScope("");
             setInside(false);
             setStatus({ kind: "idle" });
           }}
           className="mt-5 block text-small text-comet hover:underline"
         >
-          {delivered ? t("receipt.another") : t("receipt.amend")}
+          {t("receipt.another")}
         </button>
       </div>
     );
@@ -140,22 +132,17 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
         className={cn(FIELD, "resize-none leading-relaxed")}
       />
       <Honeypot value={website} onChange={setWebsite} />
+      <div ref={humanCheck} />
 
       <p
         role="status"
         aria-live="polite"
         className={cn(
           "pt-1 text-small leading-relaxed",
-          status.kind === "error" || status.kind === "failed" ? "text-amber-700" : "text-zinc",
+          status.kind === "error" || failed ? "text-amber-700" : "text-zinc",
         )}
       >
-        {status.kind === "error"
-          ? status.message
-          : status.kind === "failed"
-            ? t("form.errSend", { email: CONTACT_EMAIL })
-            : direct
-              ? t("form.idleDirect")
-              : t("form.idle", { email: CONTACT_EMAIL })}
+        {status.kind === "error" || status.kind === "failed" ? status.message : t("form.idle")}
       </p>
       {status.kind === "failed" && (
         <a
@@ -171,7 +158,7 @@ export function EnquiryForm({ direct }: { direct: boolean }) {
         disabled={sending}
         className="flex w-full items-center justify-center rounded-full bg-action px-6 py-3.5 text-lead font-medium text-on-action transition-colors hover:bg-action-hover disabled:opacity-70"
       >
-        {sending ? t("form.sending") : direct ? t("form.send") : t("form.submit")}
+        {sending ? t("form.sending") : failed ? t("form.retry") : t("form.send")}
       </button>
       <p className="text-meta text-zinc">{t("form.privacy")}</p>
     </form>

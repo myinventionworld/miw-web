@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, type MotionValue } from "motion/react";
 
 import { firePulse } from "./flight";
-import { CONTACT_EMAIL, mailtoHref } from "@/modules/contact";
+import { mailtoHref } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
 import { SiteFooter } from "@/modules/layout";
 import {
@@ -100,14 +100,7 @@ function Segmented({
   );
 }
 
-export function TransmissionConsole({
-  progress,
-  direct,
-}: {
-  progress: MotionValue<number>;
-  /** The server can send the message itself (see `modules/contact/delivery.ts`). */
-  direct: boolean;
-}) {
+export function TransmissionConsole({ progress }: { progress: MotionValue<number> }) {
   const { t } = useTranslation(["console", "common"]);
   const [tab, setTab] = useState<ConsoleTab>("business");
   const [engagement, setEngagement] = useState<EngagementId>("website");
@@ -118,15 +111,12 @@ export function TransmissionConsole({
   const [budget, setBudget] = useState<string>(BUDGETS[0]);
   const [timeline, setTimeline] = useState<string>(TIMELINES[0]);
   const [scope, setScope] = useState("");
-  const [copied, setCopied] = useState(false);
-  const { status, setStatus, submit, touch, website, setWebsite } = useEnquiry(
-    direct,
-    () => {
-      firePulse();
-      setCopied(false);
-    },
-  );
+  const { status, setStatus, submit, touch, website, setWebsite, humanCheck } = useEnquiry({
+    theme: "dark",
+    onSent: firePulse,
+  });
   const sending = status.kind === "sending";
+  const failed = status.kind === "failed";
 
   /**
    * Only the engagements that belong to this tab. Switching tabs re-points the
@@ -152,15 +142,6 @@ export function TransmissionConsole({
     // Checked again on the server; here so the message lands next to the
     // button instead of after a round trip.
     submit({ name, org, email, scope, budget, tab, engagement, stage, timeline });
-  }
-
-  async function copyMessage(text: string) {
-    try {
-      await navigator.clipboard.writeText(`${CONTACT_EMAIL}\n\n${text}`);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
   }
 
   return (
@@ -260,47 +241,6 @@ export function TransmissionConsole({
                   className="mt-6 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
                 >
                   {t("receipt.another")}
-                </button>
-              </motion.div>
-            ) : status.kind === "mailto" ? (
-              <motion.div
-                key="receipt"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="py-10 text-center"
-              >
-                <SignalStrip state="sent" className="mx-auto h-14 max-w-md" />
-                <h3 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">
-                  {t("receipt.title")}
-                </h3>
-                <p className="mx-auto mt-3 max-w-md text-lead leading-relaxed text-platinum">
-                  {t("receipt.body", { email: CONTACT_EMAIL })}
-                </p>
-
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-                  <a
-                    href={mailtoHref(status.subject, status.body)}
-                    className="rounded-full bg-white px-6 py-2.5 text-small font-semibold text-void transition-colors hover:bg-platinum"
-                  >
-                    {t("receipt.reopen")}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => copyMessage(status.body)}
-                    className="rounded-full border border-white/20 px-6 py-2.5 text-small font-medium text-white transition-colors hover:border-white/50 hover:bg-white/[0.06]"
-                  >
-                    {copied ? t("receipt.copied") : t("receipt.copy")}
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setStatus({ kind: "idle" })}
-                  className="mt-5 text-small text-zinc underline-offset-4 transition-colors hover:text-white hover:underline"
-                >
-                  {t("receipt.amend")}
                 </button>
               </motion.div>
             ) : (
@@ -447,23 +387,18 @@ export function TransmissionConsole({
                 <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-5 deck-short:mt-4 deck-short:gap-3 deck-short:pt-3 lg:col-span-2 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
                   <Honeypot value={website} onChange={setWebsite} />
                   <div className="min-w-0 space-y-1">
+                    <div ref={humanCheck} />
                     <p
                       role="status"
                       aria-live="polite"
                       className={cn(
                         "text-meta leading-relaxed",
-                        status.kind === "error" || status.kind === "failed"
-                          ? "text-amber-300"
-                          : "text-zinc",
+                        status.kind === "error" || failed ? "text-amber-300" : "text-zinc",
                       )}
                     >
-                      {status.kind === "error"
+                      {status.kind === "error" || status.kind === "failed"
                         ? status.message
-                        : status.kind === "failed"
-                          ? t("form.errSend", { email: CONTACT_EMAIL })
-                          : direct
-                            ? t("form.idleDirect")
-                            : t("form.idle", { email: CONTACT_EMAIL })}
+                        : t("form.idle")}
                     </p>
                     <p className="text-meta text-steel">{t("form.privacy")}</p>
                     {status.kind === "failed" && (
@@ -481,11 +416,7 @@ export function TransmissionConsole({
                     disabled={sending}
                     className="flex w-full shrink-0 items-center justify-center rounded-full bg-white px-7 py-3 text-body font-semibold text-void transition-colors hover:bg-platinum disabled:opacity-70 sm:w-auto"
                   >
-                    {sending
-                      ? t("form.sending")
-                      : direct
-                        ? t("form.send")
-                        : t("form.submit")}
+                    {sending ? t("form.sending") : failed ? t("form.retry") : t("form.send")}
                   </button>
                 </div>
               </motion.form>

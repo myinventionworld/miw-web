@@ -74,26 +74,25 @@
     "errOrg": "Doplňte prosím firmu nebo projekt.",
     "errEmail": "Doplňte prosím e-mail, na který odpovíme.",
     "errScope": "Popište prosím zadání jednou dvěma větami.",
-    "idle": "Otevře se vaše pošta s připravenou zprávou na {{email}}.",
-    "submit": "Pokračovat v e-mailu",
-    "idleDirect": "Zpráva půjde rovnou týmu. Každou čte člověk.",
+    "idle": "Zpráva půjde rovnou týmu. Každou čte člověk.",
     "send": "Odeslat",
     "sending": "Odesíláme…",
+    "retry": "Zkusit znovu",
     "privacy": "Údaje použijeme jen k tomu, abychom vám odpověděli.",
     "errFast": "To bylo rychlé. Zkontrolujte formulář a klikněte znovu na Odeslat.",
-    "errSend": "Odeslání se nepovedlo. Otevřete zprávu v poště, nebo napište na {{email}}.",
+    "errSend": "Zprávu se nepodařilo odeslat. Zkuste to znovu, nebo ji pošlete ze své pošty na {{email}}.",
+    "errLimited": "Z tohoto připojení přišlo příliš mnoho zpráv. Zkuste to za pár minut, nebo napište na {{email}}.",
+    "errHuman": "Nepodařilo se ověřit, že zprávu posílá člověk. Zkuste to znovu, nebo napište na {{email}}.",
     "openMail": "Otevřít v poště",
     "orWrite": "Nebo napište na"
   },
   "receipt": {
-    "title": "Skoro hotovo",
-    "body": "Měla by se otevřít vaše pošta s připravenou zprávou. Klikněte tam na Odeslat — do té doby k nám nic nedorazí. Pokud se nic neotevřelo, zkopírujte zprávu a pošlete ji na {{email}}.",
-    "reopen": "Otevřít poštu znovu",
-    "copy": "Zkopírovat zprávu",
-    "copied": "Zkopírováno",
-    "amend": "Upravit zprávu",
     "sentTitle": "Máme to",
     "sentBody": "{{reply}} vám na {{email}} odpoví člověk z týmu.",
     "another": "Napsat další zprávu"
+  },
+  "autoreply": {
+    "subject": "Vaši zprávu jsme dostali — MIW Labs",
+    "body": "Dobrý den,\n\ntoto je automatické potvrzení: vaše zpráva dorazila k týmu MIW Labs. Odpoví vám člověk z týmu do jednoho pracovního dne.\n\nPokud chcete něco doplnit, stačí odpovědět na tento e-mail.\n\nMIW Labs"
   }
 }

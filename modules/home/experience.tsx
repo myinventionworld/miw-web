@@ -88,15 +88,7 @@ function Hero({
  * navigation has to drive Lenis rather than `window.scrollTo`, or the smooth
  * scroller and the browser fight each other for the same scrollTop.
  */
-function Deck({
-  webgl,
-  direct,
-  onSceneLost,
-}: {
-  webgl: boolean;
-  direct: boolean;
-  onSceneLost: () => void;
-}) {
+function Deck({ webgl, onSceneLost }: { webgl: boolean; onSceneLost: () => void }) {
   const { t } = useTranslation("common");
   const scene = useRef<HTMLDivElement>(null);
   const [lost, setLost] = useState(false);
@@ -222,7 +214,7 @@ function Deck({
         mode={mode}
         onAction={() => travel(CONSOLE_ANCHOR)}
       />
-      <TransmissionConsole progress={progress} direct={direct} />
+      <TransmissionConsole progress={progress} />
 
       {/* The only element with real height — everything else is fixed. */}
       <div aria-hidden className={`${RUNWAY} w-full`} />
@@ -230,8 +222,7 @@ function Deck({
   );
 }
 
-/** `direct`: the contact form can send on its own (`modules/contact/delivery.ts`). */
-export function Experience({ direct }: { direct: boolean }) {
+export function Experience() {
   /**
    * `null` until the first client effect, because both inputs are runtime
    * capabilities and a server render has neither. Rendering the deck optimistically
@@ -281,7 +272,7 @@ export function Experience({ direct }: { direct: boolean }) {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} direct={direct} onSceneLost={toFlatPage} />
+      <Deck webgl={Boolean(flight3d)} onSceneLost={toFlatPage} />
     </ReactLenis>
   );
 
@@ -296,7 +287,7 @@ export function Experience({ direct }: { direct: boolean }) {
     <>
       {flight3d !== true && (
         <div className={flight3d === false ? undefined : "hidden [@media(pointer:coarse)_and_(hover:none)]:block"}>
-          <Fallback direct={direct} />
+          <Fallback />
         </div>
       )}
       {flight3d !== false && (

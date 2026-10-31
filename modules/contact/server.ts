@@ -1,1 +1,0 @@
-export { canDeliver } from "./delivery";
