@@ -33,7 +33,7 @@ export function StationPanel({
         <span className={`${CORNER} bottom-0 left-0 border-b border-l`} />
         <span className={`${CORNER} right-0 bottom-0 border-r border-b`} />
 
-        <div className="flex items-center justify-between border-b border-line px-4 py-2 font-mono text-label tracking-wider text-steel uppercase">
+        <div className="flex items-center justify-between border-b border-line px-4 py-2 font-mono text-label tracking-wider text-zinc uppercase">
           <span className="flex items-center gap-2">
             <SignalMeter />
             {channel}
@@ -43,7 +43,7 @@ export function StationPanel({
 
         <div className="px-4 pt-4">{children}</div>
 
-        <div className="mt-4 grid grid-cols-2 divide-x divide-line border-t border-line font-mono text-label tracking-wider uppercase">
+        <div className="mt-4 grid grid-cols-2 divide-x divide-line border-t border-line font-mono text-small tracking-wide uppercase">
           {actions}
         </div>
       </div>

@@ -2,12 +2,12 @@ import { cn } from "@/shared/lib/cn";
 
 const TONES = {
   primary: {
-    key: "bg-comet/10 text-comet-soft hover:bg-comet/20 hover:text-white",
-    code: "text-comet/60 group-hover:text-comet",
+    key: "bg-comet/20 text-white hover:bg-comet/30",
+    code: "text-comet-soft",
   },
   muted: {
-    key: "text-zinc hover:bg-white/5 hover:text-white",
-    code: "text-steel",
+    key: "text-platinum hover:bg-white/8 hover:text-white",
+    code: "text-zinc",
   },
 };
 
