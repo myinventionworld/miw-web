@@ -12,18 +12,28 @@ const TURNED_SIZES = "(min-width: 768px) 440px, 80vw";
 // is clipped with stepped edges.
 const SMOOTH = "will-change-transform outline outline-transparent [backface-visibility:hidden]";
 
+function Ground() {
+  return <div aria-hidden className="absolute inset-x-[10%] -bottom-[5%] -z-10 h-[10%] rounded-[50%] bg-[#111214]/40 blur-2xl" />;
+}
+
 export function PhoneFan({ left, center, right }: { left: Shot; center: Shot; right: Shot }) {
   const reduce = useReducedMotion();
 
   return (
-    <div className="relative mx-auto max-w-[440px] pt-[4%] pb-[10%] md:max-w-[720px]">
+    <div className="relative mx-auto max-w-[440px] pt-[4%] pb-[12%] md:max-w-[720px]">
       <div className="relative z-10 mx-auto w-[48%] md:w-[36%]">
         <PhoneFrame shot={center} />
+        <Ground />
       </div>
       {[left, right].map((shot, i) => {
         const sign = i === 0 ? -1 : 1;
         const place = cn("absolute top-[16%] w-[40%] md:w-[30%]", i === 0 ? "left-0" : "right-0", SMOOTH);
-        const phone = <PhoneFrame shot={shot} sizes={TURNED_SIZES} />;
+        const phone = (
+          <>
+            <PhoneFrame shot={shot} sizes={TURNED_SIZES} />
+            <Ground />
+          </>
+        );
         if (reduce) {
           return (
             <div key={shot.alt} className={place} style={{ transform: `rotate(${sign * TILT}deg)` }}>
