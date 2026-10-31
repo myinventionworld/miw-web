@@ -73,6 +73,7 @@ export function PhoneFrame({ shot, className }: { shot: Shot; className?: string
         src={shot.src}
         alt={shot.alt}
         sizes="(min-width: 768px) 260px, 60vw"
+        quality={90}
         className="block h-auto w-full rounded-[2.1rem]"
       />
     </div>

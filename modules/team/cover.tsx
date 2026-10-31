@@ -104,6 +104,9 @@ export function Cover({
   const [h, setH] = useState(BASE_H);
   /** Composition units per CSS pixel. */
   const [unit, setUnit] = useState(1);
+  const label = useRef<HTMLDivElement>(null);
+  const [pointed, setPointed] = useState<HTMLElement | null>(null);
+  const [named, setNamed] = useState<CoverPerson | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -118,6 +121,45 @@ export function Cover({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // The label lives above every layer, so the moon never covers it, and is
+  // placed each frame on whichever side of the face has room in the box.
+  useEffect(() => {
+    const box = ref.current;
+    const el = label.current;
+    if (!pointed || !box || !el) return;
+    let raf = 0;
+    const place = () => {
+      const b = box.getBoundingClientRect();
+      const f = pointed.getBoundingClientRect();
+      const w = el.offsetWidth;
+      const lh = el.offsetHeight;
+      const gap = 10;
+      const pad = 8;
+      const roomRight = b.right - f.right - gap - pad;
+      const roomLeft = f.left - b.left - gap - pad;
+      let x: number;
+      let y = f.top - b.top + f.height / 2 - lh / 2;
+      if (roomRight >= w) x = f.right - b.left + gap;
+      else if (roomLeft >= w) x = f.left - b.left - gap - w;
+      else {
+        x = f.left - b.left + f.width / 2 - w / 2;
+        y = f.bottom - b.top + gap;
+        if (y + lh > b.height - pad) y = f.top - b.top - gap - lh;
+      }
+      x = Math.min(Math.max(x, pad), b.width - w - pad);
+      y = Math.min(Math.max(y, pad), b.height - lh - pad);
+      el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      raf = requestAnimationFrame(place);
+    };
+    place();
+    return () => cancelAnimationFrame(raf);
+  }, [pointed]);
+
+  const point = (person: CoverPerson, el: HTMLElement | null) => {
+    setPointed(el);
+    if (el) setNamed(person);
+  };
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -145,7 +187,7 @@ export function Cover({
       .map(({ p, k }) => ({
         key: p.id,
         angle: o.product.angle + (360 / PLACES) * (1 + Math.floor(k / ORBITS.length)),
-        node: <Face person={p} delay={1.3 + i * 0.22} />,
+        node: <Face person={p} delay={1.3 + i * 0.22} onPoint={point} />,
       })),
   ]);
 
@@ -203,6 +245,20 @@ export function Cover({
           <circle className="cover-moon" cx={MOON.cx} cy={h + MOON.sink} r={MOON.r} fill="var(--color-comet)" />
         </svg>
       </motion.div>
+
+      <div
+        ref={label}
+        className={cn(
+          "pointer-events-none absolute top-0 left-0 z-10 max-w-[min(18rem,calc(100%-1rem))] rounded-2xl border border-line bg-void px-3 py-1.5 text-meta leading-snug font-medium text-white transition-opacity duration-200",
+          pointed ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {named && (
+          <>
+            <span className="font-semibold">{named.name}</span> · {named.role}
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -213,20 +269,23 @@ export function Cover({
  * nobody. The pointer gets the name and role, and a click goes to the person
  * there.
  */
-function Face({ person, delay }: { person: CoverPerson; delay: number }) {
-  // The face moves slowly, so the side is worked out once, when the pointer
-  // arrives.
-  const [right, setRight] = useState(false);
-
+function Face({
+  person,
+  delay,
+  onPoint,
+}: {
+  person: CoverPerson;
+  delay: number;
+  onPoint: (person: CoverPerson, el: HTMLElement | null) => void;
+}) {
   return (
     <a
       href={`#team-${person.id}`}
       tabIndex={-1}
       onPointerEnter={(e) => {
-        const face = e.currentTarget.getBoundingClientRect();
-        const cover = e.currentTarget.closest("[data-cover]")?.getBoundingClientRect();
-        if (cover) setRight(face.left + face.width / 2 < cover.left + cover.width / 2);
+        if (e.pointerType === "mouse") onPoint(person, e.currentTarget);
       }}
+      onPointerLeave={() => onPoint(person, null)}
       onClick={(e) => {
         e.preventDefault();
         history.replaceState(null, "", `#team-${person.id}`);
@@ -261,15 +320,6 @@ function Face({ person, delay }: { person: CoverPerson; delay: number }) {
       ) : (
         initials(person.name)
       )}
-      <span
-        className={cn(
-          orbitClasses.label,
-          right && orbitClasses.labelRight,
-          "rounded-full border border-line bg-void px-3 py-1.5 text-meta font-medium whitespace-nowrap text-white",
-        )}
-      >
-        {person.name} · {person.role}
-      </span>
     </a>
   );
 }

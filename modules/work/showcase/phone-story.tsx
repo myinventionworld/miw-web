@@ -54,6 +54,7 @@ export function PhoneStory({ steps }: { steps: StoryStep[] }) {
                 alt={i === active ? s.alt : ""}
                 aria-hidden={i !== active}
                 sizes="300px"
+                quality={90}
                 className={cn(
                   "block h-auto w-full rounded-[2.1rem] transition-opacity duration-500 ease-out",
                   i === 0 ? "relative" : "absolute inset-0",

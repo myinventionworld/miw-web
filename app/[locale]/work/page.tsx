@@ -75,7 +75,7 @@ export default async function WorkIndexPage() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-lead font-medium">
-              {p.liveUrl ? (
+              {p.liveUrl && (
                 <a
                   href={p.liveUrl}
                   target="_blank"
@@ -85,18 +85,6 @@ export default async function WorkIndexPage() {
                   {t("common:project.liveAppOut")}
                   <span className="sr-only"> {p.name}</span>
                 </a>
-              ) : (
-                p.repoUrl && (
-                  <a
-                    href={p.repoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-comet hover:underline"
-                  >
-                    {t("common:project.sourceOut")}
-                    <span className="sr-only"> {p.name}</span>
-                  </a>
-                )
               )}
               <Link
                 href={localeHref(locale, `/work/${p.slug}`)}

@@ -12,8 +12,8 @@
  * as a result belonging to someone else's business.
  *
  * A link says what it actually opens. `liveUrl` is a deployment a stranger can
- * load; `repoUrl` is source. A university project is labelled as one — one
- * mislabelled link or badge costs more trust than the whole page buys.
+ * load. A university project is labelled as one — one mislabelled link or
+ * badge costs more trust than the whole page buys.
  *
  * What is left here is what a translator must not be able to change: addresses,
  * stack names, statuses, metric figures and the grid a diagram is laid out on.
@@ -110,8 +110,6 @@ export interface ProjectCase {
   host: string;
   /** A deployment anyone can open. Omitted when there is not one. */
   liveUrl?: string;
-  /** Source. Not the same thing as a running app, so not the same field. */
-  repoUrl?: string;
   stack: string[];
   metrics: Metric[];
   design: { nodes: ArchNode[]; edges: ArchEdge[] };
@@ -130,7 +128,6 @@ export const PROJECTS: ProjectCase[] = [
     variant: "booking",
     host: "omnibus.79.72.58.230.nip.io",
     liveUrl: "https://omnibus.79.72.58.230.nip.io/",
-    repoUrl: "https://github.com/TheRainHub/BUS2HOLIDAY",
     stack: ["Java", "Spring Boot", "PostgreSQL", "React", "Docker", "k3s"],
     metrics: [
       { id: "overbooking", value: "Zero", basis: "target" },
@@ -169,7 +166,6 @@ export const PROJECTS: ProjectCase[] = [
     variant: "reader",
     host: "boovie-kappa.vercel.app",
     liveUrl: "https://boovie-kappa.vercel.app/",
-    repoUrl: "https://github.com/TheRainHub/Boovie",
     stack: ["Next.js", "TypeScript", "IndexedDB", "OPFS", "Service Worker"],
     metrics: [
       { id: "formats", value: "5", basis: "observed" },
@@ -208,7 +204,6 @@ export const PROJECTS: ProjectCase[] = [
     environment: "demo",
     host: "wovienext.vercel.app",
     liveUrl: "https://wovienext.vercel.app/",
-    repoUrl: "https://github.com/TheRainHub/wovie_next-",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Prisma", "TMDB API"],
     metrics: [
       { id: "route", value: "< 90ms", basis: "target" },

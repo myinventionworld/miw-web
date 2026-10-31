@@ -43,6 +43,7 @@ export function PhoneSwitch({
           alt={i === active ? s.alt : ""}
           aria-hidden={i !== active}
           sizes="(min-width: 768px) 300px, 64vw"
+          quality={90}
           className={cn(
             "block h-auto w-full rounded-[2.1rem] transition-opacity duration-700 ease-out",
             i === 0 ? "relative" : "absolute inset-0",
