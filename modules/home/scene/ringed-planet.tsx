@@ -9,6 +9,7 @@ import { BODY, damp, flight, smoothstep } from "../flight";
 import { useBakedCube } from "./baked-cube";
 import { Rings } from "./rings";
 import { bindUniforms } from "./bind-uniforms";
+import { useCull } from "./cull";
 
 const POS = new THREE.Vector3(...BODY.commerce.pos);
 const R = BODY.commerce.radius;
@@ -137,9 +138,11 @@ void main() {
 `;
 
 export function RingedPlanet() {
+  const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const fade = useRef(0);
   const opacity = useRef(0);
+  const cull = useCull();
   const fields = useBakedCube(fieldsFragment, 512);
 
   const uniforms = useMemo(
@@ -166,13 +169,14 @@ export function RingedPlanet() {
     fade.current = opacity.current;
 
     uniforms.uOpacity.value = opacity.current;
+    cull(root.current, opacity.current);
     uniforms.uTime.value += delta;
 
     if (planet.current) planet.current.rotation.y += delta * 0.018;
   });
 
   return (
-    <group position={POS}>
+    <group ref={root} position={POS}>
       <mesh ref={planet}>
         <sphereGeometry args={[R, 96, 48]} />
         <shaderMaterial
