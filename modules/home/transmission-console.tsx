@@ -2,10 +2,11 @@
 
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { AnimatePresence, motion, type MotionValue } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, type MotionValue } from "motion/react";
 
 import { firePulse } from "./flight";
 import { mailtoHref } from "@/modules/contact";
+import { useBannerAside } from "@/modules/cookies";
 import { cn } from "@/shared/lib/cn";
 import { SiteFooter } from "@/modules/layout";
 import {
@@ -117,6 +118,10 @@ export function TransmissionConsole({ progress }: { progress: MotionValue<number
   });
   const sending = status.kind === "sending";
   const failed = status.kind === "failed";
+
+  const [open, setOpen] = useState(() => progress.get() > WINDOW[0]);
+  useMotionValueEvent(progress, "change", (p) => setOpen(p > WINDOW[0]));
+  useBannerAside(open);
 
   /**
    * Only the engagements that belong to this tab. Switching tabs re-points the

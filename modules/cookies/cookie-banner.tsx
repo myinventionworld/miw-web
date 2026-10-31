@@ -3,16 +3,20 @@
 import { useTranslation } from "react-i18next";
 
 import { useLocale } from "@/modules/i18n";
+import { cn } from "@/shared/lib/cn";
+import { useAside } from "./aside";
 import { setConsent, useConsent } from "./consent";
 
 import { Alien } from "./alien";
 import { ConsoleKey } from "./console-key";
 import { StationPanel } from "./station-panel";
+import s from "./cookie-banner.module.css";
 
 export function CookieBanner() {
   const locale = useLocale();
   const { t } = useTranslation("common");
   const consent = useConsent();
+  const aside = useAside();
 
   if (consent !== null) return null;
 
@@ -21,7 +25,10 @@ export function CookieBanner() {
       label={t("cookies.label")}
       channel={t("cookies.channel")}
       station="DOCK-03"
-      className="fixed inset-x-4 bottom-4 z-[100] sm:bottom-6 sm:left-auto sm:right-6 sm:w-[25rem]"
+      className={cn(
+        "fixed inset-x-4 bottom-4 z-[100] sm:bottom-6 sm:left-auto sm:right-6 sm:w-[25rem]",
+        aside && s.stowed,
+      )}
       actions={
         <>
           <ConsoleKey

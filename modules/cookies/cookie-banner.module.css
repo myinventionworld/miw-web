@@ -2,6 +2,13 @@
   animation: dock 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* An animation, not a transition: `dock` fills forwards, and a filled
+   animation outranks any opacity or transform set on the element. */
+.stowed {
+  pointer-events: none;
+  animation: stow 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
 .starfield {
   background-image:
     radial-gradient(circle at 18% 30%, rgb(255 255 255 / 0.35) 0.5px, transparent 1px),
@@ -30,6 +37,10 @@
   .pulse {
     animation: none;
   }
+
+  .stowed {
+    visibility: hidden;
+  }
 }
 
 @keyframes dock {
@@ -40,6 +51,14 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes stow {
+  to {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    visibility: hidden;
   }
 }
 
