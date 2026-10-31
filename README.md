@@ -120,8 +120,8 @@ modules/
     scene/                 The WebGL scene: <Canvas>, planets, rings, starfield, effects, GLSL
   work/                    Case studies: projects.ts, screenshots, showcase frames, diagrams
   team/                    The people, the orbit cover, its ASCII version and the team orbit
-  contact/                 The contact form, its options and validation, the server action
-                           and delivery (Resend / Telegram), the contact address
+  contact/                 The contact form, its options and validation, the server action,
+                           delivery (Resend / Telegram), spam checks, the contact address
   layout/                  The frame around the light pages: header, cover hero, footer,
                            language switcher, error screen
   legal/                   The terms page and the operator facts it stands on
@@ -248,11 +248,18 @@ when it is between you and the star.
 - Decorative layers are marked `aria-hidden`, and controls carry explicit `aria-label` /
   `aria-pressed` / `aria-expanded`.
 
-The console has no backend. Submitting validates the form, composes an email with every field
-and opens it in the visitor's mail app (`mailto:` to the address in
-`modules/contact/contact.ts`); the receipt says plainly that nothing is sent until they press Send, and offers a copy of the message. Wiring a
-real endpoint (a route handler with Resend, or a form service) is a change to `submit()` in
-`modules/home/transmission-console.tsx`.
+Both contact forms, the console and the one on the flat page, post to one Server Action,
+`sendEnquiry` in `modules/contact/actions.ts`. It checks the form again, then emails the team
+through Resend with the visitor as Reply-To (and posts to Telegram, if a bot is set up). Once the
+team has it, the visitor gets a short confirmation in their language from the studio's domain;
+it carries none of their own words, because anyone can type any address into the form. If
+nothing gets through, the form says so, keeps the message, and offers to send it again or to open
+it in the visitor's mail app.
+
+Spam checks: a honeypot field, a minimum fill time, at most five attempts per IP in ten minutes
+(in the memory of one server instance) and, when its keys are set, Cloudflare Turnstile. Its
+script loads on the first touch of the form and stays invisible unless Cloudflare asks for a
+click. The environment variables are in `.env.example`.
 
 ---
 

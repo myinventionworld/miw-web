@@ -1,10 +1,8 @@
 /**
  * Where enquiries go. One address, read by a person.
  *
- * The contact form sends through the server (`actions.ts`, by
- * email via Resend and/or to Telegram) when those are configured, and
- * otherwise composes an email and hands it to the visitor's mail app
- * (`mailto:`). The address is also the fallback the form shows when sending
+ * The contact form sends through the server (`actions.ts`). The address is
+ * what the form offers, as a `mailto:` with the message ready, when that
  * fails.
  */
 export const CONTACT_EMAIL = "mykhailoplokhin@gmail.com";

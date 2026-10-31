@@ -1,7 +1,9 @@
 "use server";
 
+import { after } from "next/server";
+
 import { initTranslations } from "@/modules/i18n";
-import { canDeliver, deliver } from "./delivery";
+import { canConfirm, canDeliver, confirm, deliver } from "./delivery";
 import {
   MIN_FILL_MS,
   checkEnquiry,
@@ -9,17 +11,23 @@ import {
   type EnquiryField,
   type EnquiryInput,
 } from "./enquiry";
+import { allow, clientIp, isHuman } from "./guard";
 
 export type EnquiryResult =
   /** A person on the team has it. */
   | { status: "sent" }
-  /** No channel configured: the form hands the message to the mail app. */
-  | { status: "unconfigured" }
   | { status: "invalid"; field: EnquiryField }
   /** Sent faster than a person can fill the form in. */
   | { status: "too-fast" }
-  /** Every configured channel refused it. */
+  /** Too many attempts from one address. */
+  | { status: "limited" }
+  /** Turnstile did not vouch for the sender. */
+  | { status: "unverified" }
+  /** Nothing took it: every channel refused, or none is configured. */
   | { status: "failed" };
+
+const PER_IP = 5;
+const CONFIRMATIONS_PER_ADDRESS = 2;
 
 /**
  * The contact form's server side, for both the 3D console and the phone page.
@@ -40,13 +48,25 @@ export async function sendEnquiry(input: EnquiryInput): Promise<EnquiryResult> {
 
   const checked = checkEnquiry(input);
   if (!checked.ok) return { status: "invalid", field: checked.field };
-  if (!canDeliver()) return { status: "unconfigured" };
+
+  const ip = await clientIp();
+  if (!allow(`ip:${ip}`, PER_IP)) return { status: "limited" };
+  if (!(await isHuman(input.token, ip))) return { status: "unverified" };
+  if (!canDeliver()) {
+    console.error("[contact] no delivery channel: set RESEND_API_KEY (see .env.example)");
+    return { status: "failed" };
+  }
 
   const enquiry = checked.value;
   const { t } = await initTranslations(enquiry.locale, ["console"]);
-  const { subject, body } = composeEnquiry(enquiry, (key) => t(key));
+  const message = composeEnquiry(enquiry, (key) => t(key));
+  if (!(await deliver({ ...message, replyTo: enquiry.email }))) return { status: "failed" };
 
-  return (await deliver({ subject, body, replyTo: enquiry.email }))
-    ? { status: "sent" }
-    : { status: "failed" };
+  // The confirmation goes to an address anyone can type in, so it carries
+  // none of the visitor's own words and each address gets only a couple.
+  if (canConfirm() && allow(`to:${enquiry.email.toLowerCase()}`, CONFIRMATIONS_PER_ADDRESS)) {
+    const confirmation = { subject: t("autoreply.subject"), body: t("autoreply.body") };
+    after(() => confirm(enquiry.email, confirmation));
+  }
+  return { status: "sent" };
 }

@@ -32,7 +32,7 @@ import { cn } from "@/shared/lib/cn";
  * header; from tablet width up the opening is About's, words beside the cover,
  * in About's 64rem frame.
  */
-export function Fallback({ direct }: { direct: boolean }) {
+export function Fallback() {
   const { t, i18n } = useTranslation(["common", "stations", "projects", "console", "about"]);
 
   const people: TeamMember[] = TEAM.map((p) => {
@@ -235,7 +235,7 @@ export function Fallback({ direct }: { direct: boolean }) {
             </p>
           </div>
           <div className="mx-auto max-w-xl lg:mx-0 lg:max-w-none">
-            <EnquiryForm direct={direct} />
+            <EnquiryForm />
             {/* The address stays in plain sight for anyone who would rather
                 write from their own mail. */}
             <p className="mt-6 text-small text-zinc">

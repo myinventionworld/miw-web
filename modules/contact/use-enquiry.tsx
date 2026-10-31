@@ -3,14 +3,15 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { sendEnquiry } from "./actions";
-import { mailtoHref } from "./contact";
+import { sendEnquiry, type EnquiryResult } from "./actions";
+import { CONTACT_EMAIL } from "./contact";
 import {
   checkEnquiry,
   composeEnquiry,
   type EnquiryField,
   type EnquiryInput,
 } from "./enquiry";
+import { useTurnstile } from "./turnstile";
 
 export type EnquiryStatus =
   | { kind: "idle" }
@@ -18,10 +19,8 @@ export type EnquiryStatus =
   | { kind: "sending" }
   /** The server has it and a person on the team will see it. */
   | { kind: "delivered"; email: string }
-  /** Handed to the visitor's mail app: nothing is sent until they press Send. */
-  | { kind: "mailto"; subject: string; body: string }
-  /** The server could not send it. The mail app is the way out. */
-  | { kind: "failed"; subject: string; body: string };
+  /** It did not reach the team. Send retries; the mail app is the way out. */
+  | { kind: "failed"; message: string; subject: string; body: string };
 
 const MESSAGE: Record<EnquiryField, string> = {
   name: "form.errName",
@@ -31,26 +30,32 @@ const MESSAGE: Record<EnquiryField, string> = {
   choice: "form.errScope",
 };
 
-type Fields = Omit<EnquiryInput, "locale" | "website" | "elapsed">;
+const FAILURE: Record<Extract<EnquiryResult["status"], "failed" | "limited" | "unverified">, string> = {
+  failed: "form.errSend",
+  limited: "form.errLimited",
+  unverified: "form.errHuman",
+};
+
+type Fields = Omit<EnquiryInput, "locale" | "website" | "elapsed" | "token">;
 
 /**
- * The contact form's state, shared by the 3D console and the phone page.
- *
- * `direct` says whether the server can send (it has a Resend key or a
- * Telegram bot); the page reads that at build time. Without it the form does
- * what it always did and opens the visitor's mail app with the message ready.
- * With it the message goes through the server action, and if that fails the
- * mail app is offered as the fallback, with the address in plain sight.
+ * The contact form's state, shared by the 3D console and the phone page. The
+ * message goes through the server action; if it does not get through, the
+ * form says why and offers the visitor's mail app with the message ready.
+ * `humanCheck` is the ref for the Turnstile box, which stays empty unless
+ * Cloudflare asks for a click.
  */
-export function useEnquiry(direct: boolean, onSent?: () => void) {
+export function useEnquiry({ theme, onSent }: { theme: "light" | "dark"; onSent?: () => void }) {
   const { t, i18n } = useTranslation(["console", "common"]);
   const [status, setStatus] = useState<EnquiryStatus>({ kind: "idle" });
   const [website, setWebsite] = useState("");
   /** First touch of any field: the clock for the minimum fill time. */
   const started = useRef<number | null>(null);
+  const human = useTurnstile({ theme, language: i18n.language });
 
   const touch = () => {
     if (started.current === null) started.current = Date.now();
+    human.prepare();
   };
 
   async function submit(fields: Fields) {
@@ -62,40 +67,39 @@ export function useEnquiry(direct: boolean, onSent?: () => void) {
       return;
     }
     const { subject, body } = composeEnquiry(checked.value, (key) => t(key));
-
-    const handOff = () => {
-      onSent?.();
-      setStatus({ kind: "mailto", subject, body });
-      window.location.href = mailtoHref(subject, body);
-    };
-    if (!direct) {
-      handOff();
-      return;
-    }
+    const fail = (key: string) =>
+      setStatus({ kind: "failed", message: t(key, { email: CONTACT_EMAIL }), subject, body });
 
     setStatus({ kind: "sending" });
+    const token = await human.take();
+    if (token === null) {
+      fail(FAILURE.unverified);
+      return;
+    }
     try {
       const res = await sendEnquiry({
         ...input,
         website,
         elapsed: started.current === null ? 0 : Date.now() - started.current,
+        token,
       });
       if (res.status === "sent") {
         onSent?.();
         setStatus({ kind: "delivered", email: checked.value.email });
-      } else if (res.status === "unconfigured") handOff();
-      else if (res.status === "invalid")
+      } else if (res.status === "invalid") {
         setStatus({ kind: "error", message: t(MESSAGE[res.field]) });
-      else if (res.status === "too-fast")
+      } else if (res.status === "too-fast") {
         setStatus({ kind: "error", message: t("form.errFast") });
-      else setStatus({ kind: "failed", subject, body });
+      } else {
+        fail(FAILURE[res.status]);
+      }
     } catch {
       // Offline, or a tab left open across a deploy whose action id is gone.
-      setStatus({ kind: "failed", subject, body });
+      fail("form.errSend");
     }
   }
 
-  return { status, setStatus, submit, touch, website, setWebsite };
+  return { status, setStatus, submit, touch, website, setWebsite, humanCheck: human.box };
 }
 
 /**

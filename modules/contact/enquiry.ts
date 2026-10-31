@@ -38,6 +38,8 @@ export type EnquiryInput = Partial<Record<keyof Enquiry, string>> & {
   website?: string;
   /** Milliseconds from the first touch of the form to Send. */
   elapsed?: number;
+  /** Cloudflare Turnstile's token, when the site has a Turnstile key. */
+  token?: string;
 };
 
 /** Which field to point at when something is wrong. */
@@ -95,7 +97,7 @@ type Translate = (key: string) => string;
 
 /**
  * Subject and body of the message, in the language the visitor wrote in. The
- * mail-app fallback, the email and the Telegram message are all this text, so
+ * email, the Telegram message and the mail-app fallback are all this text, so
  * whichever way an enquiry arrives it reads the same.
  */
 export function composeEnquiry(e: Enquiry, t: Translate) {
