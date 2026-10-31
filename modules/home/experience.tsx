@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import { clamp01, flight } from "./flight";
 import { useDockSnap } from "./use-dock-snap";
-import { CONSOLE_ANCHOR, stationById, type Mode } from "./stations";
+import { CONSOLE_ANCHOR, STATIONS, stationById, type Mode } from "./stations";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./fallback";
@@ -174,15 +174,19 @@ function Deck({
     [travel],
   );
 
-  // The editorial routes link back to `/#transmission`. Lenis owns scrollTop,
-  // so the browser's native hash jump lands on nothing — the camera has to be
-  // flown there instead, once, after the scroller exists.
+  // The editorial routes link back to `/#transmission` and to a station
+  // (`/#commerce`). Lenis owns scrollTop, so the browser's native hash jump
+  // lands on nothing — the camera has to be flown there instead, once, after
+  // the scroller exists.
   const jumped = useRef(false);
   useEffect(() => {
     if (!lenis || jumped.current) return;
-    if (window.location.hash !== "#transmission") return;
+    const hash = window.location.hash.slice(1);
+    const station = STATIONS.find((s) => s.id === hash);
+    const anchor = hash === "transmission" ? CONSOLE_ANCHOR : station?.anchor;
+    if (anchor === undefined) return;
     jumped.current = true;
-    const id = setTimeout(() => travel(CONSOLE_ANCHOR), 140);
+    const id = setTimeout(() => travel(anchor), 140);
     return () => clearTimeout(id);
   }, [lenis, travel]);
 

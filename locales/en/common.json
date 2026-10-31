@@ -25,7 +25,16 @@
   "footer": {
     "back": "Back to home",
     "legal": "Legal",
-    "terms": "Terms of use"
+    "terms": "Terms of use",
+    "studio": "Studio",
+    "services": "Services",
+    "products": "Products",
+    "team": "Team",
+    "allWork": "All work",
+    "writeUs": "Write to us",
+    "copyEmail": "Copy the address",
+    "copied": "Copied",
+    "replyIn": "We reply within one working day."
   },
   "project": {
     "caseStudy": "Case study",
