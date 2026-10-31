@@ -55,7 +55,6 @@
   "case": {
     "back": "← Všechny práce",
     "launch": "Otevřít aplikaci",
-    "readSource": "Zdrojový kód",
     "diagramAlt": "Schéma architektury",
     "sections": {
       "problem": "Problém",
@@ -66,8 +65,7 @@
     },
     "table": {
       "figure": "Údaj",
-      "measures": "Co znamená",
-      "basis": "Základ"
+      "measures": "Co znamená"
     },
     "cta": {
       "title": "Potřebujete něco podobného?",

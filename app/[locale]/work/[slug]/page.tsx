@@ -97,10 +97,6 @@ export default async function WorkCasePage(
       <ReadListen t={tr} />
     ) : null;
 
-  // Only print the half of the legend the table actually uses. A "measured"
-  // footnote under three budgets is a footnote that reads as a hedge.
-  const bases = Array.from(new Set(project.metrics.map((m) => m.basis)));
-
   const points = t(`${project.id}.problem.points`, {
     returnObjects: true,
   }) as string[];
@@ -168,8 +164,6 @@ export default async function WorkCasePage(
           {t(`${project.id}.credit`)}
         </p>
 
-        {/* Links, labelled for what they open. A repository behind a button that
-            says "live app" is the cheapest way to lose an engineer's trust. */}
         <div className="mt-8 flex flex-wrap items-center gap-3">
           {project.liveUrl && (
             <a
@@ -179,16 +173,6 @@ export default async function WorkCasePage(
               className="flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover"
             >
               {t("case.launch")}
-            </a>
-          )}
-          {project.repoUrl && (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10"
-            >
-              {t("case.readSource")}
             </a>
           )}
           <span className="text-label text-steel">
@@ -299,10 +283,8 @@ export default async function WorkCasePage(
           {t(`${project.id}.results.lede`)}
         </p>
 
-        {/* A table rather than three hero numbers, because the basis column is
-            the point. Read across: figure, what it measures, where it comes
-            from. A budget and a measurement look identical in monospace until
-            something says which is which. */}
+        {/* A target is marked under its figure: a budget and a measurement
+            look identical until something says which is which. */}
         <div className="mt-8 overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
@@ -312,9 +294,6 @@ export default async function WorkCasePage(
                 </th>
                 <th className="py-3 pr-5 text-label text-steel">
                   {t("case.table.measures")}
-                </th>
-                <th className="hidden py-3 pr-5 text-label text-steel sm:table-cell">
-                  {t("case.table.basis")}
                 </th>
               </tr>
             </thead>
@@ -328,22 +307,14 @@ export default async function WorkCasePage(
                     <span className="mt-2 block text-label text-signal">
                       {t(`${project.id}.metrics.${m.id}.label`)}
                     </span>
+                    {m.basis === "target" && (
+                      <span className="mt-1 block text-label text-steel">
+                        {t("basis.target.label")}
+                      </span>
+                    )}
                   </td>
                   <td className="py-5 pr-5 align-top text-body leading-relaxed text-zinc">
                     {t(`${project.id}.metrics.${m.id}.note`)}
-                    <span className="mt-2 block text-label text-steel sm:hidden">
-                      {t(`basis.${m.basis}.label`)}
-                    </span>
-                  </td>
-                  <td className="hidden py-5 align-top sm:table-cell">
-                    <span
-                      className={clsx(
-                        "text-small font-medium",
-                        m.basis === "observed" ? "text-signal" : "text-zinc",
-                      )}
-                    >
-                      {t(`basis.${m.basis}.label`)}
-                    </span>
                   </td>
                 </tr>
               ))}
@@ -351,18 +322,6 @@ export default async function WorkCasePage(
           </table>
         </div>
 
-        <dl className="mt-4 space-y-1">
-          {bases.map((b) => (
-            <div key={b} className="flex gap-2">
-              <dt className="text-label text-steel">
-                {t(`basis.${b}.label`)}
-              </dt>
-              <dd className="text-label leading-[1.6] text-steel">
-                — {t(`basis.${b}.note`)}
-              </dd>
-            </div>
-          ))}
-        </dl>
       </section>
 
       <section className="mt-24 border-t border-white/12 pt-16">

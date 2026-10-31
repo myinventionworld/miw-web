@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
     // 480 fills the gap between 384 and 640: a phone screenshot drawn ~240px
     // wide on a 2x screen used to get the 640px file.
     imageSizes: [32, 48, 64, 96, 128, 256, 384, 480],
+    // 90 for phone screenshots, whose small UI text blurs at the default.
+    qualities: [75, 90],
   },
 
   experimental: {

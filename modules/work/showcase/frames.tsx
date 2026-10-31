@@ -61,7 +61,15 @@ export function BrowserFrame({
   );
 }
 
-export function PhoneFrame({ shot, className }: { shot: Shot; className?: string }) {
+export function PhoneFrame({
+  shot,
+  className,
+  sizes = "(min-width: 768px) 260px, 60vw",
+}: {
+  shot: Shot;
+  className?: string;
+  sizes?: string;
+}) {
   return (
     <div
       className={cn(
@@ -72,7 +80,8 @@ export function PhoneFrame({ shot, className }: { shot: Shot; className?: string
       <Image
         src={shot.src}
         alt={shot.alt}
-        sizes="(min-width: 768px) 260px, 60vw"
+        sizes={sizes}
+        quality={90}
         className="block h-auto w-full rounded-[2.1rem]"
       />
     </div>

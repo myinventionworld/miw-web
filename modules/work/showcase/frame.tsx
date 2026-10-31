@@ -96,17 +96,6 @@ export function ProjectActions({ project }: { project: ProjectCase }) {
         </a>
       )}
 
-      {!project.liveUrl && project.repoUrl && (
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={ACTION}
-        >
-          {t("project.source")}
-        </a>
-      )}
-
       <LocaleLink href={`/work/${project.slug}`} className={ACTION}>
         {t("project.readCaseStudy")}
       </LocaleLink>

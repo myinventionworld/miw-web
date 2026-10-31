@@ -45,10 +45,7 @@ export function GET() {
     "",
     ...PROJECTS.map((p) => {
       const c = copy[p.id];
-      const links = [
-        p.liveUrl && `[open the app](${p.liveUrl})`,
-        p.repoUrl && `[source](${p.repoUrl})`,
-      ].filter(Boolean);
+      const links = [p.liveUrl && `[open the app](${p.liveUrl})`].filter(Boolean);
       return (
         `- [${p.name}](${page(`/work/${p.slug}`)}): ${c.pitch} ` +
         `${c.category}. ${env[p.environment]}. Stack: ${p.stack.join(", ")}.` +

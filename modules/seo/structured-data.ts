@@ -103,7 +103,6 @@ export function caseStudy(
       applicationCategory: copy.category,
       operatingSystem: "Web",
       ...(project.liveUrl && { url: project.liveUrl }),
-      ...(project.repoUrl && { sameAs: project.repoUrl }),
     },
   };
 }

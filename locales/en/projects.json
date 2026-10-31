@@ -55,7 +55,6 @@
   "case": {
     "back": "← All work",
     "launch": "Open the live app",
-    "readSource": "Source code",
     "diagramAlt": "Architecture diagram",
     "sections": {
       "problem": "The problem",
@@ -66,8 +65,7 @@
     },
     "table": {
       "figure": "Figure",
-      "measures": "What it means",
-      "basis": "Basis"
+      "measures": "What it means"
     },
     "cta": {
       "title": "Need something similar?",
