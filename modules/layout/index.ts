@@ -1,3 +1,4 @@
+export { BigFooter } from "./big-footer";
 export { CoverHero } from "./cover-hero";
 export { ErrorScreen } from "./error-screen";
 export { LocaleSwitch } from "./locale-switch";

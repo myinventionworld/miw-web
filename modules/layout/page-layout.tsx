@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
-import { LocaleSwitch } from "./locale-switch";
 import { initTranslations } from "@/modules/i18n";
 import { localeHref } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
-import { SiteFooter } from "./site-footer";
+import { BigFooter } from "./big-footer";
 
 /**
  * Chrome for the 2D routes.
@@ -106,23 +105,10 @@ export async function PageLayout({
         </main>
       )}
 
-      {/* The language switcher lives down here rather than in the header, and
-          that is a measurement not a preference: the header row clears 320px by
-          3.6px, so a third control up there is the thing that puts every
-          editorial route back into horizontal scroll. The footer row already
-          wraps, so it can carry one more item for free. */}
-      <SiteFooter
-        className="border-t border-line"
-        frame="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:px-8"
-      >
-        <LocaleSwitch />
-        <Link
-          href={localeHref(locale, "/")}
-          className="-my-2 rounded-md py-2 text-meta text-zinc transition-colors hover:text-white"
-        >
-          {t("footer.back")}
-        </Link>
-      </SiteFooter>
+      {/* The language switcher lives in the footer rather than the header: the
+          header row clears 320px by 3.6px, and a third control up there puts
+          every editorial route back into horizontal scroll. */}
+      <BigFooter />
     </div>
   );
 }

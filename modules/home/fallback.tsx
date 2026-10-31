@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Cover, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { LocaleSwitch, SiteFooter } from "@/modules/layout";
+import { BigFooter, LocaleSwitch } from "@/modules/layout";
 import {
   Device,
   ProductShots,
@@ -119,7 +119,7 @@ export function Fallback({ direct }: { direct: boolean }) {
             : [];
 
           return (
-            <section key={s.id} className={cn(i % 2 === 0 && "bg-carbon")}>
+            <section key={s.id} id={s.id} className={cn("scroll-mt-4", i % 2 === 0 && "bg-carbon")}>
               <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 md:max-w-5xl md:py-24">
                 <p className="text-small font-semibold text-zinc">
                   {t(`stations:${s.id}.nav`)}
@@ -248,14 +248,7 @@ export function Fallback({ direct }: { direct: boolean }) {
         </section>
       </main>
 
-      {/* A phone reaches this after the form, so the language switch is here
-          again rather than only at the top of a very long page. */}
-      <SiteFooter
-        className="theme-light border-t border-line bg-void"
-        frame="mx-auto max-w-3xl px-5 py-8 sm:px-8 md:max-w-5xl"
-      >
-        <LocaleSwitch />
-      </SiteFooter>
+      <BigFooter />
     </>
   );
 }

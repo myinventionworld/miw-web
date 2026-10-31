@@ -25,7 +25,16 @@
   "footer": {
     "back": "Zpět na úvod",
     "legal": "Právní informace",
-    "terms": "Podmínky užívání"
+    "terms": "Podmínky užívání",
+    "studio": "Studio",
+    "services": "Služby",
+    "products": "Produkty",
+    "team": "Tým",
+    "allWork": "Všechny práce",
+    "writeUs": "Napište nám",
+    "copyEmail": "Zkopírovat adresu",
+    "copied": "Zkopírováno",
+    "replyIn": "Odpovídáme do jednoho pracovního dne."
   },
   "project": {
     "caseStudy": "Případová studie",
