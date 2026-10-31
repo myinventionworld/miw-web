@@ -47,8 +47,9 @@ const fromHash = (hash: string) => (hash.startsWith("#team-") ? hash.slice(6) : 
  * a few seconds, so `/about#team-ivan` is a link to Ivan.
  *
  * On About it is a section of its own with a heading. `embedded` drops the
- * heading and the page frame and stacks the orbit over the card, for a page
- * that already introduces the team (the phone home).
+ * heading and the page frame, for a page that already introduces the team
+ * (the flat home): the orbit over the card on a phone, beside it from tablet
+ * width.
  */
 export function TeamOrbit({
   people,
@@ -220,7 +221,7 @@ export function TeamOrbit({
       className={cn(
         "grid scroll-mt-20 items-center gap-y-10",
         embedded
-          ? "[grid-template-areas:'orbit'_'card']"
+          ? "[grid-template-areas:'orbit'_'card'] md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-x-12 md:[grid-template-areas:'card_orbit']"
           : "mx-auto max-w-6xl gap-x-12 px-4 py-24 [grid-template-areas:'head'_'orbit'_'card'] sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,40rem)] md:gap-y-12 md:px-8 md:py-32 md:[grid-template-areas:'head_orbit'_'card_orbit']",
       )}
     >

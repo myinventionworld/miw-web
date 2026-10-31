@@ -7,7 +7,7 @@ import {
   useTransform,
 } from "motion/react";
 import Image from "next/image";
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { initials } from "./team";
 import { cn } from "@/shared/lib/cn";
@@ -30,10 +30,10 @@ import { useIdle } from "@/shared/lib/use-idle";
  * in view, so a body drifts in from the top edge, crosses and leaves. The
  * still frame is the design system's cover: the three products where it puts
  * them. The orbits draw in once, the moon rises the last few units, and on
- * scroll the system and the moon drift apart a little. Pointing at a person
- * grows the face and shows who it is while the orbit keeps turning; a click
- * goes to them in the team block. Off screen, in a hidden tab or with reduced
- * motion nothing turns.
+ * scroll (not on touch screens) the system and the moon drift apart a little.
+ * Pointing at a person grows the face and shows who it is while the orbit
+ * keeps turning; a click goes to them in the team block. Off screen, in a
+ * hidden tab or with reduced motion nothing turns.
  *
  * On a phone there is no pointer: a tap on a face goes straight to the team
  * block. Without `people` the cover is products only.
@@ -62,6 +62,14 @@ const ORBITS = [
 
 const PLACES = 4;
 const PERSON = 40;
+const DRIFT_PX = 48;
+const TOUCH = "(hover: none) and (pointer: coarse)";
+
+const onTouchChange = (cb: () => void) => {
+  const q = window.matchMedia(TOUCH);
+  q.addEventListener("change", cb);
+  return () => q.removeEventListener("change", cb);
+};
 
 export interface CoverPerson {
   id: string;
@@ -87,16 +95,25 @@ export function Cover({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
+  // Scroll-linked motion trails the finger on touch screens and lifts the
+  // orbits' ends into view, so there the picture stays put.
+  const touch = useSyncExternalStore(onTouchChange, () => window.matchMedia(TOUCH).matches, () => false);
+  const still = reduce || touch;
   const idle = useIdle(ref);
   /** Height of the drawing in composition units; 320 is the 3:2 cover. */
   const [h, setH] = useState(BASE_H);
+  /** Composition units per CSS pixel. */
+  const [unit, setUnit] = useState(1);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      if (width > 0) setH(Math.max(BASE_H, Math.round((W * height) / width)));
+      if (width > 0) {
+        setH(Math.max(BASE_H, Math.round((W * height) / width)));
+        setUnit(W / width);
+      }
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -139,16 +156,21 @@ export function Cover({
       data-cover
       className={cn("@container relative h-full w-full overflow-hidden", idle && orbitClasses.paused, className)}
     >
-      <motion.div className="absolute inset-0" style={reduce ? undefined : { y: systemY }}>
+      {/* Taller than the box by the drift, so rising on scroll never shows
+          where the orbits end. */}
+      <motion.div
+        className="absolute inset-x-0 top-0"
+        style={{ bottom: -DRIFT_PX, ...(still ? undefined : { y: systemY }) }}
+      >
         <svg
-          viewBox={`0 0 ${W} ${h}`}
+          viewBox={`0 0 ${W} ${h + DRIFT_PX * unit}`}
           preserveAspectRatio="xMaxYMin slice"
           className="absolute inset-0 block h-full w-full"
         >
           {ORBITS.map((o, i) => (
             <path
               key={o.r}
-              d={arc(o.r, h)}
+              d={arc(o.r, h + DRIFT_PX * unit)}
               pathLength={1}
               className="cover-orbit"
               style={{ animationDelay: `${0.15 + i * 0.22}s` }}
@@ -172,7 +194,7 @@ export function Cover({
 
       {/* Above the bodies: Omnibus's orbit, and whoever rides it, passes
           behind the moon. */}
-      <motion.div className="pointer-events-none absolute inset-0" style={reduce ? undefined : { y: moonY }}>
+      <motion.div className="pointer-events-none absolute inset-0" style={still ? undefined : { y: moonY }}>
         <svg
           viewBox={`0 0 ${W} ${h}`}
           preserveAspectRatio="xMaxYMin slice"

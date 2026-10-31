@@ -21,7 +21,7 @@ export function CookieBanner() {
       label={t("cookies.label")}
       channel={t("cookies.channel")}
       station="DOCK-03"
-      className="fixed inset-x-4 bottom-4 z-[100] sm:right-auto sm:bottom-6 sm:left-6 sm:w-[23rem]"
+      className="fixed inset-x-4 bottom-4 z-[100] sm:bottom-6 sm:left-auto sm:right-6 sm:w-[25rem]"
       actions={
         <>
           <ConsoleKey
@@ -40,10 +40,10 @@ export function CookieBanner() {
       <div className="flex gap-4">
         <Alien />
         <div className="min-w-0">
-          <h2 className="text-body font-semibold text-white">
+          <h2 className="text-lead font-semibold text-white">
             {t("cookies.title")}
           </h2>
-          <p className="mt-1 text-meta text-zinc">{t("cookies.body")}</p>
+          <p className="mt-1.5 text-small leading-relaxed text-platinum">{t("cookies.body")}</p>
         </div>
       </div>
     </StationPanel>

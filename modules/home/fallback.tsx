@@ -28,8 +28,9 @@ import { cn } from "@/shared/lib/cn";
  *
  * Laid out like the light pages: white and grey bands instead of cards, one
  * big statement per section, and each product shown in the device it runs on.
- * The same moving pieces as About, made for a phone: the cover as a banner
- * under the header, and the team on its orbits in the team section.
+ * The same moving pieces as About: on a phone the cover is a banner under the
+ * header; from tablet width up the opening is About's, words beside the cover,
+ * in About's 64rem frame.
  */
 export function Fallback({ direct }: { direct: boolean }) {
   const { t, i18n } = useTranslation(["common", "stations", "projects", "console", "about"]);
@@ -49,7 +50,7 @@ export function Fallback({ direct }: { direct: boolean }) {
   return (
     <>
       <main className="theme-light min-h-screen bg-void">
-        <header className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 pt-5 sm:px-8">
+        <header className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 pt-5 sm:px-8 md:max-w-5xl">
           <span className="flex items-center gap-2.5">
             <span className="relative flex size-4 items-center justify-center" aria-hidden>
               <span className="absolute inset-0 rounded-full border border-white/45" />
@@ -59,40 +60,52 @@ export function Fallback({ direct }: { direct: boolean }) {
               MIW
             </span>
           </span>
-          <LocaleSwitch />
+          <div className="flex items-center gap-6">
+            <nav className="hidden items-center gap-5 md:flex">
+              <LocaleLink href="/work" className="text-body font-medium text-zinc transition-colors hover:text-white">
+                {t("nav.work")}
+              </LocaleLink>
+              <LocaleLink href="/about" className="text-body font-medium text-zinc transition-colors hover:text-white">
+                {t("nav.about")}
+              </LocaleLink>
+            </nav>
+            <LocaleSwitch />
+          </div>
         </header>
 
-        {/* The cover as a banner between two rules: the body bleeds off the top
-            one and the moon rises from the bottom one. */}
-        <div className="mt-5 border-y border-line">
-          <div className="mx-auto aspect-[3/2] w-full max-w-3xl">
-            <Cover people={people} />
+        <div className="md:mt-5 md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
+          {/* The cover as a banner between two rules: the body bleeds off the
+              top one and the moon rises from the bottom one. */}
+          <div className="mt-5 border-y border-line md:col-start-3 md:row-start-1 md:mt-0 md:min-h-[28rem] md:self-stretch md:border-y-0">
+            <div className="mx-auto aspect-[3/2] w-full max-w-3xl md:aspect-auto md:h-full md:max-w-none">
+              <Cover people={people} />
+            </div>
           </div>
-        </div>
 
-        <section className="mx-auto max-w-3xl px-5 pt-12 pb-20 text-center sm:px-8">
-          <p className="text-small text-zinc">{t("availability.status")}</p>
-          <h1 className="mt-4 text-[clamp(2.4rem,10vw,3.6rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white">
-            {t("home.titleTop")} {t("home.titleBottom")}
-          </h1>
-          <p className="mt-5 text-copy-lg leading-relaxed text-zinc">
-            {t("home.lede")}
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-4">
-            <a
-              href="#transmission"
-              className="flex w-full items-center justify-center rounded-full bg-action px-6 py-3.5 text-lead font-medium text-on-action transition-colors hover:bg-action-hover sm:w-auto"
-            >
-              {t("home.ctaContact")}
-            </a>
-            <LocaleLink
-              href="/work"
-              className="text-lead font-medium text-comet hover:underline"
-            >
-              {t("home.ctaWork")} ›
-            </LocaleLink>
-          </div>
-        </section>
+          <section className="mx-auto max-w-3xl px-5 pt-12 pb-20 text-center sm:px-8 md:col-start-2 md:row-start-1 md:mx-0 md:max-w-none md:self-center md:px-0 md:py-16 md:pr-12 md:text-left">
+            <p className="text-small text-zinc">{t("availability.status")}</p>
+            <h1 className="mt-4 text-[clamp(2.4rem,10vw,3.6rem)] leading-[1.02] font-bold tracking-[-0.05em] text-white md:text-[clamp(2.5rem,4.4vw,4rem)]">
+              {t("home.titleTop")} {t("home.titleBottom")}
+            </h1>
+            <p className="mt-5 text-copy-lg leading-relaxed text-zinc">
+              {t("home.lede")}
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-4 md:flex-row md:gap-7">
+              <a
+                href="#transmission"
+                className="flex w-full items-center justify-center rounded-full bg-action px-6 py-3.5 text-lead font-medium text-on-action transition-colors hover:bg-action-hover sm:w-auto"
+              >
+                {t("home.ctaContact")}
+              </a>
+              <LocaleLink
+                href="/work"
+                className="text-lead font-medium text-comet hover:underline"
+              >
+                {t("home.ctaWork")} ›
+              </LocaleLink>
+            </div>
+          </section>
+        </div>
 
         {STATIONS.map((s, i) => {
           const copy = t(`stations:${s.id}.business`, {
@@ -107,19 +120,19 @@ export function Fallback({ direct }: { direct: boolean }) {
 
           return (
             <section key={s.id} className={cn(i % 2 === 0 && "bg-carbon")}>
-              <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8">
+              <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 md:max-w-5xl md:py-24">
                 <p className="text-small font-semibold text-zinc">
                   {t(`stations:${s.id}.nav`)}
                 </p>
-                <h2 className="mt-3 text-[clamp(1.9rem,8vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white">
+                <h2 className="mt-3 text-[clamp(1.9rem,8vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white md:max-w-3xl md:text-[clamp(2.4rem,4vw,3.2rem)]">
                   {copy.headline}
                 </h2>
-                <p className="mt-4 text-copy leading-relaxed text-zinc">
+                <p className="mt-4 text-copy leading-relaxed text-zinc md:max-w-2xl">
                   {copy.lede}
                 </p>
 
                 {program.length > 0 && (
-                  <dl className="mt-8">
+                  <dl className="mt-8 md:grid md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] md:gap-x-10">
                     {program.map((p) => (
                       <div key={p.label} className="border-t border-white/12 py-4">
                         <dt className="text-copy font-semibold text-white">
@@ -166,7 +179,7 @@ export function Fallback({ direct }: { direct: boolean }) {
                     <p className="mt-1 text-small text-zinc">
                       {t(`projects:environment.${project.environment}`)}
                     </p>
-                    <p className="mt-3 text-body leading-relaxed text-zinc">
+                    <p className="mt-3 text-body leading-relaxed text-zinc md:max-w-2xl">
                       {t(`projects:${project.id}.pitch`)}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-lead font-medium">
@@ -211,23 +224,27 @@ export function Fallback({ direct }: { direct: boolean }) {
 
         <section
           id="transmission"
-          className="mx-auto max-w-3xl scroll-mt-8 px-5 py-24 text-center sm:px-8"
+          className="mx-auto max-w-3xl scroll-mt-8 px-5 py-24 text-center sm:px-8 md:max-w-5xl lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-x-16 lg:text-left"
         >
-          <h2 className="text-[clamp(1.9rem,8vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white">
-            {t("home.transmissionTitle")}
-          </h2>
-          <p className="mt-4 text-copy leading-relaxed text-zinc">
-            {t("home.transmissionBody")}
-          </p>
-          <EnquiryForm direct={direct} />
-          {/* The address stays in plain sight for anyone who would rather
-              write from their own mail. */}
-          <p className="mt-6 text-small text-zinc">
-            {t("console:form.orWrite")}{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-comet hover:underline">
-              {CONTACT_EMAIL}
-            </a>
-          </p>
+          <div className="lg:pt-10">
+            <h2 className="text-[clamp(1.9rem,8vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white lg:text-[clamp(2.4rem,4vw,3.2rem)]">
+              {t("home.transmissionTitle")}
+            </h2>
+            <p className="mt-4 text-copy leading-relaxed text-zinc">
+              {t("home.transmissionBody")}
+            </p>
+          </div>
+          <div className="mx-auto max-w-xl lg:mx-0 lg:max-w-none">
+            <EnquiryForm direct={direct} />
+            {/* The address stays in plain sight for anyone who would rather
+                write from their own mail. */}
+            <p className="mt-6 text-small text-zinc">
+              {t("console:form.orWrite")}{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-comet hover:underline">
+                {CONTACT_EMAIL}
+              </a>
+            </p>
+          </div>
         </section>
       </main>
 
@@ -235,7 +252,7 @@ export function Fallback({ direct }: { direct: boolean }) {
           again rather than only at the top of a very long page. */}
       <SiteFooter
         className="theme-light border-t border-line bg-void"
-        frame="mx-auto max-w-3xl px-5 py-8 sm:px-8"
+        frame="mx-auto max-w-3xl px-5 py-8 sm:px-8 md:max-w-5xl"
       >
         <LocaleSwitch />
       </SiteFooter>
