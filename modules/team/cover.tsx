@@ -122,39 +122,52 @@ export function Cover({
     return () => observer.disconnect();
   }, []);
 
-  // The label lives above every layer, so the moon never covers it, and is
-  // placed each frame on whichever side of the face has room in the box.
+  // The label lives above every layer, so the moon never covers it. Its side
+  // is chosen once, when the pointer arrives, and it wraps only when neither
+  // side has room for one line. Each frame moves it with the face, unrounded:
+  // whole-pixel steps beside a face gliding on the compositor read as a jitter.
   useEffect(() => {
     const box = ref.current;
     const el = label.current;
     if (!pointed || !box || !el) return;
+    const gap = 10;
+    const pad = 8;
+    Object.assign(el.style, { whiteSpace: "nowrap", maxWidth: "none", borderRadius: "9999px" });
+    const b0 = box.getBoundingClientRect();
+    const f0 = pointed.getBoundingClientRect();
+    const roomRight = b0.right - f0.right - gap - pad;
+    const roomLeft = f0.left - b0.left - gap - pad;
+    const oneLine = el.offsetWidth;
+    let side: "right" | "left" | "below";
+    if (roomRight >= oneLine) side = "right";
+    else if (roomLeft >= oneLine) side = "left";
+    else {
+      const room = Math.max(roomRight, roomLeft);
+      side = room >= 140 ? (roomRight >= roomLeft ? "right" : "left") : "below";
+      Object.assign(el.style, {
+        whiteSpace: "normal",
+        maxWidth: `${side === "below" ? b0.width - 2 * pad : room}px`,
+        borderRadius: "16px",
+      });
+    }
     let raf = 0;
     const place = () => {
       const b = box.getBoundingClientRect();
       const f = pointed.getBoundingClientRect();
       const w = el.offsetWidth;
       const lh = el.offsetHeight;
-      const gap = 10;
-      const pad = 8;
-      const roomRight = b.right - f.right - gap - pad;
-      const roomLeft = f.left - b.left - gap - pad;
-      let x: number;
-      let y = f.top - b.top + f.height / 2 - lh / 2;
-      if (roomRight >= w) x = f.right - b.left + gap;
-      else if (roomLeft >= w) x = f.left - b.left - gap - w;
-      else {
-        x = f.left - b.left + f.width / 2 - w / 2;
-        y = f.bottom - b.top + gap;
-        if (y + lh > b.height - pad) y = f.top - b.top - gap - lh;
-      }
+      let x =
+        side === "right" ? f.right - b.left + gap : side === "left" ? f.left - b.left - gap - w : f.left - b.left + f.width / 2 - w / 2;
+      let y = side === "below" ? f.bottom - b.top + gap : f.top - b.top + f.height / 2 - lh / 2;
+      if (side === "below" && y + lh > b.height - pad) y = f.top - b.top - gap - lh;
       x = Math.min(Math.max(x, pad), b.width - w - pad);
       y = Math.min(Math.max(y, pad), b.height - lh - pad);
-      el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       raf = requestAnimationFrame(place);
     };
     place();
     return () => cancelAnimationFrame(raf);
-  }, [pointed]);
+  }, [pointed, named]);
 
   const point = (person: CoverPerson, el: HTMLElement | null) => {
     setPointed(el);
@@ -249,15 +262,11 @@ export function Cover({
       <div
         ref={label}
         className={cn(
-          "pointer-events-none absolute top-0 left-0 z-10 max-w-[min(18rem,calc(100%-1rem))] rounded-2xl border border-line bg-void px-3 py-1.5 text-meta leading-snug font-medium text-white transition-opacity duration-200",
+          "pointer-events-none absolute top-0 left-0 z-10 rounded-full border border-line bg-void px-3 py-1.5 text-meta leading-snug font-medium whitespace-nowrap text-white transition-opacity duration-200 will-change-transform",
           pointed ? "opacity-100" : "opacity-0",
         )}
       >
-        {named && (
-          <>
-            <span className="font-semibold">{named.name}</span> · {named.role}
-          </>
-        )}
+        {named && `${named.name} · ${named.role}`}
       </div>
     </div>
   );
