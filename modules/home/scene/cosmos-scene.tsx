@@ -1,13 +1,15 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
   Environment,
   Lightformer,
   PerformanceMonitor,
 } from "@react-three/drei";
 import * as THREE from "three";
+
+import { cn } from "@/shared/lib/cn";
 
 import { WAYPOINTS } from "../flight";
 import { CosmosFlight } from "./cosmos-flight";
@@ -74,6 +76,18 @@ function ChromeEnvironment() {
  */
 const MAX_DPR = 2;
 
+function Ready({ onReady }: { onReady: () => void }) {
+  const done = useRef(false);
+
+  useFrame(() => {
+    if (done.current) return;
+    done.current = true;
+    onReady();
+  });
+
+  return null;
+}
+
 export function CosmosScene() {
   // Start at the ceiling, not below it. This used to start at 1.5 and let the
   // monitor raise it once it had 2.5 s of frames, so a fast machine resized
@@ -81,6 +95,7 @@ export function CosmosScene() {
   // hold the frame rate ever sees a change.
   const [dpr, setDpr] = useState(MAX_DPR);
   const [quality, setQuality] = useState<"high" | "low">("high");
+  const [ready, setReady] = useState(false);
 
   const dense =
     typeof window !== "undefined" &&
@@ -88,6 +103,10 @@ export function CosmosScene() {
 
   return (
     <Canvas
+      className={cn(
+        "transition-opacity duration-[1600ms] ease-out motion-reduce:transition-none",
+        ready ? "opacity-100" : "opacity-0",
+      )}
       frameloop="never"
       dpr={dpr}
       gl={{
@@ -148,6 +167,7 @@ export function CosmosScene() {
         <Pulsar />
         <ProductMoons />
         <Starfield count={dense ? 3200 : 1400} />
+        <Ready onReady={() => setReady(true)} />
       </Suspense>
 
       <CosmosFlight />
