@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/modules/i18n";
 import { LocaleSwitch } from "@/modules/layout";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Bars, Caret, Cross } from "@/shared/ui/glyph";
+import { Bars, Cross } from "@/shared/ui/glyph";
 import { Logo } from "@/shared/ui/logo";
 
 import {
@@ -601,16 +601,8 @@ export function Navbar({
                     }
                   />
                 )}
-                <span className="relative flex items-center gap-1.5">
+                <span className="relative">
                   {t(`stations:sections.${s.id}.label`)}
-                  {hasDrawer(s) && (
-                    <Caret
-                      className={cn(
-                        "text-[0.7em] opacity-60 transition-transform duration-200",
-                        open === s.id && "rotate-180 opacity-100",
-                      )}
-                    />
-                  )}
                 </span>
               </button>
             ))}
