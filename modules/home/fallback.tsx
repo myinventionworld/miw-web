@@ -15,6 +15,7 @@ import { EnquiryForm } from "@/modules/contact";
 import { STATIONS, type ProgramPoint, type StationCopy } from "./stations";
 import { CONTACT_EMAIL } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
+import { Logo } from "@/shared/ui/logo";
 
 /**
  * The flat deck. Served to two audiences that want the same thing: browsers
@@ -51,15 +52,7 @@ export function Fallback() {
     <>
       <main className="theme-light min-h-screen bg-void">
         <header className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 pt-5 sm:px-8 md:max-w-5xl">
-          <span className="flex items-center gap-2.5">
-            <span className="relative flex size-4 items-center justify-center" aria-hidden>
-              <span className="absolute inset-0 rounded-full border border-white/45" />
-              <span className="absolute size-1 rounded-full bg-white" />
-            </span>
-            <span className="text-body font-semibold tracking-[0.3em] text-white">
-              MIW
-            </span>
-          </span>
+          <Logo />
           <div className="flex items-center gap-6">
             <nav className="hidden items-center gap-5 md:flex">
               <LocaleLink href="/work" className="text-body font-medium text-zinc transition-colors hover:text-white">

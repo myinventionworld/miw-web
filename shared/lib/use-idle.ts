@@ -4,7 +4,7 @@ import { type RefObject, useEffect, useState } from "react";
  * Whether whatever is in `ref` should stand still because nobody can see them:
  * the box is off screen or the tab is hidden. Two events, no per-frame work.
  */
-export function useIdle(ref: RefObject<HTMLElement | null>) {
+export function useIdle(ref: RefObject<Element | null>) {
   const [offScreen, setOffScreen] = useState(false);
   const [hidden, setHidden] = useState(false);
 

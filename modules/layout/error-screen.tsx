@@ -2,6 +2,7 @@
 
 import { localeHref } from "@/modules/i18n";
 import { AsciiCover } from "@/modules/team";
+import { Logo } from "@/shared/ui/logo";
 import { CoverHero } from "./cover-hero";
 
 export interface ErrorScreenText {
@@ -28,12 +29,8 @@ export function ErrorScreen({
     <div className="theme-light min-h-screen bg-void">
       <header className="border-b border-line">
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6 md:px-8">
-          <a href={home} className="-my-2 flex items-center gap-2.5 py-2" aria-label={text.homeAria}>
-            <span className="relative flex size-4 items-center justify-center">
-              <span className="absolute inset-0 rounded-full border border-white/35" />
-              <span className="absolute size-1 rounded-full bg-white" />
-            </span>
-            <span className="text-body font-semibold tracking-[0.2em] text-white sm:tracking-[0.36em]">MIW</span>
+          <a href={home} className="-my-2 py-2" aria-label={text.homeAria}>
+            <Logo />
           </a>
         </div>
       </header>

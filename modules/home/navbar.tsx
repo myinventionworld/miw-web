@@ -6,6 +6,7 @@ import { LocaleLink } from "@/modules/i18n";
 import { LocaleSwitch } from "@/modules/layout";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Bars, Caret, Cross } from "@/shared/ui/glyph";
+import { Logo } from "@/shared/ui/logo";
 
 import {
   projectsForStations,
@@ -562,18 +563,12 @@ export function Navbar({
           <button
             type="button"
             onClick={() => goStation("backend")}
-            // 19.5px tall as bare type. The row is h-16, so the height is there
+            // At most 22px tall. The row is h-16, so the height is there
             // for the taking and `-my-2` keeps the mark on the same baseline.
-            className="group -my-2 flex items-center gap-2.5 py-2"
+            className="-my-2 py-2"
             aria-label={t("brand.logoAria")}
           >
-            <span className="relative flex size-4 items-center justify-center">
-              <span className="absolute inset-0 rounded-full border border-white/35" />
-              <span className="absolute size-1 rounded-full bg-white transition-transform duration-500 group-hover:translate-x-[5px]" />
-            </span>
-            <span className="text-body font-semibold tracking-[0.36em] text-white">
-              MIW
-            </span>
+            <Logo />
           </button>
 
           {/* centre tabs */}

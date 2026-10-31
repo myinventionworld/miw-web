@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { initTranslations } from "@/modules/i18n";
 import { localeHref } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
+import { Logo } from "@/shared/ui/logo";
 import { BigFooter } from "./big-footer";
 
 /**
@@ -62,23 +63,16 @@ export async function PageLayout({
             sideways: the one class of page whose entire job is to be read.
 
             The fix is spent where it costs nothing to read: the frame loses
-            padding, the row loses gap, and the wordmark loses letter-spacing it
-            only ever had for the flight deck's benefit. The type scale is
+            padding and the row loses gap. The type scale is
             untouched, because shrinking text to fit a phone is how a page ends
             up unreadable on the device it was supposedly fixed for. */}
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 md:px-8">
           <Link
             href={localeHref(locale, "/")}
-            className="group -my-2 flex items-center gap-2.5 py-2"
+            className="-my-2 py-2"
             aria-label={t("brand.deckAria")}
           >
-            <span className="relative flex size-4 items-center justify-center">
-              <span className="absolute inset-0 rounded-full border border-white/35" />
-              <span className="absolute size-1 rounded-full bg-white transition-transform duration-500 group-hover:-translate-x-[5px]" />
-            </span>
-            <span className="text-body font-semibold tracking-[0.2em] text-white sm:tracking-[0.36em]">
-              MIW
-            </span>
+            <Logo />
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
