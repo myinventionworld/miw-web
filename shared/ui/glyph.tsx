@@ -108,14 +108,6 @@ export function Bars(props: GlyphProps) {
   );
 }
 
-export function Caret(props: GlyphProps) {
-  return (
-    <Glyph stroke="none" fill="currentColor" {...props}>
-      <path d="M2.5 4.25 H9.5 L6 8.25 Z" />
-    </Glyph>
-  );
-}
-
 /** Close. */
 export function Cross(props: GlyphProps) {
   return (
