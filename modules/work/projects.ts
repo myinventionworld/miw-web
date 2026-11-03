@@ -131,7 +131,7 @@ export const PROJECTS: ProjectCase[] = [
     stack: ["Java", "Spring Boot", "PostgreSQL", "React", "Docker", "k3s"],
     metrics: [
       { id: "overbooking", value: "Zero", basis: "target" },
-      { id: "lock", value: "FOR UPDATE", basis: "observed" },
+      { id: "lock", value: "Advisory lock", basis: "observed" },
       { id: "deploy", value: "k3s", basis: "observed" },
     ],
     design: {
