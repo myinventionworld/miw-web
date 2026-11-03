@@ -8,7 +8,7 @@ import type { ArchEdge, ArchNode } from "./projects";
 
 const PAD = 16;
 const NODE_W = 152;
-/** Column step. Annotated edges need a gap wide enough for "FOR UPDATE". */
+/** Column step. Annotated edges need a gap wide enough for "zámek místa". */
 const COL_W = 178;
 const COL_W_LABELLED = 228;
 const NODE_H = 46;

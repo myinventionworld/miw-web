@@ -76,16 +76,16 @@
   "omnibus_nss": {
     "category": "Rezervace míst · týmový projekt na ČVUT FEL",
     "headline": "Dva cestující, jedno místo, žádná dvojí rezervace",
-    "pitch": "Rezervační systém autobusů s živou mapou míst. Když dva lidé sáhnou po stejném místě ve stejnou chvíli, dostane ho jen jeden.",
+    "pitch": "Rezervační systém autobusů, kde si místo vyberete na plánku autobusu. Když dva lidé sáhnou po stejném místě ve stejnou chvíli, dostane ho jen jeden.",
     "credit": "Týmový semestrální projekt na ČVUT FEL, autoři Mykhailo Plokhin a Ivan Shestachenko. Je to demo, ne skutečný dopravce.",
     "metrics": {
       "overbooking": {
         "label": "Dvojí rezervace",
-        "note": "Cíl návrhu: druhý zápis odmítne databáze, ne noční skript dodatečně."
+        "note": "Cíl návrhu: druhá rezervace je odmítnuta hned, ne dodatečně nočním skriptem."
       },
       "lock": {
         "label": "Zámek místa",
-        "note": "Pesimistický zámek řádku v dotazu na místo (BookedSegmentRepository)."
+        "note": "Advisory zámek PostgreSQL na spoj a místo, který se vezme před kontrolou místa (ReservationPassengerRepository)."
       },
       "deploy": {
         "label": "Běží na",
@@ -101,7 +101,7 @@
       ]
     },
     "design": {
-      "lede": "Rezervace vlastní jedna služba a nic jiného místa nezapisuje. Sporné místo projde jednou krátkou transakcí, která drží zámek řádku.",
+      "lede": "Rezervace vlastní jedna služba a nic jiného místa nezapisuje. Sporné místo projde jednou krátkou transakcí, která ho drží zamčené.",
       "nodes": {
         "ingress": "Ingress",
         "api": "Spring REST API",
@@ -113,13 +113,13 @@
       "edges": {
         "rbac-booking": "token",
         "api-booking": "rezervace",
-        "booking-pg": "FOR UPDATE"
+        "booking-pg": "zámek místa"
       }
     },
     "solutions": [
       {
-        "choice": "Zamknout řádek sporného místa",
-        "why": "Druhý požadavek počká, místo aby přepsal, a čeká krátce, protože držení místa je v transakci jediná práce. Alternativou byly optimistické opakované pokusy; na plném spoji se z nich stane lavina."
+        "choice": "Zamknout sporné místo",
+        "why": "Místo se prodává na úsek trasy a dvě rezervace se střetnou, jen když se jejich úseky překrývají. Překryv nejde vyjádřit unikátním klíčem, takže samotné schéma by druhý řádek přijalo. Zámek udělá z „ověřit a zapsat“ jeden krok pro to jedno místo a ostatní místa se rezervují souběžně."
       },
       {
         "choice": "Jedna cesta zápisu pro rezervace",
@@ -134,7 +134,7 @@
       "lede": "Omnibus je univerzitní projekt se živým demem, ne komerční služba. Ověřené údaje jsou zkontrolované v kódu; cíl je to, na co je navržen."
     },
     "race": {
-      "a": "Cestující A rezervuje místo 12. Databáze ten řádek zamkne.",
+      "a": "Cestující A rezervuje místo 12. Databáze to místo zamkne.",
       "b": "Cestující B ve stejnou chvíli chce místo 12 a čeká, až se zámek uvolní.",
       "c": "Rezervace A se uloží. B dostane „místo obsazeno“, ne dvojí rezervaci.",
       "waiting": "čeká",

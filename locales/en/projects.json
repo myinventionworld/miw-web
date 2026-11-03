@@ -76,16 +76,16 @@
   "omnibus_nss": {
     "category": "Seat booking · team project at CTU FEL",
     "headline": "Two passengers, one seat, no double booking",
-    "pitch": "A bus booking system with a live seat map. When two people grab the same seat at the same moment, only one of them gets it.",
+    "pitch": "A bus booking system where you pick your seat on a plan of the coach. When two people grab the same seat at the same moment, only one of them gets it.",
     "credit": "Team semester project at CTU FEL by Mykhailo Plokhin and Ivan Shestachenko. A demo, not a real carrier.",
     "metrics": {
       "overbooking": {
         "label": "Double bookings",
-        "note": "The design target: the database refuses the second writer instead of a cleanup job fixing it later."
+        "note": "The design target: the second booking is refused on the spot instead of a cleanup job fixing it later."
       },
       "lock": {
         "label": "Seat lock",
-        "note": "A pessimistic row lock on the seat query (BookedSegmentRepository)."
+        "note": "A PostgreSQL advisory lock on the trip and seat, taken before the seat is checked (ReservationPassengerRepository)."
       },
       "deploy": {
         "label": "Runs on",
@@ -101,25 +101,25 @@
       ]
     },
     "design": {
-      "lede": "One service owns reservations and nothing else writes a seat. A contested seat goes through one short transaction that holds a row lock.",
+      "lede": "One service owns reservations and nothing else writes a seat. A contested seat goes through one short transaction that holds a lock on that seat.",
       "nodes": {
         "ingress": "Ingress",
         "api": "Spring REST API",
         "rbac": "Roles · JWT",
         "booking": "Booking service",
         "routes": "Routes & fleet",
-        "pg": "PostgreSQL · row locks"
+        "pg": "PostgreSQL · locks"
       },
       "edges": {
         "rbac-booking": "token",
         "api-booking": "reserve",
-        "booking-pg": "FOR UPDATE"
+        "booking-pg": "seat lock"
       }
     },
     "solutions": [
       {
-        "choice": "Lock the contested seat row",
-        "why": "The second request waits instead of overwriting, and the wait is short because the hold is the only work in the transaction. Optimistic retries were the alternative; on a full route they turn into a storm of retries."
+        "choice": "Lock the contested seat",
+        "why": "A seat is sold for a stretch of the route, and two bookings clash only where their stretches overlap. A unique key cannot express an overlap, so the schema alone would accept the second row. The lock turns check-then-insert into one step for that seat, and other seats keep booking in parallel."
       },
       {
         "choice": "One write path for reservations",
@@ -134,7 +134,7 @@
       "lede": "Omnibus is a university project with a live demo, not a commercial service. Measured figures are checked in the code; a target is what it is designed for."
     },
     "race": {
-      "a": "Passenger A books seat 12. The database locks that row.",
+      "a": "Passenger A books seat 12. The database locks that seat.",
       "b": "Passenger B asks for seat 12 at the same moment and waits for the lock.",
       "c": "A's booking commits. B is told the seat is taken, not double-booked.",
       "waiting": "waiting",
