@@ -65,6 +65,7 @@ function instrument(cfg) {
     phases: [],
     firstDraw: null,
     firstDrawEnd: null,
+    flatAt: null,
     shownAt: null,
     longTasks: [],
     linkTicks: [],
@@ -217,6 +218,7 @@ function instrument(cfg) {
 
   const record = (t) => {
     if (B.shownAt === null && glCanvas?.closest(".opacity-100")) B.shownAt = realNow();
+    if (B.flatAt === null && glCanvas && !glCanvas.isConnected) B.flatAt = t;
     if (!tickDraws) return;
     if (B.firstDraw === null) {
       B.firstDraw = t;
@@ -333,7 +335,7 @@ if (MODE === "model") {
   await page.waitForFunction(
     (s) => {
       const b = window.__bench;
-      return b.firstDraw !== null && b.frames.at(-1).t - b.firstDraw > s * 1000 + 2000;
+      return b.flatAt !== null || (b.firstDraw !== null && b.frames.at(-1).t - b.firstDraw > s * 1000 + 2000);
     },
     cfg.seconds,
     { timeout: 30 * 60_000, polling: 1000 },
@@ -427,6 +429,7 @@ if (MODE === "model") {
     if (dprs.at(-1)?.dpr !== d) dprs.push({ s: r1((x.t - first) / 1000), dpr: d });
   }
   summary.model = {
+    droppedSceneAtS: result.flatAt === null ? null : r1((result.flatAt - first) / 1000),
     gpuMsPerMpx: cfg.msPerMpx,
     hz: cfg.hz,
     seconds: cfg.seconds,

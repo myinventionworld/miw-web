@@ -252,13 +252,16 @@ late frames arrive, flight and rest judged apart, and steps down a tier after si
 sustained lateness. It steps up one tier at most, only when the GPU timer shows the next tier
 fits with room to spare, and never back into a tier it had to leave, so the canvas is not resized
 over and over. Every tier draws the same effects; nothing is rebuilt or recompiled when it changes.
+If even `low` stays far behind (median frame at 2.5x its budget for six seconds), the page drops
+the scene for the flat page and keeps to it for the rest of the tab's session.
 
 Shaders compile before the first frame, in the background where the browser offers
 `KHR_parallel_shader_compile`, and the scene fades in once it can draw without stalling.
 
 For testing on a particular machine:
 
-- `?gfx=low`, `?gfx=balanced` or `?gfx=high` pins a tier, e.g. `/en?gfx=low`.
+- `?gfx=low`, `?gfx=balanced` or `?gfx=high` pins a tier, e.g. `/en?gfx=low`, and brings the
+  scene back on a tab that dropped it.
 - `?gfxstats` shows frame times, GPU time (where the browser has a GPU timer), draw calls,
   triangles, textures, the pixel ratio and the start-up timeline. In development it is always on.
 - `npm run bench:scene` measures a running build without a GPU: shader programs, canvas resizes,
@@ -274,7 +277,8 @@ For testing on a particular machine:
   `modules/home/scene/flight-driver.tsx`.
 - WebGL is feature-detected on mount, and a context only software can draw (SwiftShader,
   llvmpipe, Microsoft Basic Render Driver) counts as none: the flight would run at a few frames a
-  second and block the page. Then, and on touch screens, `modules/home/fallback.tsx` serves a complete
+  second and block the page. Then, on touch screens, and where a real GPU proves too slow even at
+  the lowest quality (see [Rendering quality](#rendering-quality)), `modules/home/fallback.tsx` serves a complete
   document — the hero, all four stations with their projects, the team and the contact form —
   instead of the camera flight.
 - The console requires at least one engagement type and a valid return address before it will

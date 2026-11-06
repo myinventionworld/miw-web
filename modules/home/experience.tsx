@@ -28,6 +28,17 @@ const RUNWAY = "h-[900vh]";
 
 const RECONNECT_MS = 4000;
 
+/** Set once the scene proved too slow even at its lowest quality, for the rest of the tab's session. */
+const TOO_SLOW_KEY = "miw:flat-deck";
+
+function rememberedTooSlow() {
+  try {
+    return sessionStorage.getItem(TOO_SLOW_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function Hero({
   progress,
   onExplore,
@@ -92,10 +103,12 @@ function Deck({
   webgl,
   gpu,
   onSceneLost,
+  onTooSlow,
 }: {
   webgl: boolean;
   gpu: string;
   onSceneLost: () => void;
+  onTooSlow: () => void;
 }) {
   const { t } = useTranslation("common");
   const scene = useRef<HTMLDivElement>(null);
@@ -193,7 +206,7 @@ function Deck({
   return (
     <>
       <div ref={scene} className="fixed inset-0 z-0 bg-void">
-        {webgl && <CosmosScene key={sceneKey} gpu={gpu} />}
+        {webgl && <CosmosScene key={sceneKey} gpu={gpu} onTooSlow={onTooSlow} />}
         {lost && <SignalLost message={t("signalLost")} />}
       </div>
 
@@ -243,11 +256,19 @@ export function Experience() {
     setFlight3d(false);
     window.scrollTo(0, 0);
   }, []);
+  const tooSlow = useCallback(() => {
+    try {
+      sessionStorage.setItem(TOO_SLOW_KEY, "1");
+    } catch {}
+    toFlatPage();
+  }, [toFlatPage]);
 
   useEffect(() => {
     const renderer = detectHardwareGpu();
+    // `?gfx=` is for testing a machine, so it gets the scene whatever happened before.
+    const pinned = new URLSearchParams(window.location.search).has("gfx");
     setGpu(renderer ?? "");
-    setFlight3d(renderer !== null && !prefersFlatDeck());
+    setFlight3d(renderer !== null && !prefersFlatDeck() && (pinned || !rememberedTooSlow()));
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => {
@@ -283,7 +304,7 @@ export function Experience() {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} gpu={gpu} onSceneLost={toFlatPage} />
+      <Deck webgl={Boolean(flight3d)} gpu={gpu} onSceneLost={toFlatPage} onTooSlow={tooSlow} />
     </ReactLenis>
   );
 

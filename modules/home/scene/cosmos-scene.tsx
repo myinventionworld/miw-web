@@ -229,7 +229,7 @@ const showStats = () =>
   process.env.NODE_ENV !== "production" ||
   new URLSearchParams(window.location.search).has("gfxstats");
 
-export function CosmosScene({ gpu }: { gpu: string }) {
+export function CosmosScene({ gpu, onTooSlow }: { gpu: string; onTooSlow: () => void }) {
   const [plan] = useState(() =>
     planTier(
       gpu,
@@ -247,6 +247,10 @@ export function CosmosScene({ gpu }: { gpu: string }) {
   const [ready, setReady] = useState(false);
   const live = useRef<Viewport | null>(null);
   const composer = useRef<EffectComposer | null>(null);
+  const tooSlow = useRef(onTooSlow);
+  useEffect(() => {
+    tooSlow.current = onTooSlow;
+  }, [onTooSlow]);
 
   const [governor] = useState(
     () =>
@@ -258,6 +262,7 @@ export function CosmosScene({ gpu }: { gpu: string }) {
           return v.width * d * v.height * d;
         },
         onChange: setTier,
+        onGiveUp: () => tooSlow.current(),
       }),
   );
 
