@@ -110,6 +110,7 @@ const BAD_SHARE = 0.25;
 const BAD_WINDOWS = 3;
 const SEVERE = 2.5;
 const SEVERE_WINDOWS = 2;
+const GIVE_UP_WINDOWS = 3;
 const GOOD_WINDOWS = 5;
 /** Most GPU time the next tier may be predicted to take, of a 16.7 ms frame. */
 const RAISE_BUDGET_MS = 9;
@@ -118,6 +119,8 @@ export interface GovernorOptions extends TierPlan {
   /** Drawing-buffer pixels a tier would render on the current screen. */
   pixels: (tier: Tier) => number;
   onChange: (tier: Tier) => void;
+  /** Even `low` is unusable here: the page should drop the scene. Called once. */
+  onGiveUp?: () => void;
 }
 
 export interface GovernorStats {
@@ -148,7 +151,8 @@ const track = (): Track => ({ span: 0, ratios: [], bad: 0, severe: 0 });
  * frame at 2.5x its budget. Raises it only on GPU timer evidence that the next
  * tier fits comfortably, five flight windows running, and only at rest so the
  * resize never lands mid-flight. A tier it had to leave stays closed for the
- * visit: at most one failed rise, then it settles.
+ * visit: at most one failed rise, then it settles. Three severe windows
+ * running at `low` mean no tier will do, and it gives up.
  */
 export class QualityGovernor {
   tier: Tier;
@@ -158,6 +162,8 @@ export class QualityGovernor {
 
   private readonly pixels: (tier: Tier) => number;
   private readonly onChange: (tier: Tier) => void;
+  private readonly onGiveUp?: () => void;
+  private gaveUp = false;
   private cooldown = START_COOLDOWN_MS;
   private flight = track();
   private rest = track();
@@ -170,17 +176,18 @@ export class QualityGovernor {
     gpuMs: null,
   };
 
-  constructor({ tier, ceiling, locked, pixels, onChange }: GovernorOptions) {
+  constructor({ tier, ceiling, locked, pixels, onChange, onGiveUp }: GovernorOptions) {
     this.tier = tier;
     this.ceiling = ceiling;
     this.locked = locked;
     this.pixels = pixels;
     this.onChange = onChange;
+    this.onGiveUp = onGiveUp;
   }
 
   /** One drawn frame: how long since the previous one, and how long it was meant to take. */
   frame(intervalMs: number, expectedMs: number, active: boolean) {
-    if (this.locked) return;
+    if (this.locked || this.gaveUp) return;
     if (intervalMs > GAP_MS) {
       this.interrupt();
       return;
@@ -233,6 +240,9 @@ export class QualityGovernor {
       if (this.tier !== "low") {
         this.ceiling = stepTier(this.tier, -1);
         this.change(this.ceiling);
+      } else if (t.severe >= GIVE_UP_WINDOWS) {
+        this.gaveUp = true;
+        this.onGiveUp?.();
       }
       return;
     }

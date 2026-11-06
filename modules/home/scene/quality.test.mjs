@@ -92,11 +92,17 @@ describe("planTier", () => {
  */
 function simulate({ plan, viewport, msPerMpx, seconds, fly = 2500, rest = 3500, timer = true }) {
   const changes = [];
+  let gaveUp = 0;
   const pixels = (tier) => {
     const d = dprFor(tier, viewport);
     return viewport.width * d * viewport.height * d;
   };
-  const governor = new QualityGovernor({ ...plan, pixels, onChange: (tier) => changes.push(tier) });
+  const governor = new QualityGovernor({
+    ...plan,
+    pixels,
+    onChange: (tier) => changes.push(tier),
+    onGiveUp: () => gaveUp++,
+  });
   const vsync = 1000 / 60;
   let t = 0;
   while (t < seconds * 1000) {
@@ -108,7 +114,7 @@ function simulate({ plan, viewport, msPerMpx, seconds, fly = 2500, rest = 3500, 
     governor.frame(interval, active ? 1000 / 60 : 1000 / 30, active);
     if (timer) governor.gpuTime(gpu);
   }
-  return { governor, changes };
+  return { governor, changes, gaveUp };
 }
 
 describe("QualityGovernor", () => {
@@ -156,24 +162,38 @@ describe("QualityGovernor", () => {
     assert.deepEqual(simulate({ plan, viewport: screen, msPerMpx: 6, seconds: 120 }).changes, []);
   });
 
-  test("a hopeless GPU walks down to low, a step at a time", () => {
-    const { changes } = simulate({
+  test("a hopeless GPU walks down to low a step at a time, then gives up once", () => {
+    const { changes, gaveUp } = simulate({
       plan: { tier: "high", ceiling: "high", locked: false },
       viewport: screen,
       msPerMpx: 40,
-      seconds: 60,
+      seconds: 120,
     });
     assert.deepEqual(changes, ["balanced", "low"]);
+    assert.equal(gaveUp, 1);
   });
 
-  test("a locked tier never changes", () => {
-    const { changes } = simulate({
+  test("a GPU that is slow but usable at low keeps the scene", () => {
+    // 9 ms per Mpx: 19 ms at low, every flight frame late but at 30fps.
+    const { changes, gaveUp } = simulate({
+      plan: { tier: "low", ceiling: "balanced", locked: false },
+      viewport: screen,
+      msPerMpx: 9,
+      seconds: 300,
+    });
+    assert.deepEqual(changes, []);
+    assert.equal(gaveUp, 0);
+  });
+
+  test("a locked tier never changes and never gives up", () => {
+    const { changes, gaveUp } = simulate({
       plan: { tier: "high", ceiling: "high", locked: true },
       viewport: screen,
       msPerMpx: 40,
       seconds: 60,
     });
     assert.deepEqual(changes, []);
+    assert.equal(gaveUp, 0);
   });
 
   test("a hidden tab's gap is not counted as a slow frame", () => {
