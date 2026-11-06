@@ -46,7 +46,7 @@ your `Accept-Language`. See [Languages](#languages).
 |---|---|
 | `three` | WebGL renderer, geometry, and the `ShaderMaterial` every visual is built on |
 | `@react-three/fiber` | React reconciler for three.js; provides the `useFrame` render loop |
-| `@react-three/drei` | `Environment` / `Lightformer` studio rig, `PerformanceMonitor` |
+| `@react-three/drei` | `Environment` / `Lightformer` studio rig |
 | `@react-three/postprocessing` + `postprocessing` | Bloom, chromatic aberration, vignette, grain, AgX tone mapping |
 | `lenis` | Smooth scroll driving *real* window scroll, so `useScroll` still works |
 | `motion` | MotionValue-driven overlay animation that never re-renders React |
@@ -230,7 +230,41 @@ intersection, and forward/back scattering is anisotropic, so the far side of the
 when it is between you and the star.
 
 **Performance.** Stars are a single instanced draw call with all motion in the vertex shader.
-`PerformanceMonitor` drops DPR and bloom quality if the frame rate declines.
+Rendering quality is picked per device and then held steady; see [Rendering quality](#rendering-quality).
+
+---
+
+## Rendering quality
+
+Nearly everything the GPU does here is per pixel: the planets' shaders, then a chain of
+full-screen half-float passes (bloom, aberration, grain, tone mapping, SMAA). The canvas's pixel
+ratio is therefore the dial that matters, and `modules/home/scene/quality.ts` sets it.
+
+| Tier | Pixel ratio | At most | Who starts here |
+|---|---|---|---|
+| `high` | up to 2, also on 1x screens (supersampling is the scene's anti-aliasing) | 3840×2160 pixels | discrete GPUs, Apple silicon |
+| `balanced` | up to 1.5, never above the screen's own | 2560×1600 | unknown GPUs, entry-level discrete |
+| `low` | up to 1 | 1920×1080 | integrated Intel and AMD graphics; planet textures baked at half size |
+
+The starting tier comes from the GPU name the browser reports, capped at `balanced` on 4 CPU
+cores or fewer and at `low` on 4 GB of memory or less. From then on `QualityGovernor` watches how
+late frames arrive, flight and rest judged apart, and steps down a tier after six seconds of
+sustained lateness. It steps up one tier at most, only when the GPU timer shows the next tier
+fits with room to spare, and never back into a tier it had to leave, so the canvas is not resized
+over and over. Every tier draws the same effects; nothing is rebuilt or recompiled when it changes.
+
+Shaders compile before the first frame, in the background where the browser offers
+`KHR_parallel_shader_compile`, and the scene fades in once it can draw without stalling.
+
+For testing on a particular machine:
+
+- `?gfx=low`, `?gfx=balanced` or `?gfx=high` pins a tier, e.g. `/en?gfx=low`.
+- `?gfxstats` shows frame times, GPU time (where the browser has a GPU timer), draw calls,
+  triangles, textures, the pixel ratio and the start-up timeline. In development it is always on.
+- `npm run bench:scene` measures a running build without a GPU: shader programs, canvas resizes,
+  allocations and draw calls, and with `BENCH_MODE=model` how the pacing and the governor behave
+  on a modelled GPU. The options are at the top of `scripts/perf/scene-bench.mjs`.
+- `npm test` runs the governor's and the pixel-ratio rules' tests (Node 22.18 or newer).
 
 ---
 

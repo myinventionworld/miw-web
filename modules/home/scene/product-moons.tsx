@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -105,6 +105,15 @@ function Moon({ spec, color }: { spec: MoonSpec; color: string }) {
     );
     return line;
   }, [spec.radius]);
+
+  useEffect(
+    () => () => {
+      material.dispose();
+      orbit.geometry.dispose();
+      (orbit.material as THREE.Material).dispose();
+    },
+    [material, orbit],
+  );
 
   useFrame((state, delta) => {
     const a = state.clock.elapsedTime * spec.speed + spec.phase;

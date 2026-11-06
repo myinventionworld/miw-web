@@ -110,12 +110,12 @@ void main() {
 }
 `;
 
-export function IcePlanet() {
+export function IcePlanet({ detail }: { detail: number }) {
   const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const opacity = useRef(0);
   const cull = useCull();
-  const fields = useBakedCube(fieldsFragment, 1024);
+  const fields = useBakedCube(fieldsFragment, detail);
 
   const uniforms = useMemo(
     () => ({

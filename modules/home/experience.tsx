@@ -16,7 +16,7 @@ import { SignalLost } from "./signal-lost";
 import { Stage } from "./stage";
 import { TransmissionConsole } from "./transmission-console";
 import type { StationId } from "@/shared/station-id";
-import { detectHardwareWebGL, prefersFlatDeck } from "./webgl-support";
+import { detectHardwareGpu, prefersFlatDeck } from "./webgl-support";
 
 const CosmosScene = dynamic(
   () => import("./scene/cosmos-scene").then((m) => m.CosmosScene),
@@ -88,7 +88,15 @@ function Hero({
  * navigation has to drive Lenis rather than `window.scrollTo`, or the smooth
  * scroller and the browser fight each other for the same scrollTop.
  */
-function Deck({ webgl, onSceneLost }: { webgl: boolean; onSceneLost: () => void }) {
+function Deck({
+  webgl,
+  gpu,
+  onSceneLost,
+}: {
+  webgl: boolean;
+  gpu: string;
+  onSceneLost: () => void;
+}) {
   const { t } = useTranslation("common");
   const scene = useRef<HTMLDivElement>(null);
   const [lost, setLost] = useState(false);
@@ -185,7 +193,7 @@ function Deck({ webgl, onSceneLost }: { webgl: boolean; onSceneLost: () => void 
   return (
     <>
       <div ref={scene} className="fixed inset-0 z-0 bg-void">
-        {webgl && <CosmosScene key={sceneKey} />}
+        {webgl && <CosmosScene key={sceneKey} gpu={gpu} />}
         {lost && <SignalLost message={t("signalLost")} />}
       </div>
 
@@ -230,13 +238,16 @@ export function Experience() {
    * away.
    */
   const [flight3d, setFlight3d] = useState<boolean | null>(null);
+  const [gpu, setGpu] = useState("");
   const toFlatPage = useCallback(() => {
     setFlight3d(false);
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
-    setFlight3d(detectHardwareWebGL() && !prefersFlatDeck());
+    const renderer = detectHardwareGpu();
+    setGpu(renderer ?? "");
+    setFlight3d(renderer !== null && !prefersFlatDeck());
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => {
@@ -272,7 +283,7 @@ export function Experience() {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} onSceneLost={toFlatPage} />
+      <Deck webgl={Boolean(flight3d)} gpu={gpu} onSceneLost={toFlatPage} />
     </ReactLenis>
   );
 

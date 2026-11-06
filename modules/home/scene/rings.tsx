@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -143,6 +143,8 @@ export function Rings({
     () => new THREE.RingGeometry(inner, outer, 512, 1),
     [inner, outer],
   );
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   useFrame((_, delta) => {
     uniforms.uOpacity.value = fade.current;

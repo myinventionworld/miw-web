@@ -4,6 +4,8 @@ import { useEffect, useMemo } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { compileFor, hold, inTurn } from "./warmup";
+
 const bakeVertex = /* glsl */ `
 varying vec3 vDir;
 
@@ -17,6 +19,10 @@ void main() {
  * Renders `fragment` once into a cube map, so a field that only depends on the
  * direction from a body's centre is sampled each frame instead of recomputed.
  * The fragment reads `vec3 vDir` (unnormalised) and writes `gl_FragColor`.
+ *
+ * These fragments are the heaviest shaders on the page to compile (fbm loops
+ * unroll on Direct3D) and to run, so each compiles in the background and bakes
+ * on a frame of its own; the scene's first frame waits for them.
  */
 export function useBakedCube(fragment: string, size: number) {
   const gl = useThree((s) => s.gl);
@@ -33,6 +39,7 @@ export function useBakedCube(fragment: string, size: number) {
   );
 
   useEffect(() => {
+    let live = true;
     const scene = new THREE.Scene();
     const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.ShaderMaterial({
@@ -43,11 +50,24 @@ export function useBakedCube(fragment: string, size: number) {
       depthWrite: false,
     });
     scene.add(new THREE.Mesh(geometry, material));
+    const cube = new THREE.CubeCamera(0.1, 10, target);
 
-    new THREE.CubeCamera(0.1, 10, target).update(gl, scene);
+    const bake = compileFor(gl, scene, new THREE.PerspectiveCamera(), target)
+      .then(() =>
+        inTurn(gl, () => {
+          if (live) cube.update(gl, scene);
+        }),
+      )
+      .catch(() => {})
+      .finally(() => {
+        geometry.dispose();
+        material.dispose();
+      });
+    hold(gl, bake);
 
-    geometry.dispose();
-    material.dispose();
+    return () => {
+      live = false;
+    };
   }, [gl, target, fragment]);
 
   useEffect(() => () => target.dispose(), [target]);

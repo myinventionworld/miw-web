@@ -50,9 +50,8 @@ void main() {
 `;
 
 const surfaceFragment = /* glsl */ `
-${NOISE_GLSL}
-
 uniform samplerCube uFields;
+uniform samplerCube uIce;
 uniform vec3 uSunDir;
 uniform float uOpacity;
 
@@ -75,11 +74,8 @@ void main() {
   vec3 ground = mix(vec3(0.028, 0.055, 0.046), vec3(0.098, 0.104, 0.086), detail);
   ground = mix(ground, vec3(0.148, 0.152, 0.158), smoothstep(0.58, 0.96, detail));
 
-  // Not baked: all four channels are taken. The branch skips the noise wherever
-  // it cannot lift the latitude past the cap's threshold.
-  float lat = abs(sp.y);
-  float ice = 0.0;
-  if (lat > 0.73) ice = smoothstep(0.80, 0.945, lat + fbm(sp * 3.0, 3) * 0.07);
+  // The surface map's four channels are taken, so the caps ride in the cloud map.
+  float ice = textureCube(uIce, sp).b;
 
   vec3 albedo = mix(ocean, ground, land);
   albedo = mix(albedo, vec3(0.70, 0.77, 0.86), ice);
@@ -110,7 +106,8 @@ void main() {
   vec3 sp = normalize(vDir);
   float band = fbm(sp * vec3(2.3, 4.6, 2.3), 5);
   float wisp = fbm(sp * 7.4, 4) * 0.5 + 0.5;
-  gl_FragColor = vec4(smoothstep(0.06, 0.46, band), wisp, 0.0, 1.0);
+  float ice = smoothstep(0.80, 0.945, abs(sp.y) + fbm(sp * 3.0, 3) * 0.07);
+  gl_FragColor = vec4(smoothstep(0.06, 0.46, band), wisp, ice, 1.0);
 }
 `;
 
@@ -176,20 +173,21 @@ void main() {
 }
 `;
 
-export function Earth() {
+export function Earth({ detail }: { detail: number }) {
   const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const clouds = useRef<THREE.Mesh>(null);
   const opacity = useRef(1);
   const cull = useCull();
 
-  const surfaceMap = useBakedCube(surfaceFields, 1024);
+  const surfaceMap = useBakedCube(surfaceFields, detail);
   const cloudMap = useBakedCube(cloudFields, 512);
 
   const uniforms = useMemo(
     () => ({
       surface: {
         uFields: { value: surfaceMap },
+        uIce: { value: cloudMap },
         uSunDir: { value: SUN_DIR },
         uOpacity: { value: 1 },
       },
