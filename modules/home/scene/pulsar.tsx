@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -118,6 +118,8 @@ export function Pulsar() {
     () => new THREE.RingGeometry(R * 1.1, R * 4.2, 128, 1),
     [],
   );
+
+  useEffect(() => () => shockGeometry.dispose(), [shockGeometry]);
 
   useFrame(({ camera }, delta) => {
     const p = flight.eased;

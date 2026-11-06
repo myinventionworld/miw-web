@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useLayoutEffect, useRef, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   Bloom,
@@ -15,15 +15,50 @@ import {
   BlendFunction,
   type BloomEffect,
   type ChromaticAberrationEffect,
+  type EffectComposer as Composer,
   ToneMappingMode,
 } from "postprocessing";
 
 import { flight, lerp, smoothstep } from "../flight";
+import { bloomLevels } from "./quality";
 
-export function Effects({ quality }: { quality: "high" | "low" }) {
+const BASE_RADIUS = 0.86;
+const ABERRATION: [number, number] = [0.0003, 0.0002];
+
+/**
+ * The effect list is the same at every quality tier on purpose: the composer
+ * builds its passes, and compiles their shaders, from the effect objects, and
+ * any constructor prop that changes (Bloom's `levels`, `radius`) replaces the
+ * object and rebuilds all of it. What a tier changes is set on the live
+ * objects below instead.
+ */
+export function Effects({
+  dpr,
+  lite,
+  composer,
+}: {
+  dpr: number;
+  lite: boolean;
+  composer: RefObject<Composer | null>;
+}) {
   const bloom = useRef<BloomEffect>(null);
   const aberration = useRef<ChromaticAberrationEffect>(null);
-  const BASE_RADIUS = quality === "high" ? 0.86 : 0.7;
+  const tuning = useRef({ dpr, lite });
+
+  const tune = useCallback((effect: BloomEffect | null) => {
+    bloom.current = effect;
+    if (!effect) return;
+    const levels = bloomLevels(tuning.current.dpr);
+    if (effect.mipmapBlurPass.levels !== levels) effect.mipmapBlurPass.levels = levels;
+    // The bright pass runs at the full drawing buffer by default; the blur
+    // that follows starts at half of it anyway.
+    effect.luminancePass.resolution.scale = tuning.current.lite ? 0.5 : 1;
+  }, []);
+
+  useLayoutEffect(() => {
+    tuning.current = { dpr, lite };
+    tune(bloom.current);
+  }, [dpr, lite, tune]);
 
   useFrame(() => {
     const p = flight.eased;
@@ -63,19 +98,19 @@ export function Effects({ quality }: { quality: "high" | "low" }) {
     // Two, four or eight samples all do it; none never does. The logo's
     // bevels and the hairline orbits get their smoothing from the canvas
     // running at 2x (`CosmosScene`) and from SMAA below.
-    <EffectComposer multisampling={0} enableNormalPass={false}>
+    <EffectComposer ref={composer} multisampling={0} enableNormalPass={false}>
       <Bloom
-        ref={bloom}
+        ref={tune}
         mipmapBlur
         intensity={0.62}
         luminanceThreshold={0.2}
         luminanceSmoothing={0.32}
         radius={BASE_RADIUS}
-        levels={quality === "high" ? 8 : 5}
+        levels={8}
       />
       <ChromaticAberration
         ref={aberration}
-        offset={[0.0003, 0.0002]}
+        offset={ABERRATION}
         radialModulation
         modulationOffset={0.42}
       />

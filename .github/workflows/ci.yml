@@ -39,6 +39,9 @@ jobs:
       - name: Module boundaries
         run: node scripts/ci/boundaries.mjs
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         run: npx next build
 

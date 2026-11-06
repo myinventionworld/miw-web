@@ -1,13 +1,19 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
 import {
-  Environment,
-  Lightformer,
-  PerformanceMonitor,
-} from "@react-three/drei";
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
+import type { EffectComposer } from "postprocessing";
 
 import { cn } from "@/shared/lib/cn";
 
@@ -16,13 +22,17 @@ import { CosmosFlight } from "./cosmos-flight";
 import { Earth } from "./earth";
 import { Effects } from "./effects";
 import { FlightDriver } from "./flight-driver";
-import { FramePacer, pacing } from "./frame-pacer";
+import { FramePacer, frameLog, type Gate } from "./frame-pacer";
 import { IcePlanet } from "./ice-planet";
 import { LogoModel } from "./logo-model";
 import { ProductMoons } from "./product-moons";
 import { Pulsar } from "./pulsar";
+import { dprFor, planTier, QualityGovernor, type Tier, type Viewport } from "./quality";
 import { RingedPlanet } from "./ringed-planet";
 import { Starfield } from "./starfield";
+import { compileComposer, compileFor, held, whenSet } from "./warmup";
+
+const Diagnostics = lazy(() => import("./diagnostics").then((m) => ({ default: m.Diagnostics })));
 
 /** Studio rig baked into a cube map — no HDRI fetch, no network dependency. */
 function ChromeEnvironment() {
@@ -69,12 +79,24 @@ function ChromeEnvironment() {
   );
 }
 
-/**
- * The sharpest the canvas gets, on every screen. On a 1x screen that is twice
- * the screen's pixels, scaled down by the browser: since the composer cannot
- * multisample (see `Effects`), this is what smooths the edges there.
- */
-const MAX_DPR = 2;
+const GL = {
+  // Off on purpose: everything is drawn into the composer's buffer, so
+  // multisampling the canvas would never touch the scene and would only
+  // cost memory. `Effects` says how the edges are smoothed instead.
+  antialias: false,
+  alpha: false,
+  powerPreference: "high-performance",
+  stencil: false,
+  depth: true,
+  toneMapping: THREE.NoToneMapping,
+} as const;
+
+const CAMERA = {
+  position: [...WAYPOINTS[0].pos] as [number, number, number],
+  fov: 38,
+  near: 0.5,
+  far: 12000,
+};
 
 function Ready({ onReady }: { onReady: () => void }) {
   const done = useRef(false);
@@ -88,70 +110,57 @@ function Ready({ onReady }: { onReady: () => void }) {
   return null;
 }
 
-export function CosmosScene() {
-  // Start at the ceiling, not below it. This used to start at 1.5 and let the
-  // monitor raise it once it had 2.5 s of frames, so a fast machine resized
-  // the canvas with the hero planet on screen. Now only a machine that cannot
-  // hold the frame rate ever sees a change.
-  const [dpr, setDpr] = useState(MAX_DPR);
-  const [quality, setQuality] = useState<"high" | "low">("high");
-  const [ready, setReady] = useState(false);
+/** Holds the first frame until the scene's and the composer's programs are compiled and the planets baked. */
+function Warmup({
+  composer,
+  onWarm,
+}: {
+  composer: RefObject<EffectComposer | null>;
+  onWarm: () => void;
+}) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
 
-  const dense =
-    typeof window !== "undefined" &&
-    window.matchMedia("(min-width: 768px)").matches;
+  useEffect(() => {
+    let live = true;
+    // The composer draws the scene into a half-float buffer, not the screen.
+    const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
+    void (async () => {
+      await Promise.allSettled([compileFor(gl, scene, camera, target), held(gl)]);
+      target.dispose();
+      const post = live ? await whenSet(() => composer.current) : null;
+      if (post && live) await compileComposer(gl, post, camera).catch(() => {});
+      if (live) onWarm();
+    })();
+    return () => {
+      live = false;
+    };
+  }, [gl, scene, camera, composer, onWarm]);
 
+  return null;
+}
+
+/**
+ * Everything in the scene graph, memoised: a quality change re-renders the
+ * canvas, and a re-render here would rebake the environment, which drei does
+ * whenever its children change identity.
+ */
+const Scene = memo(function Scene({
+  dense,
+  detail,
+  composer,
+  onWarm,
+  onReady,
+}: {
+  dense: boolean;
+  detail: number;
+  composer: RefObject<EffectComposer | null>;
+  onWarm: () => void;
+  onReady: () => void;
+}) {
   return (
-    <Canvas
-      className={cn(
-        "transition-opacity duration-[1600ms] ease-out motion-reduce:transition-none",
-        ready ? "opacity-100" : "opacity-0",
-      )}
-      frameloop="never"
-      dpr={dpr}
-      gl={{
-        // Off on purpose: everything is drawn into the composer's buffer, so
-        // multisampling the canvas would never touch the scene and would only
-        // cost memory. `Effects` says how the edges are smoothed instead.
-        antialias: false,
-        alpha: false,
-        powerPreference: "high-performance",
-        stencil: false,
-        depth: true,
-        toneMapping: THREE.NoToneMapping,
-      }}
-      camera={{
-        position: [...WAYPOINTS[0].pos],
-        fov: 38,
-        near: 0.5,
-        far: 12000,
-      }}
-      onCreated={({ gl }) => gl.setClearColor("#030305")}
-    >
-      <FramePacer />
-      <FlightDriver />
-
-      <PerformanceMonitor
-        // The pacer drops to 30fps at rest on purpose. Judge each window by the
-        // lowest rate it asked for, or idling reads as the GPU falling behind.
-        bounds={() => {
-          const floor = pacing.floor;
-          pacing.floor = pacing.target;
-          return [floor * 0.83, floor];
-        }}
-        onDecline={() => {
-          // One step at a time: a machine that only struggles at 2x keeps the
-          // full grade at 1.5, where every machine used to start.
-          if (dpr > 1.5) {
-            setDpr(1.5);
-          } else {
-            setDpr(1);
-            setQuality("low");
-          }
-        }}
-        onIncline={() => setDpr(MAX_DPR)}
-      />
-
+    <>
       {/* Far plane is huge; fog keeps the tail of the track from stacking up. */}
       <fog attach="fog" args={["#030305", 700, 4600]} />
       <ambientLight intensity={0.16} />
@@ -161,17 +170,145 @@ export function CosmosScene() {
       <Suspense fallback={null}>
         <ChromeEnvironment />
         <LogoModel />
-        <Earth />
+        <Earth detail={detail} />
         <RingedPlanet />
-        <IcePlanet />
+        <IcePlanet detail={detail} />
         <Pulsar />
         <ProductMoons />
         <Starfield count={dense ? 3200 : 1400} />
-        <Ready onReady={() => setReady(true)} />
+        <Warmup composer={composer} onWarm={onWarm} />
+        <Ready onReady={onReady} />
       </Suspense>
 
       <CosmosFlight />
-      <Effects quality={quality} />
+    </>
+  );
+});
+
+function readViewport(): Viewport {
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    dpr: window.devicePixelRatio || 1,
+  };
+}
+
+function useViewport(onChange: () => void) {
+  const [viewport, setViewport] = useState(readViewport);
+
+  useEffect(() => {
+    let timer = 0;
+    let query: MediaQueryList | null = null;
+    const update = () => {
+      onChange();
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        setViewport(readViewport());
+        watch();
+      }, 150);
+    };
+    // Moving the window to a screen with another pixel ratio need not resize it.
+    const watch = () => {
+      query?.removeEventListener("change", update);
+      query = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      query.addEventListener("change", update);
+    };
+    watch();
+    window.addEventListener("resize", update);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", update);
+      query?.removeEventListener("change", update);
+    };
+  }, [onChange]);
+
+  return viewport;
+}
+
+const showStats = () =>
+  process.env.NODE_ENV !== "production" ||
+  new URLSearchParams(window.location.search).has("gfxstats");
+
+export function CosmosScene({ gpu }: { gpu: string }) {
+  const [plan] = useState(() =>
+    planTier(
+      gpu,
+      {
+        memory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
+        cores: navigator.hardwareConcurrency,
+      },
+      new URLSearchParams(window.location.search).get("gfx"),
+    ),
+  );
+  const [tier, setTier] = useState<Tier>(plan.tier);
+  const [gate] = useState<Gate>(() => ({ open: false }));
+  const [stats] = useState(showStats);
+  const [dense] = useState(() => window.matchMedia("(min-width: 768px)").matches);
+  const [ready, setReady] = useState(false);
+  const live = useRef<Viewport | null>(null);
+  const composer = useRef<EffectComposer | null>(null);
+
+  const [governor] = useState(
+    () =>
+      new QualityGovernor({
+        ...plan,
+        pixels: (t) => {
+          const v = live.current ?? readViewport();
+          const d = dprFor(t, v);
+          return v.width * d * v.height * d;
+        },
+        onChange: setTier,
+      }),
+  );
+
+  const interrupt = useCallback(() => governor.interrupt(), [governor]);
+  const viewport = useViewport(interrupt);
+  useEffect(() => {
+    live.current = viewport;
+  }, [viewport]);
+  const dpr = dprFor(tier, viewport);
+
+  // Fixed at mount: rebaking the planets later would cost more than it saves.
+  const detail = plan.tier === "low" ? 512 : 1024;
+
+  const [mountedAt] = useState(() => performance.now());
+  useEffect(() => {
+    frameLog.mounted = mountedAt;
+  }, [mountedAt]);
+  const onWarm = useCallback(() => {
+    gate.open = true;
+    frameLog.warm = performance.now();
+  }, [gate]);
+  const onReady = useCallback(() => {
+    frameLog.shown = performance.now();
+    setReady(true);
+  }, []);
+
+  return (
+    <Canvas
+      className={cn(
+        "transition-opacity duration-[1600ms] ease-out motion-reduce:transition-none",
+        ready ? "opacity-100" : "opacity-0",
+      )}
+      data-tier={tier}
+      frameloop="never"
+      dpr={dpr}
+      // The canvas is fixed to the viewport; scrolling never moves it, so
+      // measuring it on every scroll event only forces layout.
+      resize={{ scroll: false }}
+      gl={GL}
+      camera={CAMERA}
+      onCreated={({ gl }) => gl.setClearColor("#030305")}
+    >
+      <FramePacer governor={governor} gate={gate} />
+      <FlightDriver />
+      <Scene dense={dense} detail={detail} composer={composer} onWarm={onWarm} onReady={onReady} />
+      <Effects dpr={dpr} lite={tier === "low"} composer={composer} />
+      {stats && (
+        <Suspense fallback={null}>
+          <Diagnostics governor={governor} />
+        </Suspense>
+      )}
     </Canvas>
   );
 }
