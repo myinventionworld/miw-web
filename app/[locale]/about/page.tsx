@@ -102,7 +102,7 @@ export default async function AboutPage() {
             href={localeHref(locale, "/work")}
             className="text-lead font-medium text-comet hover:underline"
           >
-            {t("work.action")} ›
+            {t("work.action")}
           </Link>
         </div>
       </CoverHero>
@@ -156,7 +156,7 @@ export default async function AboutPage() {
             href={localeHref(locale, "/work")}
             className="mt-5 inline-block text-lead font-medium text-comet hover:underline"
           >
-            {t("work.action")} ›
+            {t("work.action")}
           </Link>
         </div>
         <div className="mt-14 md:mt-16">
@@ -183,7 +183,7 @@ export default async function AboutPage() {
                 {t(`projects:${p.id}.pitch`)}
               </p>
               <span className="mt-4 inline-block text-body font-medium text-comet group-hover:underline">
-                {t("common:project.readCaseStudy")} ›
+                {t("common:project.readCaseStudy")}
               </span>
             </Link>
           ))}

@@ -94,7 +94,7 @@ export function Fallback() {
                 href="/work"
                 className="text-lead font-medium text-comet hover:underline"
               >
-                {t("home.ctaWork")} ›
+                {t("home.ctaWork")}
               </LocaleLink>
             </div>
           </section>
@@ -163,7 +163,7 @@ export function Fallback() {
                           rel="noopener noreferrer"
                           className="text-comet hover:underline"
                         >
-                          {t("project.liveAppOut")}
+                          {t("project.liveApp")}
                           {/* Every product has these two links; the name tells
                               them apart for a screen reader. */}
                           <span className="sr-only"> {project.name}</span>
@@ -174,7 +174,7 @@ export function Fallback() {
                         className="text-comet hover:underline"
                       >
                         {t("project.readCaseStudy")}
-                        <span className="sr-only">: {project.name}</span> ›
+                        <span className="sr-only">: {project.name}</span>
                       </LocaleLink>
                     </div>
                     {hasScreens(project) ? (

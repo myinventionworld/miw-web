@@ -82,7 +82,7 @@ export default async function WorkIndexPage() {
                   rel="noopener noreferrer"
                   className="text-comet hover:underline"
                 >
-                  {t("common:project.liveAppOut")}
+                  {t("common:project.liveApp")}
                   <span className="sr-only"> {p.name}</span>
                 </a>
               )}
@@ -91,7 +91,7 @@ export default async function WorkIndexPage() {
                 className="text-comet hover:underline"
               >
                 {t("common:project.readCaseStudyLong")}
-                <span className="sr-only">: {p.name}</span> ›
+                <span className="sr-only">: {p.name}</span>
               </Link>
             </div>
 

@@ -5,8 +5,7 @@ import { cn } from "@/shared/lib/cn";
 /**
  * The mark set, drawn here rather than pulled from an icon library.
  *
- * An off-the-shelf set has a signature — a 24px grid, 2px strokes, round caps,
- * 45° arrowheads — and that signature is the same on every site that installed
+ * An off-the-shelf set has a signature — a 24px grid, 2px strokes, round caps — and that signature is the same on every site that installed
  * it. On a page whose whole argument is "we built this ourselves", wearing
  * someone else's drafting hand is the one detail that gives the game away.
  *
@@ -15,11 +14,8 @@ import { cn } from "@/shared/lib/cn";
  * means a mark tracks the type it annotates instead of being pinned to a
  * `size-4` that was right for one button and wrong for the next.
  *
- * The set is deliberately small. Each mark here either names a destination the
- * label cannot (a link that leaves the site) or is a control with no text (menu,
- * close). Marks that merely decorated a label that already said the thing — a
- * padlock in a chrome bar that prints the host, a branch glyph on a button
- * reading "Source" — were removed rather than redrawn.
+ * The set is deliberately small: controls with no text (menu, close) and a few
+ * status marks. Links carry no mark — the label says where they go.
  */
 
 type GlyphProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
@@ -48,52 +44,6 @@ function Glyph({
     >
       {children}
     </svg>
-  );
-}
-
-/**
- * Four directions off one geometry. The head is two straight segments meeting at
- * a corner rather than a chevron with a rounded vertex, so it reads as drawn
- * with a rule — which is the rest of this page's handwriting.
- */
-export function Arrow({
-  dir = "right",
-  ...rest
-}: GlyphProps & { dir?: "right" | "up-right" | "down" | "left" }) {
-  if (dir === "up-right") {
-    // The only mark that carries information the label cannot: this link leaves
-    // the site. Drawn as the corner-and-diagonal so it is legible at 10px.
-    return (
-      <Glyph {...rest}>
-        <path d="M3 9 L9 3" />
-        <path d="M4.4 3 H9 V7.6" />
-      </Glyph>
-    );
-  }
-
-  if (dir === "down") {
-    return (
-      <Glyph {...rest}>
-        <path d="M6 1.6 V10" />
-        <path d="M2.6 6.6 L6 10 L9.4 6.6" />
-      </Glyph>
-    );
-  }
-
-  if (dir === "left") {
-    return (
-      <Glyph {...rest}>
-        <path d="M10.4 6 H2" />
-        <path d="M5.4 2.6 L2 6 L5.4 9.4" />
-      </Glyph>
-    );
-  }
-
-  return (
-    <Glyph {...rest}>
-      <path d="M1.6 6 H10" />
-      <path d="M6.6 2.6 L10 6 L6.6 9.4" />
-    </Glyph>
   );
 }
 

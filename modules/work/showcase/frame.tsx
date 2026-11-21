@@ -75,10 +75,6 @@ const ACTION =
  * `Live app` is rendered only where there is a deployment a stranger can open,
  * and source is labelled as source. A button that says "Live app" and lands on
  * a repository costs more trust than the case study buys back.
- *
- * Only the two outbound links take a mark, and it is the same mark: this leaves
- * the site. The internal link is bare — an arrow on every button is how a row
- * of controls stops distinguishing between them.
  */
 export function ProjectActions({ project }: { project: ProjectCase }) {
   const { t } = useTranslation("common");

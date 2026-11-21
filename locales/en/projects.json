@@ -53,7 +53,7 @@
     "body": "Client projects will appear here as they ship."
   },
   "case": {
-    "back": "← All work",
+    "back": "All work",
     "launch": "Open the live app",
     "diagramAlt": "Architecture diagram",
     "sections": {
