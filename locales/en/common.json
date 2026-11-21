@@ -14,13 +14,13 @@
     "scope": "Prague, Czech Republic"
   },
   "nav": {
+    "services": "Services",
     "work": "Work",
     "bookCall": "Start a project",
     "contact": "Contact",
     "menu": "Menu",
-    "caseStudies": "Case studies",
     "language": "Language",
-    "about": "About us"
+    "about": "About"
   },
   "footer": {
     "back": "Back to home",

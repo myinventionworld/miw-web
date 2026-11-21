@@ -6,7 +6,7 @@ import { ReactLenis, useLenis } from "lenis/react";
 import { useMotionValue, type MotionValue } from "motion/react";
 import { useTranslation } from "react-i18next";
 
-import { clamp01, flight } from "./flight";
+import { flight, scrollAt, trackAt } from "./flight";
 import { useDockSnap } from "./use-dock-snap";
 import { CONSOLE_ANCHOR, STATIONS, stationById, type Mode } from "./stations";
 import { Navbar } from "./navbar";
@@ -23,8 +23,7 @@ const CosmosScene = dynamic(
   { ssr: false },
 );
 
-/** Total scroll runway. Nine screens of travel across five parking points. */
-const RUNWAY = "h-[900vh]";
+const RUNWAY = "h-[740vh]";
 
 const RECONNECT_MS = 4000;
 
@@ -163,7 +162,7 @@ function Deck({
   const progress = useMotionValue(0);
 
   const lenis = useLenis(({ scroll, limit }) => {
-    const p = limit > 0 ? clamp01(scroll / limit) : 0;
+    const p = limit > 0 ? trackAt(scroll / limit) : 0;
     flight.progress = p;
     progress.set(p);
   });
@@ -174,7 +173,7 @@ function Deck({
   const travel = useCallback(
     (p: number) => {
       if (!lenis) return;
-      lenis.scrollTo(p * lenis.limit, {
+      lenis.scrollTo(scrollAt(p) * lenis.limit, {
         duration: 2.2,
         easing: (t: number) => 1 - Math.pow(1 - t, 3),
       });

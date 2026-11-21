@@ -73,12 +73,8 @@ export function CosmosFlight() {
     // ...then ease onto the station's body as we park. `proximity` is 1 on
     // station and 0 mid-leg, so the lock and the warp are exact inverses.
     const station = STATIONS[flight.station];
-    const anchor = BODY[station.id];
-    // Past the last station the lock releases. `proximityAt` returns 1 for
-    // everything beyond the final anchor, so without this the camera keeps
-    // the pulsar dead-centre all the way to the console — a star behind the
-    // form is exactly the washed-out composition this rebuild replaced.
-    const lock = anchor ? flight.proximity * (1 - smoothstep(0.84, 0.93, p)) : 0;
+    const anchor = station && BODY[station.id];
+    const lock = anchor ? flight.proximity : 0;
     if (anchor) {
       body.current.set(...anchor.pos);
       target.current.lerp(body.current, lock * 0.92);
@@ -89,12 +85,12 @@ export function CosmosFlight() {
     up.current.crossVectors(right.current, forward.current).normalize();
 
     // Docking composition. The lock above centres the body by construction,
-    // which is the wrong answer now that the info card alternates sides: three
-    // of the four stations would park their card on top of their own subject.
+    // which is the wrong answer now that the info card alternates sides: the
+    // stations would park their card on top of their own subject.
     // Nudging the aim point away from the body slides it across the frame, and
     // scaling by `lock` means this only ever applies while parked — the transit
     // is still aimed down the track.
-    const bias = FRAME_BIAS[station.id];
+    const bias = station && FRAME_BIAS[station.id];
     if (bias && lock > 0.001) {
       target.current
         .addScaledVector(right.current, -bias.x * BIAS_SCALE.x * lock)

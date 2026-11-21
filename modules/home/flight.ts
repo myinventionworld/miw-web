@@ -14,7 +14,7 @@ export interface Pointer {
 }
 
 export interface FlightState {
-  /** Raw document scroll, 0..1. */
+  /** Track time of the document scroll, 0..1 — see `trackAt`. */
   progress: number;
   /** Critically damped `progress` — safe to drive geometry with. */
   eased: number;
@@ -24,7 +24,7 @@ export interface FlightState {
   warp: number;
   /** 1 when parked at a station, 0 mid-transit. */
   proximity: number;
-  /** Index into STATIONS of whichever station is nearest. */
+  /** Index into STATIONS of whichever station is nearest, -1 at the console. */
   station: number;
   /** 1 → 0 decaying impulse fired by the transmission console. */
   pulse: number;
@@ -86,25 +86,21 @@ export const BODY: Record<StationId, { pos: Vec3; radius: number }> = {
   backend: { pos: [-18, -11, -64], radius: 19 },
   commerce: { pos: [22, -3, -246], radius: 15 },
   labs: { pos: [-19, 6, -420], radius: 16 },
-  guild: { pos: [0, 0, -648], radius: 12 },
+};
+
+export const PULSAR: { pos: Vec3; radius: number } = {
+  pos: [0, 0, -648],
+  radius: 12,
 };
 
 /**
  * Where the body sits in frame once docked, in half-screens: x +1 is the right
- * edge, y +1 is the top. The dock lock centres the body by construction, so
- * without this every station composes identically — and worse, the info card
- * now alternates sides down the page, which would park three of the four cards
- * directly on top of their own subject.
- *
- * Read it as the mirror of the card: card left, body right.
+ * edge, y +1 is the top. The mirror of the card: card left, body right.
  */
 export const FRAME_BIAS: Record<StationId, { x: number; y: number }> = {
   backend: { x: 0.52, y: -0.06 },
   commerce: { x: -0.54, y: 0.02 },
   labs: { x: 0.52, y: 0.04 },
-  // Station 04's card is centred, so the pulsar has nowhere sideways to go and
-  // is lifted clear of it instead.
-  guild: { x: 0.04, y: 0.5 },
 };
 
 /**
@@ -129,7 +125,7 @@ export const WAYPOINTS: { p: number; pos: Vec3 }[] = [
   { p: 0.42, pos: [0, -2, -262] },
   { p: 0.54, pos: [13, -4, -352] }, // station 03
   { p: 0.66, pos: [4, 2, -452] },
-  { p: 0.78, pos: [-9, 4, -545] }, // station 04
+  { p: 0.78, pos: [-9, 4, -545] },
   // The last leg passes the pulsar rather than flying into it. Parking the
   // console on the star's face is exactly the washed-out frame this rebuild
   // exists to remove, so the track slides abeam and leaves it astern.
@@ -223,10 +219,13 @@ export function proximityAt(p: number) {
   return 1 - away;
 }
 
-/** Index into STATIONS of the station nearest to a scroll value. */
+/**
+ * Index into STATIONS of the station nearest to a track time, or -1 where the
+ * console is nearer than any station.
+ */
 export function stationIndexAt(p: number) {
-  let best = 0;
-  let bestDist = Infinity;
+  let best = -1;
+  let bestDist = Math.abs(CONSOLE_ANCHOR - p);
   for (let i = 0; i < STATIONS.length; i++) {
     const d = Math.abs(STATIONS[i].anchor - p);
     if (d < bestDist) {
@@ -235,4 +234,26 @@ export function stationIndexAt(p: number) {
     }
   }
   return best;
+}
+
+/* ── scroll ───────────────────────────────────────────────────────────── */
+
+/**
+ * Track time is what WAYPOINTS, the anchors and every fade in the scene are
+ * written in. The scroll is a different clock: the track from the last station
+ * past the pulsar to the console is two legs long, and the scroll gives it the
+ * length of one. Convert where the scroll is read or set, and nowhere else.
+ */
+const KNEE = { scroll: 0.66, track: STATIONS[STATIONS.length - 1].anchor };
+
+export function trackAt(scroll: number) {
+  const s = clamp01(scroll);
+  if (s <= KNEE.scroll) return (s / KNEE.scroll) * KNEE.track;
+  return lerp(KNEE.track, 1, (s - KNEE.scroll) / (1 - KNEE.scroll));
+}
+
+export function scrollAt(track: number) {
+  const t = clamp01(track);
+  if (t <= KNEE.track) return (t / KNEE.track) * KNEE.scroll;
+  return lerp(KNEE.scroll, 1, (t - KNEE.track) / (1 - KNEE.track));
 }

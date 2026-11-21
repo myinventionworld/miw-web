@@ -26,7 +26,6 @@ import { PhoneStory } from "./phone-story";
 import { PhoneSwitch } from "./phone-switch";
 import { Reveal } from "./reveal";
 import { ScrollingWindow } from "./scrolling-window";
-import type { CycleFrame } from "./screen-cycle";
 import { WindowStack } from "./window-stack";
 import { type LoopVideo, WindowVideo } from "./window-video";
 import { cn } from "@/shared/lib/cn";
@@ -358,30 +357,6 @@ export function HeroShots({
     </>
   );
 }
-
-/**
- * The header menu's project cards: each product's screens in turn.
- */
-export const THUMBS: Record<string, CycleFrame[]> = {
-  omnibus: [
-    { src: omnibusDesktop, kind: "window" },
-    { src: omnibusResults, kind: "window" },
-    { src: omnibusBooking, kind: "window" },
-    { src: omnibusSeats, kind: "phone" },
-  ],
-  boowie: [
-    { src: boowieReading, kind: "phone" },
-    { src: boowieStore, kind: "phone" },
-    { src: boowieReader, kind: "phone" },
-    { src: boowiePlayer, kind: "phone" },
-  ],
-  wovie: [
-    { src: wovieHome, kind: "window" },
-    { src: wovieFilm, kind: "window" },
-    { src: wovieTrailer, kind: "window" },
-    { src: wovieSignup, kind: "window" },
-  ],
-};
 
 /**
  * The station card on the 3D home: the product's screenshots sized for a

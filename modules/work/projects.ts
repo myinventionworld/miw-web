@@ -235,14 +235,9 @@ export function projectBySlug(slug: string): ProjectCase | undefined {
 
 /**
  * The artifact a station puts in its frame: the first project registered
- * against it. Station 02 has no finished small-business project yet and station
- * 04 is the team, so both have none — `undefined` is a valid answer, not a gap
- * to fill.
+ * against it. Station 02 has no finished small-business project yet, so it has
+ * none — `undefined` is a valid answer, not a gap to fill.
  */
 export function projectForStation(station: StationId): ProjectCase | undefined {
   return PROJECTS.find((p) => p.station === station);
-}
-
-export function projectsForStations(stations: readonly StationId[]) {
-  return PROJECTS.filter((p) => stations.includes(p.station));
 }

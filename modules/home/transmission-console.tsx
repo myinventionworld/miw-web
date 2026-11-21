@@ -9,6 +9,7 @@ import { mailtoHref } from "@/modules/contact";
 import { useBannerAside } from "@/modules/cookies";
 import { cn } from "@/shared/lib/cn";
 import { SiteFooter } from "@/modules/layout";
+import { TeamLine } from "@/modules/team";
 import {
   SignalStrip,
   Honeypot,
@@ -280,6 +281,11 @@ export function TransmissionConsole({ progress }: { progress: MotionValue<number
                     >
                       {t(`tabs.${tab}.note`)}
                     </p>
+                    <TeamLine
+                      line={t("team.line")}
+                      link={t("team.link")}
+                      className="mt-3 deck-short:hidden"
+                    />
                   </div>
 
                   <Segmented

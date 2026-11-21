@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { Cover, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
+import { Cover, TeamLine, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { BigFooter, LocaleSwitch } from "@/modules/layout";
+import { BigFooter, SiteHeader } from "@/modules/layout";
 import {
   Device,
   ProductShots,
@@ -15,7 +15,6 @@ import { EnquiryForm } from "@/modules/contact";
 import { STATIONS, type ProgramPoint, type StationCopy } from "./stations";
 import { CONTACT_EMAIL } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
-import { Logo } from "@/shared/ui/logo";
 
 /**
  * The flat deck. Served to two audiences that want the same thing: browsers
@@ -51,25 +50,26 @@ export function Fallback() {
   return (
     <>
       <main className="theme-light min-h-screen bg-void">
-        <header className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 pt-5 sm:px-8 md:max-w-5xl">
-          <Logo />
-          <div className="flex items-center gap-6">
-            <nav className="hidden items-center gap-5 md:flex">
-              <LocaleLink href="/work" className="text-body font-medium text-zinc transition-colors hover:text-white">
-                {t("nav.work")}
-              </LocaleLink>
-              <LocaleLink href="/about" className="text-body font-medium text-zinc transition-colors hover:text-white">
-                {t("nav.about")}
-              </LocaleLink>
-            </nav>
-            <LocaleSwitch />
-          </div>
-        </header>
+        <SiteHeader
+          locale={i18n.language}
+          onHome
+          text={{
+            nav: {
+              services: t("nav.services"),
+              work: t("nav.work"),
+              about: t("nav.about"),
+              contact: t("nav.contact"),
+            },
+            start: t("nav.bookCall"),
+            startShort: t("nav.contact"),
+            logoAria: t("brand.deckAria"),
+          }}
+        />
 
         <div className="md:mt-5 md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
           {/* The cover as a banner between two rules: the body bleeds off the
               top one and the moon rises from the bottom one. */}
-          <div className="mt-5 border-y border-line md:col-start-3 md:row-start-1 md:mt-0 md:min-h-[28rem] md:self-stretch md:border-y-0">
+          <div className="border-b border-line md:col-start-3 md:row-start-1 md:min-h-[28rem] md:self-stretch md:border-b-0">
             <div className="mx-auto aspect-[3/2] w-full max-w-3xl md:aspect-auto md:h-full md:max-w-none">
               <Cover people={people} />
             </div>
@@ -139,26 +139,6 @@ export function Fallback() {
                   </dl>
                 )}
 
-                {s.id === "guild" && (
-                  <div className="mt-12">
-                    <TeamOrbit
-                      embedded
-                      people={people}
-                      title={t("about:team.title")}
-                      hintPointer={t("about:team.hint")}
-                      hintTouch={t("about:team.hintTouch")}
-                    />
-                  </div>
-                )}
-
-                {s.ctaHref && (
-                  <LocaleLink
-                    href={s.ctaHref}
-                    className="mt-6 inline-block text-lead font-medium text-comet hover:underline"
-                  >
-                    {t(`stations:${s.id}.cta`)} ›
-                  </LocaleLink>
-                )}
 
                 {project && (
                   <div className="mt-10">
@@ -210,6 +190,15 @@ export function Fallback() {
                     )}
                   </div>
                 )}
+
+                {s.door && (
+                  <LocaleLink
+                    href={s.door}
+                    className="mt-10 inline-block text-lead font-medium text-comet hover:underline"
+                  >
+                    {t(`stations:${s.id}.door`)}
+                  </LocaleLink>
+                )}
               </div>
             </section>
           );
@@ -226,6 +215,11 @@ export function Fallback() {
             <p className="mt-4 text-copy leading-relaxed text-zinc">
               {t("home.transmissionBody")}
             </p>
+            <TeamLine
+              line={t("console:team.line")}
+              link={t("console:team.link")}
+              className="mt-8 justify-center lg:justify-start"
+            />
           </div>
           <div className="mx-auto max-w-xl lg:mx-0 lg:max-w-none">
             <EnquiryForm />

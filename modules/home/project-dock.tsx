@@ -29,20 +29,16 @@ import { cn } from "@/shared/lib/cn";
 import type { StationId } from "@/shared/station-id";
 
 /**
- * Which side the card parks on. Alternating on purpose: four cards against the
+ * Which side the card parks on. Alternating on purpose: cards against the
  * same edge read as one column with a moving backdrop, and the eye never has a
  * reason to travel. `FRAME_BIAS` in `flight.ts` is the mirror of this map —
  * it slides each celestial body to the opposite side so the card is never parked
  * on top of its own subject.
- *
- * Station 04 is the team rather than an artifact, so it closes the flight
- * centred and full-width instead of taking a side.
  */
-const DOCK_SIDE: Record<StationId, "left" | "right" | "center"> = {
+const DOCK_SIDE: Record<StationId, "left" | "right"> = {
   backend: "left",
   commerce: "right",
   labs: "left",
-  guild: "center",
 };
 
 /**
@@ -68,7 +64,6 @@ const BANDS: Record<StationId, [number, number]> = {
   backend: [0.035, 0.11],
   commerce: [0.25, 0.35],
   labs: [0.49, 0.59],
-  guild: [0.73, 0.83],
 };
 
 /**
@@ -119,25 +114,14 @@ function ArtifactBody({
  * people at 04. Faking a product frame for either would be the exact
  * dishonesty the rest of this page is written to avoid.
  */
-function ProgramBody({
-  station,
-  wide,
-}: {
-  station: Station;
-  wide: boolean;
-}) {
+function ProgramBody({ station }: { station: Station }) {
   const { t } = useTranslation("stations");
   const points = t(`${station.id}.program`, {
     returnObjects: true,
   }) as ProgramPoint[];
 
   return (
-    <dl
-      className={cn(
-        "grid gap-2",
-        wide ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-1",
-      )}
-    >
+    <dl className="grid gap-2">
       {points.map((p) => (
         <div
           key={p.label}
@@ -167,20 +151,24 @@ function StationCta({
     "flex items-center gap-1.5 rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover";
 
   const { t } = useTranslation("stations");
-  const label = t(`${station.id}.cta`);
-
-  if (station.ctaHref) {
-    return (
-      <LocaleLink href={station.ctaHref} className={style}>
-        {label}
-      </LocaleLink>
-    );
-  }
 
   return (
     <button type="button" onClick={() => onAction?.(station)} className={style}>
-      {label}
+      {t(`${station.id}.cta`)}
     </button>
+  );
+}
+
+function StationDoor({ station, href }: { station: Station; href: string }) {
+  const { t } = useTranslation("stations");
+
+  return (
+    <LocaleLink
+      href={href}
+      className="px-2 py-2 text-small font-medium text-comet hover:underline"
+    >
+      {t(`${station.id}.door`)}
+    </LocaleLink>
   );
 }
 
@@ -189,8 +177,7 @@ function StationCta({
  * otherwise a visitor sees an artifact with no idea what it is for.
  *
  * Gated on `deck-wide`, not `lg`: the brief needs height as much as width, and
- * on a short window it was overflowing its column and crossing the navbar. The
- * centred station has no brief column at any size, so it opts out of the gate.
+ * on a short window it was overflowing its column and crossing the navbar.
  *
  * The proof chips and the spec strip used to live here too. They are the first
  * thing to go on a short deck: the frame below carries its own callouts, and two
@@ -200,11 +187,9 @@ function StationCta({
 function CardBrief({
   station,
   mode,
-  always = false,
 }: {
   station: Station;
   mode: Mode;
-  always?: boolean;
 }) {
   const { t } = useTranslation("stations");
   const copy = t(`${station.id}.${mode}`, {
@@ -213,17 +198,9 @@ function CardBrief({
 
   return (
     <div
-      className={cn(
-        "mb-3.5 border-b border-white/12 pb-3.5 deck-short:mb-2.5 deck-short:pb-2.5",
-        !always && "deck-wide:hidden",
-      )}
+      className="mb-3.5 border-b border-white/12 pb-3.5 deck-short:mb-2.5 deck-short:pb-2.5 deck-wide:hidden"
     >
-      <h2
-        className={cn(
-          "leading-[1.16] font-semibold tracking-[-0.025em] text-white",
-          always ? "text-heading deck-wide:text-heading-xl" : "text-title",
-        )}
-      >
+      <h2 className="text-title leading-[1.16] font-semibold tracking-[-0.025em] text-white">
         {copy.headline}
       </h2>
       {/* On a short deck the lede is clamped rather than dropped: two lines
@@ -259,7 +236,6 @@ function Card({
   // registered against it in `modules/work/projects.ts`, and shows none when there is
   // nothing a stranger could open.
   const project = projectForStation(station.id);
-  const centred = DOCK_SIDE[station.id] === "center";
 
   return (
     /*
@@ -279,17 +255,12 @@ function Card({
      * `data-lenis-prevent` does and what this deliberately does not use.
      */
     <div
-      className={cn(
-        "panel pointer-events-auto rounded-2xl p-4 lg:p-5 deck-short:p-3.5",
-        centred
-          ? "w-full"
-          : "w-[min(92vw,440px)] xl:w-[540px] deck-short:w-[min(92vw,660px)]",
-      )}
+      className="panel pointer-events-auto w-[min(92vw,440px)] rounded-2xl p-4 lg:p-5 xl:w-[540px] deck-short:w-[min(92vw,660px)] deck-short:p-3.5"
     >
-      <CardBrief station={station} mode={mode} always={centred} />
+      <CardBrief station={station} mode={mode} />
 
       {station.program ? (
-        <ProgramBody station={station} wide={centred} />
+        <ProgramBody station={station} />
       ) : project ? (
         <ArtifactBody project={project} />
       ) : null}
@@ -297,6 +268,7 @@ function Card({
       <div className="mt-3 flex flex-wrap items-center gap-2 deck-short:mt-2">
         <StationCta station={station} onAction={onAction} />
         {project && <ProjectActions project={project} />}
+        {station.door && <StationDoor station={station} href={station.door} />}
       </div>
     </div>
   );
@@ -359,7 +331,7 @@ export function ProjectDock({
       }
     }
     // Identity compare is enough: STATIONS entries are module singletons, and
-    // this only flips eight times across the whole runway.
+    // this only flips a few times across the whole runway.
     setActive((prev) => (prev === next ? prev : next));
   }, []);
 
@@ -388,7 +360,6 @@ export function ProjectDock({
               // `justify-end` reads against the main axis: on a reversed row it
               // packs left. That is what keeps the card on its own side once the
               // brief column drops out on a short window.
-              side === "center" && "justify-center",
               side === "left" && "flex-row-reverse justify-end",
               side === "right" && "flex-row justify-end",
             )}
@@ -406,29 +377,15 @@ export function ProjectDock({
                 panel itself: as a flex item the wrapper has the definite parent
                 a percentage max-height needs, which the panel — inside an
                 auto-height box — does not. */}
-            {side === "center" ? (
-              <div
-                className={cn(
-                  "relative z-10 mx-auto w-full",
-                  active.program ? "max-w-[880px]" : "max-w-[680px]",
-                  CAP,
-                )}
-              >
-                <Card station={active} mode={mode} onAction={onAction} />
-              </div>
-            ) : (
-              <>
-                <div className="hidden flex-1 deck-wide:block">
-                  <Brief station={active} mode={mode} />
-                </div>
-                {/* Stacked above the brief: its scrim bleeds past the column to
-                    keep the copy legible over the planet, and the card has to
-                    win that overlap rather than be washed by it. */}
-                <div className={cn("relative z-10 shrink-0", CAP)}>
-                  <Card station={active} mode={mode} onAction={onAction} />
-                </div>
-              </>
-            )}
+            <div className="hidden flex-1 deck-wide:block">
+              <Brief station={active} mode={mode} />
+            </div>
+            {/* Stacked above the brief: its scrim bleeds past the column to
+                keep the copy legible over the planet, and the card has to
+                win that overlap rather than be washed by it. */}
+            <div className={cn("relative z-10 shrink-0", CAP)}>
+              <Card station={active} mode={mode} onAction={onAction} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

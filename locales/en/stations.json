@@ -32,35 +32,10 @@
   "labs": {
     "nav": "Our products",
     "cta": "Talk to us",
+    "door": "See all our work",
     "business": {
       "headline": "We build our own products too.",
       "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live — open them."
-    }
-  },
-  "guild": {
-    "nav": "Team",
-    "cta": "Meet the team",
-    "business": {
-      "headline": "Seven people, one team.",
-      "lede": "Engineers, an analyst and a designer in Prague. You talk directly to the people who build your project."
-    }
-  },
-  "sections": {
-    "studio": {
-      "label": "Services",
-      "blurb": "Websites and stores for small businesses. MVPs and AI features for startups."
-    },
-    "labs": {
-      "label": "Products",
-      "blurb": "Things we built for ourselves first."
-    },
-    "guild": {
-      "label": "Team",
-      "blurb": "Seven people in Prague."
-    },
-    "transmission": {
-      "label": "Contact",
-      "blurb": "Write to the team directly."
     }
   }
 }

@@ -1,11 +1,8 @@
-import Link from "next/link";
 import { locale as currentLocale } from "next/root-params";
 import type { ReactNode } from "react";
 import { initTranslations } from "@/modules/i18n";
-import { localeHref } from "@/modules/i18n";
-import { cn } from "@/shared/lib/cn";
-import { Logo } from "@/shared/ui/logo";
 import { BigFooter } from "./big-footer";
+import { SiteHeader } from "./site-header";
 
 /**
  * Chrome for the 2D routes.
@@ -29,65 +26,23 @@ export async function PageLayout({
   const locale = await currentLocale();
   const { t } = await initTranslations(locale, ["common"]);
 
-  /**
-   * The padding is the tap target, not decoration. Bare 13px anchors measured
-   * 20px tall, under the 24px WCAG 2.5.8 floor — and these two links are the
-   * only site navigation a phone gets on these routes.
-   *
-   * Vertical growth is free: `-my-2` pulls the margin box back to the height the
-   * text had, so a 36px hit area opens inside a 56px row that was mostly dead
-   * space anyway and nothing moves. Horizontal growth is not free, so the `gap`
-   * on the nav below pays for it — 8px of padding a side against `gap-2` is the
-   * same 24px of visible separation the old `gap-6` drew between bare text.
-   */
-  const link = (href: string, label: string, id: "work" | "about") => (
-    <Link
-      href={localeHref(locale, href)}
-      className={cn(
-        "-my-2 rounded-md px-2 py-2 text-body font-medium",
-        active === id
-          ? "text-white"
-          : "text-zinc transition-colors hover:bg-white/8 hover:text-white",
-      )}
-    >
-      {label}
-    </Link>
-  );
-
   return (
     <div className="theme-light min-h-screen bg-void">
-      <header className="sticky top-0 z-40 border-b border-line bg-void/85 backdrop-blur">
-        {/* 320px is a real screen — an iPhone SE, and most budget Androids in
-            the accessibility zoom levels people actually use. This row used to
-            come to 338px against it, so every editorial route scrolled
-            sideways: the one class of page whose entire job is to be read.
-
-            The fix is spent where it costs nothing to read: the frame loses
-            padding and the row loses gap. The type scale is
-            untouched, because shrinking text to fit a phone is how a page ends
-            up unreadable on the device it was supposedly fixed for. */}
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 md:px-8">
-          <Link
-            href={localeHref(locale, "/")}
-            className="-my-2 py-2"
-            aria-label={t("brand.deckAria")}
-          >
-            <Logo />
-          </Link>
-
-          <nav className="flex items-center gap-1 sm:gap-2">
-            {link("/work", t("nav.work"), "work")}
-            {link("/about", t("nav.about"), "about")}
-            <Link
-              href={localeHref(locale, "/#transmission")}
-              className="flex items-center gap-1.5 rounded-full bg-action px-3 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover sm:ml-2 sm:px-3.5"
-            >
-              <span className="hidden sm:inline">{t("nav.bookCall")}</span>
-              <span className="sm:hidden">{t("nav.contact")}</span>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader
+        locale={locale}
+        active={active}
+        text={{
+          nav: {
+            services: t("nav.services"),
+            work: t("nav.work"),
+            about: t("nav.about"),
+            contact: t("nav.contact"),
+          },
+          start: t("nav.bookCall"),
+          startShort: t("nav.contact"),
+          logoAria: t("brand.deckAria"),
+        }}
+      />
 
       {/* Matched to the header's frame at every step, so the wordmark stays on
           the same rule as the body copy it sits above. */}

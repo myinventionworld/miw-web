@@ -94,5 +94,9 @@
   "autoreply": {
     "subject": "We have your message — MIW Labs",
     "body": "Hello,\n\nThis is an automatic confirmation: your message has reached the MIW Labs team. A person from the team will reply within one working day.\n\nIf you would like to add something, reply to this email.\n\nMIW Labs"
+  },
+  "team": {
+    "line": "Seven people in Prague.",
+    "link": "Meet the team"
   }
 }
