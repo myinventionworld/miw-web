@@ -42,7 +42,7 @@ export async function generateMetadata(
   const { t } = await initTranslations(locale, ["projects"]);
 
   return {
-    title: `${project.name} — ${t(`${project.id}.headline`)}`,
+    title: `${project.name}: ${t(`${project.id}.headline`)}`,
     description: t(`${project.id}.pitch`),
     alternates: alternates(locale, `/work/${slug}`),
   };

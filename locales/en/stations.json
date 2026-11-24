@@ -4,7 +4,7 @@
     "cta": "Discuss your MVP",
     "business": {
       "headline": "From idea to a first version people can use.",
-      "lede": "MVPs, backends and AI features for startups and tech teams. Omnibus is one our team built — try to book the same seat twice."
+      "lede": "MVPs, backends and AI features for startups and tech teams. Omnibus is one our team built. Try to book the same seat twice."
     }
   },
   "commerce": {
@@ -35,7 +35,7 @@
     "door": "See all our work",
     "business": {
       "headline": "We build our own products too.",
-      "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live — open them."
+      "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live, so open them."
     }
   }
 }

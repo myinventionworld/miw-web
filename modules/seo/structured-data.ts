@@ -88,7 +88,7 @@ export function caseStudy(
     "@type": "CreativeWork",
     "@id": `${url}#case-study`,
     url,
-    name: `${project.name} — ${copy.headline}`,
+    name: `${project.name}: ${copy.headline}`,
     headline: copy.headline,
     description: copy.pitch,
     inLanguage: locale,

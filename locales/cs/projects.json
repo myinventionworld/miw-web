@@ -17,8 +17,8 @@
       "chapter": "Kap. {{n}}",
       "position": "Pozice v kapitole",
       "idle": "> simulace: posuňte pozici a přepněte mezi čtením a poslechem.",
-      "toListen": "> kapitola {{n}}, strana {{page}} z {{pages}} → audio v {{at}} z {{total}}. Stejné místo.",
-      "toRead": "> kapitola {{n}}, audio v {{at}} → strana {{page}} z {{pages}}. Stejné místo."
+      "toListen": "> kapitola {{n}}, strana {{page}} z {{pages}} odpovídá audiu v {{at}} z {{total}}. Stejné místo.",
+      "toRead": "> kapitola {{n}}, audio v {{at}} odpovídá straně {{page}} z {{pages}}. Stejné místo."
     }
   },
   "status": {
@@ -41,15 +41,15 @@
     },
     "target": {
       "label": "Cíl",
-      "note": "Na co je systém navržen — ne naměřený výsledek"
+      "note": "Na co je systém navržen, ne naměřený výsledek"
     }
   },
   "index": {
-    "metaTitle": "Práce — MIW",
+    "metaTitle": "Práce · MIW",
     "metaDescription": "Projekty týmu MIW: rezervační systém míst, offline čtečka a přehrávač audioknih a katalog filmů. Co každý dělá a jak je postavený.",
     "eyebrow": "Práce",
     "title": "Co jsme postavili",
-    "lede": "Projekty, které náš tým postavil a provozuje. Všechny běží — otevřete si je a vyzkoušejte.",
+    "lede": "Projekty, které náš tým postavil a provozuje. Všechny běží: otevřete si je a vyzkoušejte.",
     "body": "Projekty pro klienty sem přibudou, až vyjdou."
   },
   "case": {
@@ -89,11 +89,11 @@
       },
       "deploy": {
         "label": "Běží na",
-        "note": "Kontejnery na clusteru k3s — adresa v odkazu na této stránce."
+        "note": "Kontejnery na clusteru k3s, adresa je v odkazu na této stránce."
       }
     },
     "problem": {
-      "lede": "Rezervační systémy selhávají přesně ve chvíli, kdy dva lidé chtějí totéž ve stejný okamžik — a to je zároveň chvíle, kdy firma vydělává.",
+      "lede": "Rezervační systémy selhávají přesně ve chvíli, kdy dva lidé chtějí totéž ve stejný okamžik. A to je zároveň chvíle, kdy firma vydělává.",
       "points": [
         "Když aplikace místo nejdřív přečte a pak zapíše, dva požadavky ho můžou oba vidět volné a oba ho zarezervovat.",
         "Přeprodání se často řeší až dodatečně nočním skriptem a omluvou, místo aby bylo vůbec nemožné.",
@@ -188,7 +188,7 @@
       },
       {
         "choice": "Streamované čtení ZIPu",
-        "why": "Složka audioknihy zazipovaná na iPhonu může mít gigabajty. Čtení položek jako proud je nedrží v paměti — včetně archivů ZIP64 a ruských názvů souborů."
+        "why": "Složka audioknihy zazipovaná na iPhonu může mít gigabajty. Čtení položek jako proud je nedrží v paměti, a to ani u archivů ZIP64 a ruských názvů souborů."
       },
       {
         "choice": "Velké soubory v soukromém souborovém systému",
@@ -246,7 +246,7 @@
     "metrics": {
       "route": {
         "label": "Přechod mezi stránkami",
-        "note": "Cílová doba přechodu — zatím nezměřená."
+        "note": "Cílová doba přechodu, zatím nezměřená."
       },
       "revalidate": {
         "label": "Obnova katalogu",
@@ -262,7 +262,7 @@
       ]
     },
     "design": {
-      "lede": "Stránky katalogu se vykreslují na serveru a hodinu se drží v cache. Jen osobní data — oblíbené a seznamy — čtou z databáze.",
+      "lede": "Stránky katalogu se vykreslují na serveru a hodinu se drží v cache. Z databáze se čtou jen osobní data, tedy oblíbené a seznamy.",
       "nodes": {
         "visitor": "Návštěvník",
         "rsc": "Serverové vykreslení",
@@ -284,7 +284,7 @@
       },
       {
         "choice": "Stránky filmů vykreslené na serveru",
-        "why": "Stránky filmů, Top Rated a New Releases přijdou jako hotové HTML, takže pomalý telefon nečeká na JavaScript. Hlavní stránka katalogu se zatím vykresluje v prohlížeči — to je další na řadě."
+        "why": "Stránky filmů, Top Rated a New Releases přijdou jako hotové HTML, takže pomalý telefon nečeká na JavaScript. Hlavní stránka katalogu se zatím vykresluje v prohlížeči, to je další na řadě."
       },
       {
         "choice": "Databáze jen pro osobní data",

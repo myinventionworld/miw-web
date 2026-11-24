@@ -17,8 +17,8 @@
       "chapter": "Ch. {{n}}",
       "position": "Position in the chapter",
       "idle": "> simulation: move the position, then switch between reading and listening.",
-      "toListen": "> chapter {{n}}, page {{page}} of {{pages}} → audio at {{at}} of {{total}}. Same place.",
-      "toRead": "> chapter {{n}}, audio at {{at}} → page {{page}} of {{pages}}. Same place."
+      "toListen": "> chapter {{n}}, page {{page}} of {{pages}} matches audio at {{at}} of {{total}}. Same place.",
+      "toRead": "> chapter {{n}}, audio at {{at}} matches page {{page}} of {{pages}}. Same place."
     }
   },
   "status": {
@@ -41,15 +41,15 @@
     },
     "target": {
       "label": "Target",
-      "note": "What the build is designed for — not a measured result"
+      "note": "What the build is designed for, not a measured result"
     }
   },
   "index": {
-    "metaTitle": "Work — MIW",
+    "metaTitle": "Work · MIW",
     "metaDescription": "Projects by the MIW team: a seat-booking system, an offline reader and audiobook player, and a film catalogue. What each one does and how it is built.",
     "eyebrow": "Work",
     "title": "What we have built",
-    "lede": "Projects our team built and runs. Each one is live — open it and try.",
+    "lede": "Projects our team built and runs. Each one is live: open it and try.",
     "body": "Client projects will appear here as they ship."
   },
   "case": {
@@ -89,11 +89,11 @@
       },
       "deploy": {
         "label": "Runs on",
-        "note": "Containers on a k3s cluster — the address linked from this page."
+        "note": "Containers on a k3s cluster, at the address linked from this page."
       }
     },
     "problem": {
-      "lede": "Booking systems break exactly when two people want the same thing at the same time — which is also when the business earns money.",
+      "lede": "Booking systems break exactly when two people want the same thing at the same time. That is also when the business earns money.",
       "points": [
         "If the app reads a seat and then writes it, two requests can both see it free and both book it.",
         "Overbooking is often repaired afterwards with a nightly job and an apology, instead of being impossible in the first place.",
@@ -246,7 +246,7 @@
     "metrics": {
       "route": {
         "label": "Page change",
-        "note": "The target for moving between pages — not measured yet."
+        "note": "The target for moving between pages, not measured yet."
       },
       "revalidate": {
         "label": "Catalogue refresh",
@@ -262,7 +262,7 @@
       ]
     },
     "design": {
-      "lede": "Catalogue pages render on the server and are cached for an hour. Only personal data — favourites and watchlists — reads the database.",
+      "lede": "Catalogue pages render on the server and are cached for an hour. Only personal data, favourites and watchlists, reads the database.",
       "nodes": {
         "visitor": "Visitor",
         "rsc": "Server render",
@@ -284,7 +284,7 @@
       },
       {
         "choice": "Film pages rendered on the server",
-        "why": "Film pages, Top Rated and New Releases arrive as HTML, so a slow phone is not left waiting for JavaScript. The main browse page is still rendered in the browser — next on the list."
+        "why": "Film pages, Top Rated and New Releases arrive as HTML, so a slow phone is not left waiting for JavaScript. The main browse page is still rendered in the browser. It is next on the list."
       },
       {
         "choice": "The database only for personal data",

@@ -1,12 +1,12 @@
 {
   "meta": {
-    "title": "MIW — websites, products and AI tools from Prague",
-    "description": "MIW is a team of seven in Prague. We build websites, online stores and automation for small businesses, and MVPs and AI features for startups — and we build our own products."
+    "title": "MIW: websites, products and AI tools from Prague",
+    "description": "MIW is a team of seven in Prague. We build websites, online stores and automation for small businesses, and MVPs and AI features for startups. We also build our own products."
   },
   "brand": {
     "tagline": "MIW Labs · Prague",
-    "logoAria": "MIW — back to the start",
-    "deckAria": "MIW — back to the start"
+    "logoAria": "MIW, back to the start",
+    "deckAria": "MIW, back to the start"
   },
   "availability": {
     "prefix": "Status",
