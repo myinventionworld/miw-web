@@ -354,9 +354,8 @@ export function ProjectDock({
             exit={{ opacity: 0, y: -18, scale: 0.98 }}
             transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              // The nav is 97px tall at every width, so the top clearance is
-              // too — it used to drop to 80px at `lg` and the dock slid under.
-              "mx-auto flex h-full max-w-[1500px] items-center gap-6 px-5 pt-[104px] pb-6 lg:gap-12 lg:px-10",
+              // The header is 56px tall at every width, so the top clearance is too.
+              "mx-auto flex h-full max-w-[1500px] items-center gap-6 px-5 pt-[72px] pb-6 lg:gap-12 lg:px-10",
               // `justify-end` reads against the main axis: on a reversed row it
               // packs left. That is what keeps the card on its own side once the
               // brief column drops out on a short window.
@@ -369,7 +368,7 @@ export function ProjectDock({
                 floor, while the card cannot: the product frame alone is 250px.
                 So at some height the card must lose — and the failure mode
                 without a cap is the bad one, because the row is `items-center`,
-                so half the excess goes *up*, behind a 97px navbar.
+                so half the excess goes *up*, behind the header.
 
                 `max-h-full` resolves against the row's content box, which is
                 definite (`h-full` minus the 128px of padding), so the card can

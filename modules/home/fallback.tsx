@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Cover, TeamLine, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { BigFooter, SiteHeader } from "@/modules/layout";
+import { BigFooter, SiteHeader, navForSection } from "@/modules/layout";
 import {
   Device,
   ProductShots,
@@ -13,6 +13,7 @@ import {
 import { EnquiryForm } from "@/modules/contact";
 
 import { STATIONS, type ProgramPoint, type StationCopy } from "./stations";
+import { useSectionInView } from "./use-section-in-view";
 import { CONTACT_EMAIL } from "@/modules/contact";
 import { cn } from "@/shared/lib/cn";
 
@@ -32,6 +33,8 @@ import { cn } from "@/shared/lib/cn";
  * header; from tablet width up the opening is About's, words beside the cover,
  * in About's 64rem frame.
  */
+const SECTIONS = [...STATIONS.map((s) => s.id), "transmission"];
+
 export function Fallback() {
   const { t, i18n } = useTranslation(["common", "stations", "projects", "console", "about"]);
 
@@ -47,12 +50,15 @@ export function Fallback() {
     };
   });
 
+  const section = useSectionInView(SECTIONS);
+
   return (
     <>
       <main className="theme-light min-h-screen bg-void">
         <SiteHeader
           locale={i18n.language}
           onHome
+          active={navForSection(section)}
           text={{
             nav: {
               services: t("nav.services"),

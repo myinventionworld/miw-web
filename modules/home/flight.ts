@@ -236,6 +236,15 @@ export function stationIndexAt(p: number) {
   return best;
 }
 
+const HERO_END = 0.035;
+
+/** The station a track time belongs to, `transmission` at the console, null over the hero. */
+export function sectionAt(p: number): StationId | "transmission" | null {
+  if (p < HERO_END) return null;
+  const i = stationIndexAt(p);
+  return i < 0 ? "transmission" : STATIONS[i].id;
+}
+
 /* ── scroll ───────────────────────────────────────────────────────────── */
 
 /**

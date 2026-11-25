@@ -56,8 +56,9 @@ function Hero({
       enter={false}
       lift={40}
     >
-      <div className="mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 md:px-10">
-        <h1 className="text-lift text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.96] font-bold tracking-[-0.05em] text-white">
+      <div className="mx-auto flex h-full max-w-5xl flex-col justify-center px-4 sm:px-6 md:px-8">
+        <p className="text-lift text-small text-zinc">{t("availability.status")}</p>
+        <h1 className="text-lift mt-4 text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.96] font-bold tracking-[-0.05em] text-white">
           {t("home.titleTop")}
           <br className="hidden sm:block" /> {t("home.titleBottom")}
         </h1>
@@ -220,6 +221,7 @@ function Deck({
       />
 
       <Navbar
+        progress={progress}
         onNavigate={goStation}
         onLaunch={() => travel(CONSOLE_ANCHOR)}
       />
