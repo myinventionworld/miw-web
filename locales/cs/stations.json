@@ -37,5 +37,10 @@
       "headline": "Děláme i vlastní produkty.",
       "lede": "Boowie je čtečka a přehrávač audioknih, který funguje offline. Wovie je katalog filmů se seznamy ke zhlédnutí. Oba běží, otevřete si je."
     }
+  },
+  "team": {
+    "nav": "Tým",
+    "headline": "Sedm lidí, jeden tým.",
+    "lede": "Inženýři, analytik a designér v Praze. Mluvíte přímo s lidmi, kteří váš projekt staví."
   }
 }

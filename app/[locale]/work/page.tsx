@@ -55,7 +55,7 @@ export default async function WorkIndexPage() {
       </section>
 
       {PROJECTS.map((p, i) => (
-        <section key={p.slug} className={clsx(i % 2 === 0 && "bg-carbon")}>
+        <section key={p.slug} className={clsx("overflow-x-clip", i % 2 === 0 && "bg-carbon")}>
           <div className={`${FRAME} py-24 text-center md:py-28`}>
             <p className="inline-flex items-center gap-2 text-small font-semibold text-white">
               <span

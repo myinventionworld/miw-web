@@ -37,5 +37,10 @@
       "headline": "We build our own products too.",
       "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live, so open them."
     }
+  },
+  "team": {
+    "nav": "Team",
+    "headline": "Seven people, one team.",
+    "lede": "Engineers, an analyst and a designer in Prague. You talk directly to the people who build your project."
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { Cover, TeamLine, type TeamMember, TEAM } from "@/modules/team";
+import { Cover, TeamLine, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
 import { BigFooter, SiteHeader, navForSection } from "@/modules/layout";
 import {
@@ -118,7 +118,7 @@ export function Fallback() {
             : [];
 
           return (
-            <section key={s.id} id={s.id} className={cn("scroll-mt-4", i % 2 === 0 && "bg-carbon")}>
+            <section key={s.id} id={s.id} className={cn("scroll-mt-4 overflow-x-clip", i % 2 === 0 && "bg-carbon")}>
               <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 md:max-w-5xl md:py-24">
                 <p className="text-small font-semibold text-zinc">
                   {t(`stations:${s.id}.nav`)}
@@ -209,6 +209,33 @@ export function Fallback() {
             </section>
           );
         })}
+
+        <section>
+          <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 md:max-w-5xl md:py-24">
+            <p className="text-small font-semibold text-zinc">{t("stations:team.nav")}</p>
+            <h2 className="mt-3 text-[clamp(1.9rem,8vw,2.6rem)] leading-[1.06] font-bold tracking-[-0.04em] text-white md:max-w-3xl md:text-[clamp(2.4rem,4vw,3.2rem)]">
+              {t("stations:team.headline")}
+            </h2>
+            <p className="mt-4 text-copy leading-relaxed text-zinc md:max-w-2xl">
+              {t("stations:team.lede")}
+            </p>
+            <div className="mt-12">
+              <TeamOrbit
+                embedded
+                people={people}
+                title={t("about:team.title")}
+                hintPointer={t("about:team.hint")}
+                hintTouch={t("about:team.hintTouch")}
+              />
+            </div>
+            <LocaleLink
+              href="/about"
+              className="mt-6 inline-block text-lead font-medium text-comet hover:underline"
+            >
+              {t("console:team.link")}
+            </LocaleLink>
+          </div>
+        </section>
 
         <section
           id="transmission"
