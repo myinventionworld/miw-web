@@ -13,6 +13,8 @@ export {
   DockShots,
   HeroShots,
   ProductShots,
+  StationPhone,
+  StationWindow,
   hasBuiltShot,
   hasScreens,
 } from "./showcase/screens";

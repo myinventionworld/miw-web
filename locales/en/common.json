@@ -20,7 +20,10 @@
     "contact": "Contact",
     "menu": "Menu",
     "language": "Language",
-    "about": "About"
+    "about": "About",
+    "products": "Products",
+    "team": "Team",
+    "aboutUs": "About us"
   },
   "footer": {
     "back": "Back to home",
@@ -42,7 +45,8 @@
     "readCaseStudyLong": "Read the case study",
     "liveApp": "Open",
     "budget": "target",
-    "measured": "measured"
+    "measured": "measured",
+    "openNamed": "Open {{name}}"
   },
   "home": {
     "titleTop": "Small team.",
@@ -52,7 +56,15 @@
     "ctaStations": "See what we do",
     "ctaWork": "See our work",
     "transmissionTitle": "Tell us what you need",
-    "transmissionBody": "A few lines are enough. A person from the team reads every message and replies."
+    "transmissionBody": "A few lines are enough. A person from the team reads every message and replies.",
+    "ctaFlight": "Start the flight",
+    "pins": {
+      "backend": "Omnibus",
+      "commerce": "Website · store · stock",
+      "labs": "Boowie · Wovie",
+      "team": "Seven people",
+      "transmission": "Reply in one working day"
+    }
   },
   "contact": {
     "email": "Email",

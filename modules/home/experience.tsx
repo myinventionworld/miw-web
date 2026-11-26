@@ -9,17 +9,16 @@ import { useMotionValue, type MotionValue } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 
-import { diveBodyAt, flight, scrollAt, sectionAt, trackAt } from "./flight";
+import { clamp01, diveBodyAt, flight, sectionAt } from "./flight";
 import { runDive, settle, skipTransitionOnInput } from "./landing";
 import { useDockSnap } from "./use-dock-snap";
-import { CONSOLE_ANCHOR, stationById, type Mode } from "./stations";
+import { CONSOLE_ANCHOR, stationById } from "./stations";
 import { Navbar } from "./navbar";
-import { ProjectDock } from "./project-dock";
+import { Hero } from "./hero";
+import { StationDeck } from "./station-deck";
 import { Fallback } from "./fallback";
 import { SignalLost } from "./signal-lost";
-import { Stage } from "./stage";
 import { TransmissionConsole } from "./transmission-console";
-import type { StationId } from "@/shared/station-id";
 import { PROJECTS, projectForStation } from "@/modules/work";
 import {
   LANDING,
@@ -31,6 +30,7 @@ import {
   sectionFromHash,
   setLandingMark,
   takeTakeoff,
+  type Section,
 } from "@/shared/lib/landing";
 import { detectHardwareGpu, prefersFlatDeck } from "./webgl-support";
 
@@ -39,7 +39,7 @@ const CosmosScene = dynamic(
   { ssr: false },
 );
 
-const RUNWAY = "h-[740vh]";
+const RUNWAY = "h-[880vh]";
 
 const RECONNECT_MS = 4000;
 
@@ -58,62 +58,6 @@ function rememberedTooSlow() {
   } catch {
     return false;
   }
-}
-
-function Hero({
-  progress,
-  onExplore,
-  onDiscovery,
-}: {
-  progress: MotionValue<number>;
-  onExplore: () => void;
-  onDiscovery: () => void;
-}) {
-  const { t } = useTranslation("common");
-
-  return (
-    <Stage
-      progress={progress}
-      window={[0, 0, 0.016, 0.036]}
-      enter={false}
-      lift={40}
-    >
-      <div className="mx-auto flex h-full max-w-5xl flex-col justify-center px-4 sm:px-6 md:px-8">
-        <p className="text-lift text-small text-zinc">{t("availability.status")}</p>
-        <h1 className="text-lift mt-4 text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.96] font-bold tracking-[-0.05em] text-white">
-          {t("home.titleTop")}
-          <br className="hidden sm:block" /> {t("home.titleBottom")}
-        </h1>
-
-        {/* Only the body copy takes a scrim. The headline is large enough to
-            carry itself, and washing the whole block would flatten the planet
-            the hero is framed against. */}
-        <div className="copy-scrim mt-6 max-w-xl">
-          <p className="text-lift relative text-copy-lg leading-relaxed text-platinum">
-            {t("home.lede")}
-          </p>
-        </div>
-
-        <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onDiscovery}
-            className="flex items-center gap-2 rounded-full bg-action px-6 py-3 text-lead font-semibold text-on-action transition-colors hover:bg-action-hover"
-          >
-            {t("home.ctaContact")}
-          </button>
-          <button
-            type="button"
-            onClick={onExplore}
-            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/90 hover:bg-white/10"
-          >
-            {t("home.ctaStations")}
-          </button>
-        </div>
-
-      </div>
-    </Stage>
-  );
 }
 
 /**
@@ -165,10 +109,6 @@ function Deck({
     };
   }, [webgl, onSceneLost]);
 
-  // One copy mode. The old Business / Telemetry toggle doubled every station's
-  // text for a distinction most visitors never looked for.
-  const mode: Mode = "business";
-
   /**
    * One scroll position, read by everything.
    *
@@ -187,7 +127,7 @@ function Deck({
   const progress = useMotionValue(0);
 
   const lenis = useLenis(({ scroll, limit }) => {
-    const p = limit > 0 ? trackAt(scroll / limit) : 0;
+    const p = limit > 0 ? clamp01(scroll / limit) : 0;
     flight.progress = p;
     progress.set(p);
   });
@@ -198,7 +138,7 @@ function Deck({
   const travel = useCallback(
     (p: number) => {
       if (!lenis) return;
-      lenis.scrollTo(scrollAt(p) * lenis.limit, {
+      lenis.scrollTo(p * lenis.limit, {
         duration: 2.2,
         easing: (t: number) => 1 - Math.pow(1 - t, 3),
       });
@@ -206,8 +146,9 @@ function Deck({
     [lenis],
   );
 
-  const goStation = useCallback(
-    (id: StationId) => travel(stationById(id).anchor),
+  const fly = useCallback(
+    (to: Section | null) =>
+      travel(!to ? 0 : to === "transmission" ? CONSOLE_ANCHOR : stationById(to).anchor),
     [travel],
   );
 
@@ -302,7 +243,7 @@ function Deck({
       return () => clearTimeout(id);
     }
 
-    lenis.scrollTo(scrollAt(anchor) * lenis.limit, { immediate: true, force: true });
+    lenis.scrollTo(anchor * lenis.limit, { immediate: true, force: true });
     flight.progress = anchor;
     flight.eased = anchor;
     setDaylight("on");
@@ -364,16 +305,8 @@ function Deck({
           )}
 
           <div className={cn("transition-opacity duration-300 ease-out", diving && "opacity-0")}>
-            <Hero
-              progress={progress}
-              onExplore={() => goStation("backend")}
-              onDiscovery={() => travel(CONSOLE_ANCHOR)}
-            />
-            <ProjectDock
-              progress={progress}
-              mode={mode}
-              onAction={() => travel(CONSOLE_ANCHOR)}
-            />
+            <Hero progress={progress} onStart={() => fly("backend")} onFly={fly} />
+            <StationDeck progress={progress} onAction={() => fly("transmission")} />
             <TransmissionConsole progress={progress} />
           </div>
         </div>
@@ -394,12 +327,7 @@ function Deck({
         </ViewTransition>
       )}
 
-      <Navbar
-        className={shell}
-        progress={progress}
-        onNavigate={goStation}
-        onLaunch={() => travel(CONSOLE_ANCHOR)}
-      />
+      <Navbar className={shell} progress={progress} onFly={fly} />
 
       {/* The only element with real height — everything else is fixed. */}
       <div aria-hidden className={cn(RUNWAY, "w-full", shell)} />

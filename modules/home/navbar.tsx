@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useState, ViewTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/modules/i18n";
-import { HEADER, LocaleSwitch, NAV, navForSection, type NavId } from "@/modules/layout";
+import { HEADER, NAV, StatusStrip, navForSection, type NavId } from "@/modules/layout";
 import {
   AnimatePresence,
   motion,
@@ -14,7 +14,7 @@ import {
 import { cn } from "@/shared/lib/cn";
 import { Bars, Cross } from "@/shared/ui/glyph";
 import { Logo } from "@/shared/ui/logo";
-import type { StationId } from "@/shared/station-id";
+import type { Section } from "@/shared/lib/landing";
 
 import { sectionAt } from "./flight";
 
@@ -24,13 +24,12 @@ const ROW =
 export function Navbar({
   className,
   progress,
-  onNavigate,
-  onLaunch,
+  onFly,
 }: {
   className?: string;
   progress: MotionValue<number>;
-  onNavigate: (id: StationId) => void;
-  onLaunch: () => void;
+  /** Null flies back to the hero. */
+  onFly: (to: Section | null) => void;
 }) {
   const { t } = useTranslation("common");
   const reduce = useReducedMotion();
@@ -49,8 +48,10 @@ export function Navbar({
   }, []);
 
   const fly: Partial<Record<NavId, () => void>> = {
-    services: () => onNavigate("backend"),
-    contact: onLaunch,
+    services: () => onFly("backend"),
+    products: () => onFly("labs"),
+    team: () => onFly("team"),
+    contact: () => onFly("transmission"),
   };
 
   const item = (id: NavId, href: string, className: string, inner: ReactNode) => {
@@ -84,12 +85,19 @@ export function Navbar({
   return (
     <ViewTransition name="site-header" share="site-header" default="none">
       <header className={cn("fixed inset-x-0 top-0 z-50", HEADER.bar, className)}>
+        <StatusStrip
+          text={{
+            prefix: t("availability.prefix"),
+            status: t("availability.status"),
+            scope: t("availability.scope"),
+          }}
+        />
         <div className={HEADER.row}>
           <button
             type="button"
             onClick={() => {
               setMobile(false);
-              onNavigate("backend");
+              onFly(null);
             }}
             className={HEADER.logo}
             aria-label={t("brand.logoAria")}
@@ -98,11 +106,11 @@ export function Navbar({
           </button>
 
           <nav
-            className={cn(HEADER.nav, "hidden lg:flex")}
+            className={HEADER.nav}
             onMouseLeave={() => setHovered(null)}
             onBlur={() => setHovered(null)}
           >
-            {NAV.map(({ id, href }) =>
+            {NAV.filter((e) => e.flight).map(({ id, href, label }) =>
               item(
                 id,
                 href,
@@ -123,23 +131,26 @@ export function Navbar({
                       }
                     />
                   )}
-                  <span className="relative">{t(`nav.${id}`)}</span>
+                  <span className="relative">{t(`nav.${label}`)}</span>
                 </>,
               ),
             )}
           </nav>
 
           <div className={HEADER.end}>
-            <LocaleSwitch className={HEADER.langs} />
+            {NAV.filter((e) => !e.flight).map(({ id, href, label }) =>
+              item(id, href, cn(HEADER.item, HEADER.idle), t(`nav.${label}`)),
+            )}
             <button
               type="button"
               onClick={() => {
                 setMobile(false);
-                onLaunch();
+                onFly("transmission");
               }}
-              className={cn(HEADER.pill, "hidden sm:flex")}
+              className={HEADER.pill}
             >
-              {t("nav.bookCall")}
+              <span className="hidden sm:inline">{t("nav.bookCall")}</span>
+              <span className="sm:hidden">{t("nav.contact")}</span>
             </button>
 
             <button
@@ -147,7 +158,7 @@ export function Navbar({
               onClick={() => setMobile((v) => !v)}
               aria-label={t("nav.menu")}
               aria-expanded={mobile}
-              className="flex size-9 items-center justify-center rounded-md border border-white/15 text-white transition-colors hover:border-white/40 hover:bg-white/10 lg:hidden"
+              className="ml-1 flex size-9 shrink-0 items-center justify-center rounded-md border border-white/15 text-white transition-colors hover:border-white/40 hover:bg-white/10 lg:hidden"
             >
               {mobile ? <Cross className="text-copy-lg" /> : <Bars className="text-copy-lg" />}
             </button>
@@ -164,15 +175,13 @@ export function Navbar({
               className="drawer absolute inset-x-0 top-full lg:hidden"
             >
               <div className="px-5 py-5">
-                {NAV.map(({ id, href }) => item(id, href, ROW, t(`nav.${id}`)))}
-
-                <LocaleSwitch className="mt-4" />
+                {NAV.map(({ id, href, label }) => item(id, href, ROW, t(`nav.${label}`)))}
 
                 <button
                   type="button"
                   onClick={() => {
                     setMobile(false);
-                    onLaunch();
+                    onFly("transmission");
                   }}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-action px-4 py-3 text-body font-semibold text-on-action transition-colors hover:bg-action-hover"
                 >

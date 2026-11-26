@@ -4,7 +4,7 @@ import { ViewTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { Cover, TeamLine, TeamOrbit, type TeamMember, TEAM } from "@/modules/team";
 import { LocaleLink } from "@/modules/i18n";
-import { BigFooter, SiteHeader, navForSection } from "@/modules/layout";
+import { BigFooter, SiteHeader, navForSection, siteHeaderText } from "@/modules/layout";
 import {
   Device,
   ProductShots,
@@ -62,17 +62,7 @@ export function Fallback({ className }: { className?: string }) {
             locale={i18n.language}
             onHome
             active={navForSection(section)}
-            text={{
-              nav: {
-                services: t("nav.services"),
-                work: t("nav.work"),
-                about: t("nav.about"),
-                contact: t("nav.contact"),
-              },
-              start: t("nav.bookCall"),
-              startShort: t("nav.contact"),
-              logoAria: t("brand.deckAria"),
-            }}
+            text={siteHeaderText(t)}
           />
 
           <div className="md:mt-5 md:grid md:grid-cols-[max(2rem,calc((100%_-_64rem)/2_+_2rem))_minmax(0,1fr)_46%]">
@@ -109,12 +99,12 @@ export function Fallback({ className }: { className?: string }) {
             </section>
           </div>
 
-          {STATIONS.map((s, i) => {
+          {STATIONS.filter((s) => s.id !== "team").map((s, i) => {
             const copy = t(`stations:${s.id}.business`, {
               returnObjects: true,
             }) as StationCopy;
             const project = projectForStation(s.id);
-            const program = s.program
+            const program = s.id === "commerce"
               ? (t(`stations:${s.id}.program`, {
                   returnObjects: true,
                 }) as ProgramPoint[])
@@ -200,12 +190,12 @@ export function Fallback({ className }: { className?: string }) {
                     </div>
                   )}
 
-                  {s.door && (
+                  {s.id === "labs" && (
                     <LocaleLink
-                      href={s.door}
+                      href="/work"
                       className="mt-10 inline-block text-lead font-medium text-comet hover:underline"
                     >
-                      {t(`stations:${s.id}.door`)}
+                      {t("stations:labs.door")}
                     </LocaleLink>
                   )}
                 </div>

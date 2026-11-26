@@ -5,16 +5,46 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import {
-  BIAS_SCALE,
   BODY,
-  FRAME_BIAS,
+  FRAME,
+  HERO_FRAME,
   damp,
   flight,
+  lerp,
   sampleCamera,
   smoothstep,
+  type BodyScreen,
   type Vec3,
 } from "../flight";
 import { STATIONS } from "../stations";
+
+const DOCKED_FOV = 38;
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+const LOOK = new THREE.Vector3();
+const TO_BODY = new THREE.Vector3();
+const NDC = new THREE.Vector3();
+
+/** A body's circle on screen, in CSS pixels. */
+function project(
+  pos: THREE.Vector3,
+  radius: number,
+  camera: THREE.PerspectiveCamera,
+  size: { width: number; height: number },
+): BodyScreen {
+  const gap = pos.distanceTo(camera.position);
+  const ahead = LOOK.set(0, 0, -1)
+    .applyQuaternion(camera.quaternion)
+    .dot(TO_BODY.copy(pos).sub(camera.position).normalize());
+  const ndc = NDC.copy(pos).project(camera);
+  const half = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const angle = Math.asin(Math.min(1, radius / Math.max(gap, 1e-6)));
+  return {
+    x: ((ndc.x + 1) / 2) * size.width,
+    y: ((1 - ndc.y) / 2) * size.height,
+    r: (Math.tan(angle) / half) * (size.height / 2),
+    visible: ahead > 0.2 && Math.abs(ndc.x) < 1.4 && Math.abs(ndc.y) < 2.4,
+  };
+}
 
 const LOOK_AHEAD = 0.022;
 
@@ -43,6 +73,7 @@ export function CosmosFlight() {
   const forward = useRef(new THREE.Vector3());
   const roll = useRef(0);
   const dived = useRef(new THREE.Vector3());
+  const aim = useRef(new THREE.Vector3());
 
   useFrame(({ camera, size }, delta) => {
     const p = flight.eased;
@@ -71,32 +102,33 @@ export function CosmosFlight() {
       .copy(position.current)
       .addScaledVector(heading.current, LOOK_DISTANCE);
 
-    // ...then ease onto the station's body as we park. `proximity` is 1 on
-    // station and 0 mid-leg, so the lock and the warp are exact inverses.
+    // ...then turn onto the station's body as we park. Offsetting the aim by
+    // tan(half fov) * distance per unit of FRAME puts the body exactly there
+    // on screen.
     const station = STATIONS[flight.station];
     const anchor = station && BODY[station.id];
     const lock = anchor ? flight.proximity : 0;
     if (anchor) {
       body.current.set(...anchor.pos);
-      target.current.lerp(body.current, lock * 0.92);
+      const docked = FRAME[station.id];
+      const hero = station.id === "backend" ? 1 - smoothstep(0, station.anchor, p) : 0;
+      const fx = lerp(docked.x, HERO_FRAME.x, hero);
+      const fy = lerp(docked.y, HERO_FRAME.y, hero);
+      const gap = body.current.distanceTo(position.current);
+      const tan = Math.tan(THREE.MathUtils.degToRad(DOCKED_FOV / 2));
+      forward.current.copy(body.current).sub(position.current).normalize();
+      right.current.crossVectors(forward.current, WORLD_UP).normalize();
+      up.current.crossVectors(right.current, forward.current).normalize();
+      aim.current
+        .copy(body.current)
+        .addScaledVector(right.current, -fx * tan * (size.width / size.height) * gap)
+        .addScaledVector(up.current, -fy * tan * gap);
+      target.current.lerp(aim.current, lock);
     }
 
     forward.current.copy(target.current).sub(position.current).normalize();
     right.current.crossVectors(forward.current, camera.up).normalize();
     up.current.crossVectors(right.current, forward.current).normalize();
-
-    // Docking composition. The lock above centres the body by construction,
-    // which is the wrong answer now that the info card alternates sides: the
-    // stations would park their card on top of their own subject.
-    // Nudging the aim point away from the body slides it across the frame, and
-    // scaling by `lock` means this only ever applies while parked — the transit
-    // is still aimed down the track.
-    const bias = station && FRAME_BIAS[station.id];
-    if (bias && lock > 0.001) {
-      target.current
-        .addScaledVector(right.current, -bias.x * BIAS_SCALE.x * lock)
-        .addScaledVector(up.current, -bias.y * BIAS_SCALE.y * lock);
-    }
 
     // Parallax as a look-target offset rather than a post-hoc euler tweak, so
     // the camera basis stays orthonormal and the horizon never shears.
@@ -135,24 +167,17 @@ export function CosmosFlight() {
       perspective.updateProjectionMatrix();
     }
 
+    camera.updateMatrixWorld();
     if (flight.diveBody) {
-      camera.updateMatrixWorld();
       dived.current.set(...flight.diveBody.pos);
-      const gap = dived.current.distanceTo(camera.position);
-      const ahead = forward.current
-        .set(0, 0, -1)
-        .applyQuaternion(camera.quaternion)
-        .dot(dived.current.clone().sub(camera.position).normalize());
-      const ndc = dived.current.project(camera);
-      const half = Math.tan(THREE.MathUtils.degToRad(perspective.fov / 2));
-      const angle = Math.asin(Math.min(1, flight.diveBody.radius / Math.max(gap, 1e-6)));
-      flight.diveScreen = {
-        x: ((ndc.x + 1) / 2) * size.width,
-        y: ((1 - ndc.y) / 2) * size.height,
-        r: (Math.tan(angle) / half) * (size.height / 2),
-        visible: ahead > 0.2 && Math.abs(ndc.x) < 1.4 && Math.abs(ndc.y) < 1.4,
-      };
+      flight.diveScreen = project(dived.current, flight.diveBody.radius, perspective, size);
     }
+    flight.bodyScreen = anchor
+      ? {
+          id: station.id,
+          ...project(body.current, anchor.radius, perspective, size),
+        }
+      : null;
   });
 
   return null;

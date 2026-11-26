@@ -162,7 +162,7 @@ export function TransmissionConsole({ progress }: { progress: MotionValue<number
           panel's `my-auto` keeps it centred in what the footer leaves, and as
           a scroll container it is the one that gives way when the two do not
           fit — the footer keeps its line. */}
-      <div className="flex h-full flex-col px-5 pt-[72px] md:px-10">
+      <div className="flex h-full flex-col px-5 pt-[104px] md:px-10">
         {/* This used to carry a comment claiming the form was laid out to fit a
             13" window, so it needed no scrollbar. Measured, that was false: at
             1366x640 — a 1366x768 laptop once the browser chrome is subtracted —

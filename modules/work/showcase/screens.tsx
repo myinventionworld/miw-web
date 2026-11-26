@@ -454,3 +454,41 @@ export function BuiltShot({
     <PhoneFrame shot={shot(ids[0], t)} className="mx-auto w-[64%] max-w-[300px]" />
   );
 }
+
+/** A station on the 3D home: the product's desktop screen in a browser window. */
+export function StationWindow({
+  project,
+  t,
+  className,
+}: {
+  project: ProjectCase;
+  t: Translate;
+  className?: string;
+}) {
+  const id = BY_PROJECT[project.slug]?.desktop;
+  if (!id) return null;
+  return <BrowserFrame shot={shot(id, t)} host={project.host} className={className} />;
+}
+
+/** A station on the 3D home: one of the product's phone screens, by its place in the list. */
+export function StationPhone({
+  project,
+  t,
+  index = 0,
+  className,
+}: {
+  project: ProjectCase;
+  t: Translate;
+  index?: number;
+  className?: string;
+}) {
+  const id = BY_PROJECT[project.slug]?.phones[index];
+  if (!id) return null;
+  return (
+    <PhoneFrame
+      shot={shot(id, t)}
+      sizes="200px"
+      className={cn("rounded-[1.8rem] border-[5px]", className)}
+    />
+  );
+}

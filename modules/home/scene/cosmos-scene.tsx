@@ -24,7 +24,6 @@ import { Effects } from "./effects";
 import { FlightDriver } from "./flight-driver";
 import { FramePacer, frameLog, type Gate } from "./frame-pacer";
 import { IcePlanet } from "./ice-planet";
-import { LogoModel } from "./logo-model";
 import { ProductMoons } from "./product-moons";
 import { Pulsar } from "./pulsar";
 import { dprFor, planTier, QualityGovernor, type Tier, type Viewport } from "./quality";
@@ -169,7 +168,6 @@ const Scene = memo(function Scene({
 
       <Suspense fallback={null}>
         <ChromeEnvironment />
-        <LogoModel />
         <Earth detail={detail} />
         <RingedPlanet />
         <IcePlanet detail={detail} />
