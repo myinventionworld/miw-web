@@ -29,7 +29,7 @@ export async function PageLayout({
 
   return (
     <ViewTransition {...PAGE_TRANSITION.light} default="none">
-      <div className="theme-light min-h-screen bg-void">
+      <div className="theme-light min-h-screen overflow-x-clip bg-void">
         <SiteHeader
           locale={locale}
           active={active}
