@@ -11,6 +11,7 @@ import { type CSSProperties, useEffect, useRef, useState, useSyncExternalStore }
 
 import { initials } from "./team";
 import { cn } from "@/shared/lib/cn";
+import { LandingMark } from "@/shared/ui/landing-mark";
 import { OrbitRing, orbitClasses, type OrbitItem } from "./orbit";
 import { useIdle } from "@/shared/lib/use-idle";
 
@@ -234,11 +235,13 @@ export function Cover({
               strokeWidth={1.2}
             />
           ))}
-          <path
-            d={`M${CX} 0 H${CX - BODY_R} A${BODY_R} ${BODY_R} 0 0 0 ${CX} ${BODY_R} Z`}
-            fill="var(--color-white)"
-          />
         </svg>
+        <LandingMark id="cover">
+          <div
+            className="absolute top-0 right-0 rounded-bl-full bg-white"
+            style={{ width: u(BODY_R), height: u(BODY_R) }}
+          />
+        </LandingMark>
         {/* The rings turn about the body's centre, the top-right corner. */}
         <div className="absolute top-0 right-0">
           {ORBITS.map((o, i) => (

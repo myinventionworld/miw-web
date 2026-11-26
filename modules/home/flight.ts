@@ -33,6 +33,11 @@ export interface FlightState {
   /** Damped pointer, used for camera parallax. */
   pointerEased: Pointer;
   reducedMotion: boolean;
+  /** 0 on the track, 1 close up to `diveBody`: the landing and, run backwards, the take-off. */
+  dive: number;
+  diveBody: { pos: Vec3; radius: number } | null;
+  /** Where `diveBody` is on screen, in CSS pixels, written by the scene each frame. */
+  diveScreen: { x: number; y: number; r: number; visible: boolean } | null;
 }
 
 export const flight: FlightState = {
@@ -46,6 +51,9 @@ export const flight: FlightState = {
   pointer: { x: 0, y: 0 },
   pointerEased: { x: 0, y: 0 },
   reducedMotion: false,
+  dive: 0,
+  diveBody: null,
+  diveScreen: null,
 };
 
 export function firePulse() {
@@ -243,6 +251,12 @@ export function sectionAt(p: number): StationId | "transmission" | null {
   if (p < HERO_END) return null;
   const i = stationIndexAt(p);
   return i < 0 ? "transmission" : STATIONS[i].id;
+}
+
+/** The body a landing dives into: the station's, Earth over the hero, the pulsar at the console. */
+export function diveBodyAt(p: number) {
+  const section = sectionAt(p);
+  return section === "transmission" ? PULSAR : BODY[section ?? "backend"];
 }
 
 /* ── scroll ───────────────────────────────────────────────────────────── */

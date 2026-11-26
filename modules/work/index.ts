@@ -17,3 +17,4 @@ export {
   hasScreens,
 } from "./showcase/screens";
 export { STATUS_TONE } from "./status";
+export { LandingMark } from "@/shared/ui/landing-mark";

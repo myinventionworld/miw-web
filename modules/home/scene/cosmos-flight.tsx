@@ -42,8 +42,9 @@ export function CosmosFlight() {
   const up = useRef(new THREE.Vector3());
   const forward = useRef(new THREE.Vector3());
   const roll = useRef(0);
+  const dived = useRef(new THREE.Vector3());
 
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, size }, delta) => {
     const p = flight.eased;
 
     sampleCamera(p, scratchA.current);
@@ -110,12 +111,21 @@ export function CosmosFlight() {
       .addScaledVector(right.current, flight.pointerEased.x * 1.1 * sway)
       .addScaledVector(up.current, flight.pointerEased.y * 0.7 * sway);
 
+    const dive = flight.diveBody ? flight.dive : 0;
+    if (flight.diveBody && dive > 0) {
+      dived.current.set(...flight.diveBody.pos);
+      const gap = dived.current.distanceTo(position.current);
+      const travel = Math.max(0, gap - flight.diveBody.radius * 2.1) * dive;
+      camera.position.lerp(dived.current, travel / Math.max(gap, 1e-6));
+      target.current.lerp(dived.current, dive);
+    }
+
     camera.lookAt(target.current);
 
     const drift =
       Math.sin(p * 21.0) * 0.016 + flight.velocity * 0.05 + flight.warp * 0.014;
     roll.current = damp(roll.current, drift, 4.2, delta);
-    camera.rotateZ(roll.current);
+    camera.rotateZ(roll.current * (1 - dive));
 
     // Widen the lens in transit — cheap, and it reads as raw speed.
     const perspective = camera as THREE.PerspectiveCamera;
@@ -123,6 +133,25 @@ export function CosmosFlight() {
     if (Math.abs(perspective.fov - fov) > 0.01) {
       perspective.fov = damp(perspective.fov, fov, 5, delta);
       perspective.updateProjectionMatrix();
+    }
+
+    if (flight.diveBody) {
+      camera.updateMatrixWorld();
+      dived.current.set(...flight.diveBody.pos);
+      const gap = dived.current.distanceTo(camera.position);
+      const ahead = forward.current
+        .set(0, 0, -1)
+        .applyQuaternion(camera.quaternion)
+        .dot(dived.current.clone().sub(camera.position).normalize());
+      const ndc = dived.current.project(camera);
+      const half = Math.tan(THREE.MathUtils.degToRad(perspective.fov / 2));
+      const angle = Math.asin(Math.min(1, flight.diveBody.radius / Math.max(gap, 1e-6)));
+      flight.diveScreen = {
+        x: ((ndc.x + 1) / 2) * size.width,
+        y: ((1 - ndc.y) / 2) * size.height,
+        r: (Math.tan(angle) / half) * (size.height / 2),
+        visible: ahead > 0.2 && Math.abs(ndc.x) < 1.4 && Math.abs(ndc.y) < 1.4,
+      };
     }
   });
 

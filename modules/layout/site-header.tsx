@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { localeHref } from "@/modules/i18n";
 import { cn } from "@/shared/lib/cn";
+import { CROSSFADE } from "@/shared/lib/landing";
 import { Logo } from "@/shared/ui/logo";
 import { HEADER } from "./header-frame";
 import { LocaleSwitch } from "./locale-switch";
@@ -31,39 +33,45 @@ export function SiteHeader({
 }) {
   const href = (to: string) =>
     onHome && to.startsWith("/#") ? to.slice(1) : localeHref(locale, to);
+  const go = (to: string, props: Omit<React.ComponentProps<typeof Link>, "href">) => (
+    <Link href={href(to)} transitionTypes={[CROSSFADE]} {...props} />
+  );
 
   return (
-    <header className={cn("sticky top-0 z-40", HEADER.bar)}>
-      <div className={HEADER.row}>
-        <Link href={href("/")} className={HEADER.logo} aria-label={text.logoAria}>
-          <Logo />
-        </Link>
+    <ViewTransition name="site-header" share="site-header" default="none">
+      <header className={cn("sticky top-0 z-40", HEADER.bar)}>
+        <div className={HEADER.row}>
+          {go("/", { className: HEADER.logo, "aria-label": text.logoAria, children: <Logo /> })}
 
-        <nav className={HEADER.nav}>
-          {NAV.map((item) => (
-            <Link
-              key={item.id}
-              href={href(item.href)}
-              aria-current={active === item.id ? "page" : undefined}
-              className={cn(
-                HEADER.item,
-                (item.id === "services" || item.id === "contact") && "hidden md:block",
-                active === item.id ? HEADER.current : HEADER.idle,
-              )}
-            >
-              {text.nav[item.id]}
-            </Link>
-          ))}
-        </nav>
+          <nav className={HEADER.nav}>
+            {NAV.map((item) =>
+              go(item.href, {
+                key: item.id,
+                "aria-current": active === item.id ? "page" : undefined,
+                className: cn(
+                  HEADER.item,
+                  (item.id === "services" || item.id === "contact") && "hidden md:block",
+                  active === item.id ? HEADER.current : HEADER.idle,
+                ),
+                children: text.nav[item.id],
+              }),
+            )}
+          </nav>
 
-        <div className={HEADER.end}>
-          <LocaleSwitch className={HEADER.langs} />
-          <Link href={href(START_HREF)} className={cn(HEADER.pill, "ml-1 sm:ml-2 lg:ml-0")}>
-            <span className="hidden sm:inline">{text.start}</span>
-            <span className="sm:hidden">{text.startShort}</span>
-          </Link>
+          <div className={HEADER.end}>
+            <LocaleSwitch className={HEADER.langs} />
+            {go(START_HREF, {
+              className: cn(HEADER.pill, "ml-1 sm:ml-2 lg:ml-0"),
+              children: (
+                <>
+                  <span className="hidden sm:inline">{text.start}</span>
+                  <span className="sm:hidden">{text.startShort}</span>
+                </>
+              ),
+            })}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </ViewTransition>
   );
 }

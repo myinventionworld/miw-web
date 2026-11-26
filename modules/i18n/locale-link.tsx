@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
-import { isLightRoute, veilIntoLight } from "./light-veil";
+import { CROSSFADE, currentLander } from "@/shared/lib/landing";
 
 import { localeHref } from "./locale";
 import i18nConfig, { type Locale } from "./config";
+
+const LIGHT_ROUTES = ["/work", "/about", "/terms"];
+
+function isLightRoute(href: string) {
+  return LIGHT_ROUTES.some((r) => href === r || href.startsWith(`${r}/`));
+}
 
 /**
  * The locale of the page being rendered.
@@ -25,10 +31,8 @@ export function useLocale(): Locale {
 }
 
 /**
- * `next/link` with the current locale prefixed onto internal hrefs.
- *
- * From the dark 3D home, a link to one of the light pages opens through a
- * white reveal (`light-veil.tsx`) instead of a hard cut.
+ * `next/link` with the current locale prefixed onto internal hrefs. While the
+ * 3D home is on screen, a link to a light page lands there instead.
  */
 export function LocaleLink({
   href,
@@ -36,15 +40,17 @@ export function LocaleLink({
   ...rest
 }: React.ComponentProps<typeof Link> & { href: string }) {
   const locale = useLocale();
-  const router = useRouter();
   const to = localeHref(locale, href);
 
   return (
     <Link
       href={to}
+      transitionTypes={[CROSSFADE]}
       onClick={(e) => {
         onClick?.(e);
+        const land = currentLander();
         if (
+          !land ||
           e.defaultPrevented ||
           e.button !== 0 ||
           e.metaKey ||
@@ -57,7 +63,7 @@ export function LocaleLink({
           return;
         }
         e.preventDefault();
-        veilIntoLight(e.clientX, e.clientY).then(() => router.push(to));
+        land(to);
       }}
       {...rest}
     />

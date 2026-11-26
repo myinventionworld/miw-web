@@ -10,6 +10,7 @@ import {
   ProductShots,
   hasBuiltShot,
   hasScreens,
+  LandingMark,
   PROJECTS,
   projectBySlug,
   STATUS_TONE,
@@ -134,10 +135,12 @@ export default async function WorkCasePage(
 
         <div className="mt-7 flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-2 text-copy-lg font-semibold text-white">
-            <span
-              className="size-2.5 rounded-full"
-              style={{ background: project.color }}
-            />
+            <LandingMark id={`product:${project.slug}`}>
+              <span
+                className="size-2.5 rounded-full"
+                style={{ background: project.color }}
+              />
+            </LandingMark>
             {project.name}
           </span>
           <span
