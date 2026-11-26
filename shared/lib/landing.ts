@@ -1,4 +1,4 @@
-import { STATION_IDS, type StationId } from "@/shared/station-id";
+import type { StationId } from "@/shared/station-id";
 
 export const LANDING = "landing";
 export const TAKEOFF = "takeoff";
@@ -31,10 +31,11 @@ export const PAGE_TRANSITION = {
 
 export type Section = StationId | "transmission";
 
+const SECTIONS: Record<Section, true> = { backend: true, commerce: true, labs: true, transmission: true };
+
 export function sectionFromHash(hash: string): Section | null {
   const id = decodeURIComponent(hash.replace(/^#/, ""));
-  if (id === "transmission") return id;
-  return (STATION_IDS as readonly string[]).includes(id) ? (id as StationId) : null;
+  return Object.hasOwn(SECTIONS, id) ? (id as Section) : null;
 }
 
 /** What the planet turns into on the page it lands on: About's cover, or a product's dot. */
@@ -71,4 +72,40 @@ export function registerLander(next: Lander) {
 
 export function currentLander() {
   return lander;
+}
+
+export const STATION_KEY = "miw:station";
+export const TAKEOFF_KEY = "miw:takeoff";
+
+function session(op: (s: Storage) => string | null | void) {
+  try {
+    return op(sessionStorage) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Remembers the section the visitor left the flight from, for the way back. */
+export function rememberDeparture(section: Section | null) {
+  session((s) => {
+    if (section) s.setItem(STATION_KEY, section);
+    else s.removeItem(STATION_KEY);
+    s.setItem(TAKEOFF_KEY, "1");
+  });
+}
+
+export function rememberedStation(): Section | null {
+  return sectionFromHash(session((s) => s.getItem(STATION_KEY)) ?? "");
+}
+
+/** Marks the next arrival on the flight as a take-off. */
+export function markTakeoff() {
+  session((s) => s.setItem(TAKEOFF_KEY, "1"));
+}
+
+/** True once, on the first arrival after a landing or a take-off link. */
+export function takeTakeoff() {
+  const pending = session((s) => s.getItem(TAKEOFF_KEY)) === "1";
+  session((s) => s.removeItem(TAKEOFF_KEY));
+  return pending;
 }

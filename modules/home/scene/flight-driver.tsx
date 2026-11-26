@@ -17,7 +17,7 @@ import {
  * every other `useFrame` in the scene reads values settled this same frame.
  */
 export function FlightDriver() {
-  const last = useRef(0);
+  const last = useRef(flight.eased);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);

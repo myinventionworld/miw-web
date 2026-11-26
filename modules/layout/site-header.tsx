@@ -7,6 +7,7 @@ import { Logo } from "@/shared/ui/logo";
 import { HEADER } from "./header-frame";
 import { LocaleSwitch } from "./locale-switch";
 import { NAV, START_HREF, type NavId } from "./nav";
+import { TakeoffLink } from "./takeoff-link";
 
 export interface SiteHeaderText {
   nav: Record<NavId, string>;
@@ -18,7 +19,8 @@ export interface SiteHeaderText {
 /**
  * Below `md` the row is the logo, Work, About and the pill, which is what
  * clears 320px; Services and Contact come back where there is room, and the
- * languages from `lg`.
+ * languages from `lg`. Off the home page, the links into the flight take off
+ * to their station; the logo goes back to the station the visitor left from.
  */
 export function SiteHeader({
   locale,
@@ -33,9 +35,13 @@ export function SiteHeader({
 }) {
   const href = (to: string) =>
     onHome && to.startsWith("/#") ? to.slice(1) : localeHref(locale, to);
-  const go = (to: string, props: Omit<React.ComponentProps<typeof Link>, "href">) => (
-    <Link href={href(to)} transitionTypes={[CROSSFADE]} {...props} />
-  );
+  const flies = (to: string) => !onHome && (to === "/" || to.startsWith("/#"));
+  const go = (to: string, props: Omit<React.ComponentProps<typeof Link>, "href">) =>
+    flies(to) ? (
+      <TakeoffLink href={href(to)} back={to === "/"} {...props} />
+    ) : (
+      <Link href={href(to)} transitionTypes={[CROSSFADE]} {...props} />
+    );
 
   return (
     <ViewTransition name="site-header" share="site-header" default="none">

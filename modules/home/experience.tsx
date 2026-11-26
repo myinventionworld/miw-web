@@ -12,7 +12,7 @@ import { cn } from "@/shared/lib/cn";
 import { diveBodyAt, flight, scrollAt, sectionAt, trackAt } from "./flight";
 import { runDive, settle, skipTransitionOnInput } from "./landing";
 import { useDockSnap } from "./use-dock-snap";
-import { CONSOLE_ANCHOR, STATIONS, stationById, type Mode } from "./stations";
+import { CONSOLE_ANCHOR, stationById, type Mode } from "./stations";
 import { Navbar } from "./navbar";
 import { ProjectDock } from "./project-dock";
 import { Fallback } from "./fallback";
@@ -26,7 +26,11 @@ import {
   PAGE_TRANSITION,
   landingMarkFor,
   registerLander,
+  rememberDeparture,
+  rememberedStation,
+  sectionFromHash,
   setLandingMark,
+  takeTakeoff,
 } from "@/shared/lib/landing";
 import { detectHardwareGpu, prefersFlatDeck } from "./webgl-support";
 
@@ -40,6 +44,10 @@ const RUNWAY = "h-[740vh]";
 const RECONNECT_MS = 4000;
 
 const DIVE_MS = 520;
+const PULL_BACK_MS = 1400;
+const PULL_BACK_DELAY_MS = 250;
+const DAYLIGHT_MAX_MS = 1500;
+const SCENE_MAX_MS = 8000;
 
 /** Set once the scene proved too slow even at its lowest quality, for the rest of the tab's session. */
 const TOO_SLOW_KEY = "miw:flat-deck";
@@ -207,6 +215,7 @@ function Deck({
   const landing = useRef(false);
   const [planet, setPlanet] = useState<{ x: number; y: number; r: number } | null>(null);
   const [diving, setDiving] = useState(false);
+  const [daylight, setDaylight] = useState<"on" | "fading" | null>(null);
 
   useEffect(() => {
     flight.dive = 0;
@@ -226,6 +235,12 @@ function Deck({
       const product = (station && projectForStation(station)?.slug) ?? PROJECTS[0].slug;
       const path = new URL(to, window.location.href).pathname;
       const mark = landingMarkFor(path, product);
+      rememberDeparture(section);
+      window.history.replaceState(
+        null,
+        "",
+        section ? `#${section}` : window.location.pathname + window.location.search,
+      );
       if (/\/work$/.test(path) && product !== PROJECTS[0].slug) to = `${path}#${product}`;
 
       const go = () => {
@@ -268,16 +283,54 @@ function Deck({
   // (`/#commerce`). Lenis owns scrollTop, so the browser's native hash jump
   // lands on nothing — the camera has to be flown there instead, once, after
   // the scroller exists.
+  //
+  // Coming back from a light page (a header link or the browser's Back) is a
+  // take-off instead: parked at once where the visitor left, under daylight
+  // that fades as the camera pulls back from the planet.
   const jumped = useRef(false);
   useEffect(() => {
     if (!lenis || jumped.current) return;
-    const hash = window.location.hash.slice(1);
-    const station = STATIONS.find((s) => s.id === hash);
-    const anchor = hash === "transmission" ? CONSOLE_ANCHOR : station?.anchor;
-    if (anchor === undefined) return;
     jumped.current = true;
-    const id = setTimeout(() => travel(anchor), 140);
-    return () => clearTimeout(id);
+    const returning = takeTakeoff();
+    const section = sectionFromHash(window.location.hash) ?? (returning ? rememberedStation() : null);
+    const anchor =
+      section === "transmission" ? CONSOLE_ANCHOR : section ? stationById(section).anchor : 0;
+
+    if (!returning) {
+      if (!section) return;
+      const id = setTimeout(() => travel(anchor), 140);
+      return () => clearTimeout(id);
+    }
+
+    lenis.scrollTo(scrollAt(anchor) * lenis.limit, { immediate: true, force: true });
+    flight.progress = anchor;
+    flight.eased = anchor;
+    setDaylight("on");
+    if (flight.reducedMotion || section === "transmission") {
+      const id = requestAnimationFrame(() => requestAnimationFrame(() => setDaylight("fading")));
+      return () => cancelAnimationFrame(id);
+    }
+
+    flight.diveBody = diveBodyAt(anchor);
+    flight.dive = 1;
+    const start = performance.now();
+    let faded = false;
+    let later = 0;
+    let raf = requestAnimationFrame(function wait() {
+      const drawn = flight.diveScreen !== null;
+      const waited = performance.now() - start;
+      if (!faded && (drawn || waited > DAYLIGHT_MAX_MS)) {
+        faded = true;
+        setDaylight("fading");
+      }
+      if (drawn) later = window.setTimeout(() => void runDive(0, PULL_BACK_MS), PULL_BACK_DELAY_MS);
+      else if (waited > SCENE_MAX_MS) flight.dive = 0;
+      else raf = requestAnimationFrame(wait);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(later);
+    };
   }, [lenis, travel]);
 
   return (
@@ -298,6 +351,17 @@ function Deck({
                 "linear-gradient(180deg, rgba(3,3,5,0.5) 0%, transparent 18%, transparent 62%, rgba(3,3,5,0.72) 100%)",
             }}
           />
+
+          {daylight && (
+            <div
+              aria-hidden
+              onTransitionEnd={() => setDaylight(null)}
+              className={cn(
+                "pointer-events-none fixed inset-0 z-40 bg-white transition-opacity duration-700 ease-out motion-reduce:duration-200",
+                daylight === "fading" && "opacity-0",
+              )}
+            />
+          )}
 
           <div className={cn("transition-opacity duration-300 ease-out", diving && "opacity-0")}>
             <Hero
