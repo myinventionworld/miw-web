@@ -8,6 +8,7 @@ export {
 export { Device } from "./showcase/device";
 export { ReadListen, SeatRace } from "./showcase/explainers";
 export { ProjectActions, ShowcaseFrame } from "./showcase/frame";
+export { Reveal } from "./showcase/reveal";
 export {
   BuiltShot,
   DockShots,
