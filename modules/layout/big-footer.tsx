@@ -21,7 +21,10 @@ function Column({ title, links }: { title: string; links: FooterLink[] }) {
       <ul className="mt-4 space-y-3">
         {links.map((l) => (
           <li key={`${l.href}${l.label}`}>
-            <LocaleLink href={l.href} className="text-body text-zinc transition-colors hover:text-white">
+            <LocaleLink
+              href={l.href}
+              className="text-body text-zinc transition-colors hover:text-white"
+            >
               {l.label}
             </LocaleLink>
           </li>
@@ -52,13 +55,27 @@ function CopyEmail() {
         }}
         className="flex size-8 shrink-0 items-center justify-center rounded-md text-zinc transition-colors hover:bg-white/8 hover:text-white"
       >
-        <svg aria-hidden viewBox="0 0 20 20" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6}>
+        <svg
+          aria-hidden
+          viewBox="0 0 20 20"
+          className="size-[18px]"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.6}
+        >
           {copied ? (
-            <path d="M4.5 10.5l3.5 3.5 7.5-8" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M4.5 10.5l3.5 3.5 7.5-8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           ) : (
             <>
               <rect x="7" y="7" width="9.5" height="9.5" rx="2" />
-              <path d="M13 4.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v6.5A1.5 1.5 0 0 0 5 12h.5" strokeLinecap="round" />
+              <path
+                d="M13 4.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v6.5A1.5 1.5 0 0 0 5 12h.5"
+                strokeLinecap="round"
+              />
             </>
           )}
         </svg>
@@ -72,7 +89,9 @@ function CopyEmail() {
 
 export function BigFooter({ className }: { className?: string }) {
   const { t } = useTranslation(["common", "stations"]);
-  const program = t("stations:commerce.program", { returnObjects: true }) as { label: string }[];
+  const program = t("stations:commerce.program", { returnObjects: true }) as {
+    label: string;
+  }[];
 
   const studio: FooterLink[] = [
     { href: "/about", label: t("nav.about") },
@@ -85,7 +104,10 @@ export function BigFooter({ className }: { className?: string }) {
     ...program.map((p) => ({ href: "/#commerce", label: p.label })),
   ];
   const products: FooterLink[] = [
-    ...PROJECTS.map((p) => ({ href: `/work/${p.slug}`, label: p.name })),
+    ...PROJECTS.filter((p) => !p.client).map((p) => ({
+      href: `/work/${p.slug}`,
+      label: p.name,
+    })),
     { href: "/work", label: t("footer.allWork") },
   ];
 
@@ -102,9 +124,13 @@ export function BigFooter({ className }: { className?: string }) {
               >
                 M<span className="text-comet">I</span>W
               </LocaleLink>
-              <p className="mt-5 max-w-xs text-body leading-relaxed text-zinc">{t("home.lede")}</p>
+              <p className="mt-5 max-w-xs text-body leading-relaxed text-zinc">
+                {t("home.lede")}
+              </p>
 
-              <p className="mt-8 text-small font-semibold text-white">{t("footer.writeUs")}</p>
+              <p className="mt-8 text-small font-semibold text-white">
+                {t("footer.writeUs")}
+              </p>
               <div className="mt-1.5 flex items-center gap-1">
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
@@ -133,7 +159,10 @@ export function BigFooter({ className }: { className?: string }) {
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <nav aria-label={t("footer.legal")}>
-                <LocaleLink href="/terms" className="-my-2 rounded-md py-2 transition-colors hover:text-white">
+                <LocaleLink
+                  href="/terms"
+                  className="-my-2 rounded-md py-2 transition-colors hover:text-white"
+                >
                   {t("footer.terms")}
                 </LocaleLink>
               </nav>
