@@ -15,6 +15,7 @@ describe("sectionFromHash", () => {
     assert.equal(sectionFromHash("#backend"), "backend");
     assert.equal(sectionFromHash("#commerce"), "commerce");
     assert.equal(sectionFromHash("labs"), "labs");
+    assert.equal(sectionFromHash("#team"), "team");
     assert.equal(sectionFromHash("#transmission"), "transmission");
   });
 

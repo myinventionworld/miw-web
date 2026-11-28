@@ -39,6 +39,11 @@ export function useBakedCube(fragment: string, size: number) {
   );
 
   useEffect(() => {
+    target.texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    target.texture.needsUpdate = true;
+  }, [gl, target]);
+
+  useEffect(() => {
     let live = true;
     const scene = new THREE.Scene();
     const geometry = new THREE.BoxGeometry(2, 2, 2);

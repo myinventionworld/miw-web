@@ -14,7 +14,7 @@ export interface Pointer {
 }
 
 export interface FlightState {
-  /** Track time of the document scroll, 0..1 — see `trackAt`. */
+  /** Track time of the document scroll, 0..1. */
   progress: number;
   /** Critically damped `progress` — safe to drive geometry with. */
   eased: number;
@@ -37,7 +37,16 @@ export interface FlightState {
   dive: number;
   diveBody: { pos: Vec3; radius: number } | null;
   /** Where `diveBody` is on screen, in CSS pixels, written by the scene each frame. */
-  diveScreen: { x: number; y: number; r: number; visible: boolean } | null;
+  diveScreen: BodyScreen | null;
+  /** Where the nearest station's body is on screen, for the labels pinned to it. */
+  bodyScreen: (BodyScreen & { id: StationId }) | null;
+}
+
+export interface BodyScreen {
+  x: number;
+  y: number;
+  r: number;
+  visible: boolean;
 }
 
 export const flight: FlightState = {
@@ -54,6 +63,7 @@ export const flight: FlightState = {
   dive: 0,
   diveBody: null,
   diveScreen: null,
+  bodyScreen: null,
 };
 
 export function firePulse() {
@@ -85,8 +95,10 @@ export function damp(current: number, target: number, lambda: number, dt: number
 
 export type Vec3 = [number, number, number];
 
-/** The chrome mark sits on the track itself, so the camera flies through it. */
-export const LOGO_ORIGIN: Vec3 = [5.6, 3.0, -1.0];
+export const PULSAR: { pos: Vec3; radius: number } = {
+  pos: [0, 0, -648],
+  radius: 12,
+};
 
 // Keyed by StationId so a station rename fails the build instead of silently
 // resolving to `undefined` inside useFrame.
@@ -94,29 +106,21 @@ export const BODY: Record<StationId, { pos: Vec3; radius: number }> = {
   backend: { pos: [-18, -11, -64], radius: 19 },
   commerce: { pos: [22, -3, -246], radius: 15 },
   labs: { pos: [-19, 6, -420], radius: 16 },
-};
-
-export const PULSAR: { pos: Vec3; radius: number } = {
-  pos: [0, 0, -648],
-  radius: 12,
+  team: PULSAR,
 };
 
 /**
- * Where the body sits in frame once docked, in half-screens: x +1 is the right
- * edge, y +1 is the top. The mirror of the card: card left, body right.
+ * Where the body's centre sits once docked, in normalised device coordinates:
+ * x +1 is the right edge, y +1 the top. The copy takes the other side.
  */
-export const FRAME_BIAS: Record<StationId, { x: number; y: number }> = {
-  backend: { x: 0.52, y: -0.06 },
-  commerce: { x: -0.54, y: 0.02 },
-  labs: { x: 0.52, y: 0.04 },
+export const FRAME: Record<StationId, { x: number; y: number }> = {
+  backend: { x: 0.9, y: 0.02 },
+  commerce: { x: -0.38, y: 0.08 },
+  labs: { x: 0.18, y: -0.1 },
+  team: { x: 0.3, y: -0.05 },
 };
 
-/**
- * World offset that moves the aim point one half-screen. Derived from the docked
- * lens (38° vertical) at `LOOK_DISTANCE`, so a bias of 1.0 lands the body on the
- * frame edge rather than at some arbitrary amount of rotation.
- */
-export const BIAS_SCALE = { x: 10, y: 5.6 } as const;
+export const HERO_FRAME = { x: 0, y: -1.91 } as const;
 
 /* ── camera track ─────────────────────────────────────────────────────── */
 
@@ -126,14 +130,14 @@ export const BIAS_SCALE = { x: 10, y: 5.6 } as const;
  * station be framed deliberately instead of approximately.
  */
 export const WAYPOINTS: { p: number; pos: Vec3 }[] = [
-  { p: 0.0, pos: [7, 3.2, 12] },
-  { p: 0.06, pos: [7, 3, -6] }, // station 01
+  { p: 0.0, pos: [-11.5, -2.4, -22.3] },
+  { p: 0.06, pos: [1.3, -0.2, -19.2] }, // startups
   { p: 0.16, pos: [2, 5, -60] },
-  { p: 0.3, pos: [-11, 4, -178] }, // station 02
+  { p: 0.3, pos: [-20, 6, -159] }, // small businesses
   { p: 0.42, pos: [0, -2, -262] },
-  { p: 0.54, pos: [13, -4, -352] }, // station 03
+  { p: 0.54, pos: [13, -4, -352] }, // products
   { p: 0.66, pos: [4, 2, -452] },
-  { p: 0.78, pos: [-9, 4, -545] },
+  { p: 0.78, pos: [-11, 5, -518] }, // team
   // The last leg passes the pulsar rather than flying into it. Parking the
   // console on the star's face is exactly the washed-out frame this rebuild
   // exists to remove, so the track slides abeam and leaves it astern.
@@ -257,26 +261,4 @@ export function sectionAt(p: number): StationId | "transmission" | null {
 export function diveBodyAt(p: number) {
   const section = sectionAt(p);
   return section === "transmission" ? PULSAR : BODY[section ?? "backend"];
-}
-
-/* ── scroll ───────────────────────────────────────────────────────────── */
-
-/**
- * Track time is what WAYPOINTS, the anchors and every fade in the scene are
- * written in. The scroll is a different clock: the track from the last station
- * past the pulsar to the console is two legs long, and the scroll gives it the
- * length of one. Convert where the scroll is read or set, and nowhere else.
- */
-const KNEE = { scroll: 0.66, track: STATIONS[STATIONS.length - 1].anchor };
-
-export function trackAt(scroll: number) {
-  const s = clamp01(scroll);
-  if (s <= KNEE.scroll) return (s / KNEE.scroll) * KNEE.track;
-  return lerp(KNEE.track, 1, (s - KNEE.scroll) / (1 - KNEE.scroll));
-}
-
-export function scrollAt(track: number) {
-  const t = clamp01(track);
-  if (t <= KNEE.track) return (t / KNEE.track) * KNEE.scroll;
-  return lerp(KNEE.scroll, 1, (t - KNEE.track) / (1 - KNEE.track));
 }

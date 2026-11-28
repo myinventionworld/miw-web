@@ -3,16 +3,30 @@
     "nav": "Pro startupy",
     "cta": "Probrat MVP",
     "business": {
-      "headline": "Od nápadu k první verzi, kterou lidé používají.",
-      "lede": "MVP, backendy a AI funkce pro startupy a technické týmy. Omnibus postavil náš tým. Zkuste rezervovat stejné místo dvakrát."
-    }
+      "headline": "První verze, které lidé používají.",
+      "lede": "MVP, backendy a AI funkce pro startupy a technické týmy. Omnibus postavil náš tým."
+    },
+    "case": [
+      {
+        "label": "Problém",
+        "body": "Dva lidé vidí stejné místo volné a oba kliknou na rezervaci."
+      },
+      {
+        "label": "Jak je to postavené",
+        "body": "Jedna krátká transakce zamkne to místo v PostgreSQL dřív, než ho zkontroluje."
+      },
+      {
+        "label": "Výsledek",
+        "body": "Druhá rezervace je hned odmítnuta. Cíl: nula dvojích rezervací."
+      }
+    ]
   },
   "commerce": {
     "nav": "Pro malé firmy",
     "cta": "Chci web nebo e-shop",
     "business": {
       "headline": "Web, e-shop nebo nástroj, který ušetří hodiny.",
-      "lede": "Pro obchody, dílny a místní služby: přehledný web, objednávky a rezervace online, nebo jednoduchá evidence zboží místo papírového sešitu."
+      "lede": "Pro obchody, dílny a místní služby v Česku."
     },
     "program": [
       {
@@ -27,7 +41,13 @@
         "label": "Sklad a rezervace",
         "body": "Zboží, objednávky nebo termíny bez papírového sešitu."
       }
-    ]
+    ],
+    "steps": [
+      "Napíšete, co potřebujete. Stačí pár řádků.",
+      "Člověk z týmu odpoví do jednoho pracovního dne.",
+      "Domluvíme rozpočet a termín, od projektů do 2 tis. €."
+    ],
+    "example": "E-shop s obuví pro rodinnou firmu v Žytomyru."
   },
   "labs": {
     "nav": "Naše produkty",
@@ -36,11 +56,18 @@
     "business": {
       "headline": "Děláme i vlastní produkty.",
       "lede": "Boowie je čtečka a přehrávač audioknih, který funguje offline. Wovie je katalog filmů se seznamy ke zhlédnutí. Oba běží, otevřete si je."
+    },
+    "land": "Přistát na stránce Práce",
+    "landNote": "Všechny produkty a případové studie",
+    "products": {
+      "boowie": "Čtení i poslech drží jednu pozici, i offline.",
+      "wovie": "Filmy s hodnocením z TMDB a seznamy ke zhlédnutí."
     }
   },
   "team": {
     "nav": "Tým",
     "headline": "Sedm lidí, jeden tým.",
-    "lede": "Inženýři, analytik a designér v Praze. Mluvíte přímo s lidmi, kteří váš projekt staví."
+    "lede": "Inženýři, analytik a designér v Praze. Mluvíte přímo s lidmi, kteří váš projekt staví.",
+    "link": "Poznejte tým"
   }
 }

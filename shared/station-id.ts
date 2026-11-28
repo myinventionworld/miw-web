@@ -1,1 +1,1 @@
-export type StationId = "backend" | "commerce" | "labs";
+export type StationId = "backend" | "commerce" | "labs" | "team";

@@ -31,7 +31,13 @@ export const PAGE_TRANSITION = {
 
 export type Section = StationId | "transmission";
 
-const SECTIONS: Record<Section, true> = { backend: true, commerce: true, labs: true, transmission: true };
+const SECTIONS: Record<Section, true> = {
+  backend: true,
+  commerce: true,
+  labs: true,
+  team: true,
+  transmission: true,
+};
 
 export function sectionFromHash(hash: string): Section | null {
   const id = decodeURIComponent(hash.replace(/^#/, ""));

@@ -32,7 +32,8 @@
     "demo": "Živé demo",
     "staging": "Staging",
     "internal": "Interní",
-    "source": "Jen kód"
+    "source": "Jen kód",
+    "unreleased": "Zatím nespuštěno"
   },
   "basis": {
     "observed": {
@@ -46,11 +47,11 @@
   },
   "index": {
     "metaTitle": "Práce · MIW",
-    "metaDescription": "Projekty týmu MIW: rezervační systém míst, offline čtečka a přehrávač audioknih a katalog filmů. Co každý dělá a jak je postavený.",
+    "metaDescription": "Projekty týmu MIW: rezervace míst v autobusech, offline čtečka a přehrávač audioknih, katalog filmů a e-shop s obuví pro klienta. Co každý dělá a jak je postavený.",
     "eyebrow": "Práce",
     "title": "Co jsme postavili",
-    "lede": "Projekty, které náš tým postavil a provozuje. Všechny běží: otevřete si je a vyzkoušejte.",
-    "body": "Projekty pro klienty sem přibudou, až vyjdou."
+    "lede": "Projekty, které náš tým postavil a provozuje, a to, co stavíme pro klienty.",
+    "body": "Ty, které běží, si můžete otevřít a vyzkoušet. U klientského projektu je napsané, v jaké je fázi."
   },
   "case": {
     "back": "Všechny práce",
@@ -293,6 +294,67 @@
     ],
     "results": {
       "lede": "Wovie je ve vývoji, má veřejné demo a otevřený zdrojový kód."
+    }
+  },
+  "jo_plokhina": {
+    "category": "E-shop s obuví · klientský projekt",
+    "headline": "Obchod s obuví, kde se poslední pár prodá jednou",
+    "pitch": "E-shop pro rodinnou firmu s obuví v Žytomyru: zásoby v každém obchodě na tržišti, doporučení velikosti podle délky chodidla, objednávka přes telefon, doručení Novou poštou nebo vyzvednutí na tržišti.",
+    "credit": "Postavilo MIW Labs pro tuto firmu. Zatím nespuštěno: katalog je ukázkový, platby a Nová pošta jsou zatím náhradní.",
+    "metrics": {
+      "race": {
+        "label": "Poslední páry",
+        "note": "V testu 12 zákaznic soupeří o 4 páry a projdou přesně 4 objednávky."
+      },
+      "locations": {
+        "label": "Míst se zbožím",
+        "note": "Dva obchody na tržišti a tři garáže v jedné tabulce zásob."
+      },
+      "hold": {
+        "label": "Rezervace nezaplacené objednávky",
+        "note": "Nezaplacená online objednávka drží své páry 30 minut."
+      }
+    },
+    "problem": {
+      "lede": "Firma prodává dámskou obuv ze dvou obchodů na tržišti a tří garáží, často po jednom páru v každé velikosti, a účetnictví vede v papírovém sešitu.",
+      "points": [
+        "Poslední pár se může prodat v obchodě i online ve stejnou chvíli.",
+        "Každý model je jinak malý nebo velký, takže samotné číslo velikosti neřekne, co padne.",
+        "Ceny a zásoby musí pocházet z obchodu, nikdy z toho, co pošle prohlížeč."
+      ]
+    },
+    "design": {
+      "lede": "Každá změna prochází přes Server Action, která zkontroluje vstup a spočítá cenu objednávky z databáze. Vytvoření objednávky je jedna transakce, která zamkne potřebné řádky zásob.",
+      "nodes": {
+        "shopper": "Zákaznice",
+        "office": "Administrace",
+        "actions": "Server Actions · kontroly",
+        "orders": "Objednávky · jedna transakce",
+        "delivery": "Nová pošta · platby",
+        "pg": "PostgreSQL · zásoby"
+      },
+      "edges": {
+        "actions-orders": "ceny z DB",
+        "orders-pg": "zámky řádků",
+        "orders-delivery": "zatím náhradní"
+      }
+    },
+    "solutions": [
+      {
+        "choice": "Rezervace zásob v jedné transakci",
+        "why": "Řádky zásob se zamykají vždy ve stejném pořadí, takže dvě objednávky posledního páru nemohou projít obě a překrývající se košíky se navzájem nezablokují. Test pošle 12 zákaznic pro 4 páry: projdou přesně 4 objednávky."
+      },
+      {
+        "choice": "Velikost podle délky chodidla",
+        "why": "Každý model má svůj střih a vložku každé velikosti lze změřit. Zákaznice jednou zadá délku chodidla a obchod doporučí velikost a umí ukázat jen boty, které v ní jsou."
+      },
+      {
+        "choice": "Doručení a platby za rozhraním",
+        "why": "Nová pošta a platby jsou za malými rozhraními a zatím mají náhradní implementace, takže skutečné poskytovatele lze připojit bez zásahu do obchodu."
+      }
+    ],
+    "results": {
+      "lede": "Obchod je postavený a otestovaný na telefonech i noteboocích, v ukrajinštině a angličtině. Dál přijde skutečný katalog a fotky, potom platby a Nová pošta."
     }
   },
   "screens": {

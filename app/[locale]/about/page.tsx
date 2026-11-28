@@ -77,9 +77,7 @@ export default async function AboutPage() {
             { name: "MIW Labs", href: localeHref(locale, "/") },
             { name: t("common:nav.about"), href: localeHref(locale, "/about") },
           ]),
-          ...teamMembers(
-            Object.fromEntries(people.map((p) => [p.id, p.role])),
-          ),
+          ...teamMembers(Object.fromEntries(people.map((p) => [p.id, p.role]))),
         ]}
       />
       {/* Drop `people` to keep only the products on the cover. */}
@@ -108,7 +106,9 @@ export default async function AboutPage() {
       </CoverHero>
 
       <section className="bg-carbon">
-        <div className={`${FRAME} grid gap-14 py-24 md:grid-cols-2 md:gap-16 md:py-28`}>
+        <div
+          className={`${FRAME} grid gap-14 py-24 md:grid-cols-2 md:gap-16 md:py-28`}
+        >
           {what.map((p, i) => (
             <div key={p.label}>
               <p className="text-small font-semibold text-zinc">{p.label}</p>
@@ -133,7 +133,9 @@ export default async function AboutPage() {
 
       <section className="bg-carbon">
         <div className={`${FRAME} py-24 md:py-28`}>
-          <h2 className={`${SECTION_TITLE} text-center`}>{t("values.title")}</h2>
+          <h2 className={`${SECTION_TITLE} text-center`}>
+            {t("values.title")}
+          </h2>
           <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-10">
             {values.map((p) => (
               <div key={p.label}>
@@ -166,7 +168,7 @@ export default async function AboutPage() {
           />
         </div>
         <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
-          {PROJECTS.map((p) => (
+          {PROJECTS.filter((p) => !p.client).map((p) => (
             <Link
               key={p.slug}
               href={localeHref(locale, `/work/${p.slug}`)}

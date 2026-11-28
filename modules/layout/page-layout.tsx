@@ -3,7 +3,7 @@ import { type ReactNode, ViewTransition } from "react";
 import { PAGE_TRANSITION } from "@/shared/lib/landing";
 import { initTranslations } from "@/modules/i18n";
 import { BigFooter } from "./big-footer";
-import { SiteHeader } from "./site-header";
+import { SiteHeader, siteHeaderText } from "./site-header";
 
 /**
  * Chrome for the 2D routes.
@@ -33,17 +33,7 @@ export async function PageLayout({
         <SiteHeader
           locale={locale}
           active={active}
-          text={{
-            nav: {
-              services: t("nav.services"),
-              work: t("nav.work"),
-              about: t("nav.about"),
-              contact: t("nav.contact"),
-            },
-            start: t("nav.bookCall"),
-            startShort: t("nav.contact"),
-            logoAria: t("brand.deckAria"),
-          }}
+          text={siteHeaderText(t)}
         />
 
         {/* Matched to the header's frame at every step, so the wordmark stays on
@@ -56,9 +46,6 @@ export async function PageLayout({
           </main>
         )}
 
-        {/* The language switcher lives in the footer rather than the header: the
-            header row clears 320px by 3.6px, and a third control up there puts
-            every editorial route back into horizontal scroll. */}
         <BigFooter />
       </div>
     </ViewTransition>

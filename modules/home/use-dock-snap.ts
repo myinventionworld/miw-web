@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import type Lenis from "lenis";
 import Snap from "lenis/snap";
 
-import { DOCKS, scrollAt } from "./flight";
+import { DOCKS } from "./flight";
 
 /**
  * Magnetic docking for the flight deck.
@@ -71,7 +71,7 @@ export function useDockSnap(lenis: Lenis | undefined) {
     let drop: (() => void)[] = [];
     const place = () => {
       drop.forEach((remove) => remove());
-      drop = DOCKS.map((p) => snap.add(Math.round(scrollAt(p) * lenis.limit)));
+      drop = DOCKS.map((p) => snap.add(Math.round(p * lenis.limit)));
     };
 
     let pending: ReturnType<typeof setTimeout> | null = null;
