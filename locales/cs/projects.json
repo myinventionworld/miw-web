@@ -66,7 +66,8 @@
       "changes": "Co se změní",
       "changesNote": "Stejná práce teď a se systémem.",
       "stages": "Etapy",
-      "stagesNote": "Další etapa začne, až předchozí splní podmínky přechodu."
+      "stagesNote": "Další etapa začne, až předchozí splní podmínky přechodu.",
+      "updates": "Co je nového"
     },
     "table": {
       "figure": "Údaj",
@@ -158,7 +159,7 @@
   "boowie": {
     "category": "Čtečka a přehrávač audioknih · osobní projekt",
     "headline": "Knihy a audioknihy v jedné aplikaci, i offline",
-    "pitch": "Čte EPUB, FB2 a PDF a přehrává audioknihy MP3 a M4B. Knihy zůstávají v telefonu a otevřou se bez internetu; vestavěný obchod nabízí 20 klasických knih zdarma.",
+    "pitch": "Čte EPUB, FB2 a PDF a přehrává audioknihy MP3 a M4B. Knihy zůstávají v telefonu a otevřou se bez internetu; vestavěný obchod nabízí 82 knih zdarma. Stránky se otáčejí jako papírové, při čtení hrají zvuky a rok v knihách přichází jako příběhy ke sdílení.",
     "credit": "Osobní projekt Mykhaila Plokhina. Instaluje se z prohlížeče na Androidu i iPhonu.",
     "metrics": {
       "formats": {
@@ -167,11 +168,19 @@
       },
       "store": {
         "label": "Knih zdarma",
-        "note": "Volná díla ve vestavěném obchodě; audioknihy namluvil hlas RHVoice."
+        "note": "Volná díla v ruštině a angličtině ve vestavěném obchodě, čtyři z nich jako audioknihy namluvené hlasem RHVoice."
       },
       "offline": {
         "label": "Funguje",
         "note": "Service worker ukládá aplikaci do mezipaměti a knihy jsou uložené v zařízení."
+      },
+      "sounds": {
+        "label": "Zvuky ke čtení",
+        "note": "Déšť, bouřka, krb, moře, les, letní noc a vlak, syntetizované v zařízení ze šumu, bez zvukových souborů."
+      },
+      "achievements": {
+        "label": "Úspěchy",
+        "note": "Odznaky s úrovněmi, dva z nich tajné, spočítané v zařízení ze statistik čtení."
       }
     },
     "problem": {
@@ -183,7 +192,7 @@
       ]
     },
     "design": {
-      "lede": "Všechno běží v prohlížeči. Soubory projdou stejnými parsery, ať přijdou z telefonu, nebo z obchodu; záznamy jdou do IndexedDB, velké soubory do soukromého souborového systému prohlížeče.",
+      "lede": "Všechno běží v zařízení; účet je nepovinný a jen přenáší knihovnu a statistiky do vašich dalších zařízení. Soubory procházejí stejnými parsery, ať přijdou z telefonu, nebo z obchodu; záznamy jdou do IndexedDB, velké soubory do soukromého souborového systému prohlížeče.",
       "nodes": {
         "files": "Soubory · složky · ZIP",
         "store": "Vestavěný obchod",
@@ -197,8 +206,8 @@
     },
     "solutions": [
       {
-        "choice": "Zpracovat knihy v prohlížeči, bez serveru",
-        "why": "Knihy nikdy neopustí zařízení a není potřeba provozovat ani platit žádný backend."
+        "choice": "Zpracovat knihy v zařízení",
+        "why": "Kniha se otevře a čte bez internetu i bez účtu. Přihlášení je nepovinné a jen přenáší knihovnu, rozečtená místa a statistiky do vašich dalších zařízení."
       },
       {
         "choice": "Streamované čtení ZIPu",
@@ -211,6 +220,22 @@
       {
         "choice": "Jedna pozice pro text i audio",
         "why": "Když má kniha zvukovou verzi, přepnutí přenese místo podle kapitoly a podle toho, jak daleko v ní jste byli."
+      },
+      {
+        "choice": "Zvuky syntetizované, ne nahrané",
+        "why": "Každý zvuk je filtrovaný šum a drobné události: kapky, praskání, vlny, spoje kolejí. Web worker z nich vyrobí smyčku o délce 20 až 40 sekund, jejíž konec přechází do začátku. Nic se nestahuje a funguje to offline."
+      },
+      {
+        "choice": "Stránka se ohne tam, kde ji držíte",
+        "why": "List se ohýbá podél čáry v polovině mezi rohem a prstem, s rubem a stínem ohybu na další stránce. Pustíte-li ho za čtvrtinou, otočí se; jinak spadne zpět."
+      },
+      {
+        "choice": "Všechno spočítané z jedněch denních záznamů",
+        "why": "Mapa čtení, úspěchy i roční shrnutí vycházejí ze stejných záznamů po dnech a knihách. Nic navíc se neukládá ani nesynchronizuje a všechna zařízení účtu ukazují totéž."
+      },
+      {
+        "choice": "Obrázky kreslené v telefonu",
+        "why": "Sdílená pasáž i shrnutí roku se kreslí v canvasu a předají se systémové nabídce sdílení. Nikam se nenahrávají."
       }
     ],
     "results": {
@@ -219,31 +244,79 @@
     "story": {
       "store": {
         "title": "Klasika zdarma na začátek",
-        "body": "Dvacet volných děl ve vestavěném obchodě, od Dickense po Conana Doyla."
-      },
-      "book": {
-        "title": "Kapitoly i bez obsahu",
-        "body": "Každá kniha má svou kartu. PDF bez vestavěného obsahu kapitoly stejně dostane: najdou se podle velkých nadpisů."
-      },
-      "reading": {
-        "title": "Tam, kde jste skončili",
-        "body": "Karta Čtu otevře rozečtenou knihu: kapitolu, kolik máte za sebou, a audioverzi připravenou v přehrávači."
+        "body": "82 volných knih a audioknih v ruštině a angličtině, od Puškina a Čechova po Dickense a Conana Doyla."
       },
       "reader": {
         "title": "Čtečka, která si pamatuje",
         "body": "EPUB, FB2 a PDF se otevřou bez internetu, na stránce, kde jste skončili."
       },
-      "appearance": {
-        "title": "Stránka podle vás",
-        "body": "Tři písma, velikost, řádkování a okraje, čtyři barvy stránky, listování nebo posouvání."
+      "pageTurn": {
+        "title": "Stránky jako z papíru",
+        "body": "Vezměte stránku za okraj a ohne se tam, kde ji držíte. Prst provází šustění a otočený list měkce dopadne."
       },
-      "contents": {
-        "title": "Obsah a záložky",
-        "body": "Dočtené kapitoly jsou odškrtnuté, aktuální zvýrazněná, záložky na vedlejší kartě."
+      "sounds": {
+        "title": "Zvuky ke čtení",
+        "body": "Déšť, krb, moře nebo vlak, dokud je kniha otevřená. Sedm zvuků se míchá jako posuvníky hlasitosti a vznikají přímo v telefonu, bez zvukových souborů."
+      },
+      "quote": {
+        "title": "Pasáž jako obrázek",
+        "body": "Označte větu a sdílejte ji jako obrázek s knihou a obálkou. Čtyři vzhledy a tři tvary: příběh, příspěvek nebo čtverec."
       },
       "player": {
         "title": "Nebo poslouchejte",
         "body": "Audioknihy MP3 a M4B s kapitolami, rychlostí přehrávání a časovačem spánku."
+      },
+      "map": {
+        "title": "Rok čtení na jeden pohled",
+        "body": "Dvanáct malých kalendářů, každý den vybarvený podle času s knihami, vedle hodin, stránek a dnů v řadě."
+      },
+      "achievements": {
+        "title": "Odznaky za zvyk",
+        "body": "Sedmnáct úspěchů s úrovněmi, od prvních kroků po maratony a knižní víkendy. Dva z nich jsou tajné."
+      },
+      "year": {
+        "title": "Váš rok v knihách",
+        "body": "Rok jako příběhy přes celou obrazovku: dny s knihou, nejdelší série, kniha roku. Na konci obrázek ke sdílení."
+      }
+    },
+    "updates": {
+      "lede": "Přibylo v listopadu: to, díky čemu je čtečka jako kniha. Stránky se otáčejí jako papírové, při čtení hrají zvuky, pasáž se promění v obrázek pro přátele a čtení se skládá do mapy, odznaků a roku vyprávěného v příbězích.",
+      "pageTurn": {
+        "title": "Stránky jako z papíru",
+        "body": "Vezměte stránku za okraj a ohne se tam, kde ji držíte, s rubem a stínem. Provází ji šelest, šustění a měkký dopad, vyrobené na místě ze šumu."
+      },
+      "sounds": {
+        "title": "Zvuky ke čtení",
+        "body": "Déšť, bouřka, krb, moře, les, letní noc a vlak. Zvuk zapnete tažením nahoru, smícháte jich několik a každá kniha začíná v tichu."
+      },
+      "select": {
+        "title": "Slovo vysvětlené, pasáž sdílená",
+        "body": "Označte slovo a nad stránkou se otevře jeho význam z Wikislovníku. Označte větu a stane se z ní obrázek: čtyři vzhledy, tři tvary, nakreslené v telefonu."
+      },
+      "map": {
+        "title": "Mapa čtení a statistiky",
+        "body": "Čas poslechu a čtení, stránky, knihy a dny v řadě, za týden, měsíc nebo celou dobu. Rok ukazuje dvanáct kalendářů, každý den vybarvený podle času s knihami."
+      },
+      "achievements": {
+        "title": "Úspěchy",
+        "body": "Sedmnáct odznaků s úrovněmi, od bronzu po rubín, dva z nich tajné. Počítají se ze stejných statistik, takže všechna zařízení účtu se shodnou."
+      },
+      "year": {
+        "title": "Váš rok v knihách",
+        "body": "Čas s knihami, nejdelší série, kniha a autor roku, typ čtenáře, vyprávěné v příbězích. Na konci obrázek ke sdílení."
+      }
+    },
+    "mixer": {
+      "title": "Vyzkoušejte zvuky tady",
+      "body": "Čtyři ze sedmi zvuků aplikace, vyrobené přímo v prohlížeči ze šumu, na stejném principu jako v Boowie: bez zvukových souborů. Posunutím jezdce zvuk zapnete a nastavíte hlasitost, posunutím zpět ho vypnete. Zvuky se míchají, takže déšť může hrát s krbem.",
+      "note": "Nic nehraje, dokud zvuk nezesílíte. Klepnutí ho zapne nebo vypne; odchodem ze stránky se zastaví.",
+      "group": "Zvuky ke čtení",
+      "stop": "Ticho",
+      "sounds": {
+        "rain": "Déšť",
+        "fire": "Krb",
+        "sea": "Moře",
+        "night": "Noc"
       }
     },
     "morph": {
@@ -482,6 +555,15 @@
     "boowieAppearance": "Nastavení čtečky Boowie: písmo, velikost, řádkování, okraje, barva stránky, stránky nebo posouvání, do bloku nebo vlevo",
     "boowieContents": "Obsah v Boowie: dočtené kapitoly odškrtnuté, aktuální zvýrazněná, záložky na druhé kartě",
     "boowiePlayer": "Přehrávač audioknih Boowie: předmluva Vánoční koledy s rychlostí přehrávání, časovačem spánku a kapitolami",
+    "boowiePageTurn": "Stránka Dobrodružství Sherlocka Holmese v Boowie se při otáčení ohýbá jako papír",
+    "boowieSounds": "Zvuky ke čtení v Boowie: déšť, bouřka, krb, moře, les, noc a vlak jako posuvníky, bouřka a krb zesílené",
+    "boowieDictionary": "Slovník ve čtečce Boowie: označené slovo incorrigible s výslovností a ruskými překlady z Wikislovníku",
+    "boowieQuote": "Sdílení citátu v Boowie: pasáž ze Sherlocka Holmese jako karta, se vzhledy Obálka, Papír, Noc a Kniha a tvary Příběh, Příspěvek a Čtverec",
+    "boowieStats": "Statistiky Boowie za celou dobu: 9 h 52 min poslechu, 51 min čtení, 174 stránek, 20 dní v řadě a graf po měsících",
+    "boowieMap": "Mapa čtení v Boowie: dvanáct měsíčních kalendářů roku 2026, dny listopadu vybarvené podle času s knihami",
+    "boowieAchievements": "Úspěchy v Boowie: 10 ze 17 odznaků v bronzu, stříbru a zlatě, pod každým tečky úrovní",
+    "boowieYear": "Roční shrnutí v Boowie: úvodní příběh Váš rok 2026 v knihách",
+    "boowieYearDays": "Roční shrnutí v Boowie: 25 dní roku s knihou a nejdelší série 20 dní",
     "wovieHome": "Úvodní stránka Wovie: vybraný film s hodnocením, žánry a tlačítkem Pokračovat, kde jste skončili",
     "wovieFilm": "Stránka filmu ve Wovie: plakát, skóre TMDB, hodnocení Rotten Tomatoes, žánry a délka",
     "wovieFilmHero": "Stránka filmu Project Hail Mary ve Wovie: plakát, název, hodnocení TMDB a žánry na pozadí záběru z filmu",

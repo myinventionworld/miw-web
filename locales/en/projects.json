@@ -66,7 +66,8 @@
       "changes": "What changes",
       "changesNote": "The same work, before and with the system.",
       "stages": "Stages",
-      "stagesNote": "Each stage starts only when the one before has passed its gate."
+      "stagesNote": "Each stage starts only when the one before has passed its gate.",
+      "updates": "What's new"
     },
     "table": {
       "figure": "Figure",
@@ -158,7 +159,7 @@
   "boowie": {
     "category": "Reader & audiobook player · personal project",
     "headline": "Books and audiobooks in one app, even offline",
-    "pitch": "Reads EPUB, FB2 and PDF and plays MP3 and M4B audiobooks. Books stay on the phone and open without internet; the built-in store has 20 free classics.",
+    "pitch": "Reads EPUB, FB2 and PDF and plays MP3 and M4B audiobooks. Books stay on the phone and open without internet; the built-in store has 82 free books. Pages turn like paper, sounds play while you read, and the year in books comes as stories to share.",
     "credit": "Personal project by Mykhailo Plokhin. Installs from the browser on Android and iPhone.",
     "metrics": {
       "formats": {
@@ -167,11 +168,19 @@
       },
       "store": {
         "label": "Free books",
-        "note": "Public-domain titles in the built-in store; the audiobooks are narrated with RHVoice."
+        "note": "Public-domain books in Russian and English in the built-in store, four of them audiobooks narrated with RHVoice."
       },
       "offline": {
         "label": "Works",
         "note": "A service worker caches the app, and books are stored on the device."
+      },
+      "sounds": {
+        "label": "Sounds for reading",
+        "note": "Rain, a storm, a fireplace, the sea, a forest, a summer night and a train, synthesised on the device from noise, with no sound files."
+      },
+      "achievements": {
+        "label": "Achievements",
+        "note": "Badges with levels, two of them secret, worked out on the device from the reading statistics."
       }
     },
     "problem": {
@@ -183,7 +192,7 @@
       ]
     },
     "design": {
-      "lede": "Everything runs in the browser. Files go through the same parsers whether they come from the phone or the store; records go to IndexedDB, large files to the browser's private file system.",
+      "lede": "Everything runs on the device; an account is optional and only carries the library and statistics to your other devices. Files go through the same parsers whether they come from the phone or the store; records go to IndexedDB, large files to the browser's private file system.",
       "nodes": {
         "files": "Files · folders · ZIP",
         "store": "Built-in store",
@@ -197,8 +206,8 @@
     },
     "solutions": [
       {
-        "choice": "Parse books in the browser, no server",
-        "why": "Books never leave the device, and there is no backend to run or pay for."
+        "choice": "Parse books on the device",
+        "why": "A book opens and reads without internet and without an account. Signing in is optional and only carries the library, places and statistics to your other devices."
       },
       {
         "choice": "A streaming ZIP reader",
@@ -211,6 +220,22 @@
       {
         "choice": "One position for text and audio",
         "why": "When a book has an audio edition, switching maps the place by chapter and by how far into it you were."
+      },
+      {
+        "choice": "Sounds synthesised, not recorded",
+        "why": "Each sound is filtered noise plus small events, drops, crackles, waves, rail joints, rendered in a web worker into a loop of 20 to 40 seconds whose end fades into its start. Nothing to download, and it works offline."
+      },
+      {
+        "choice": "A page that folds where you hold it",
+        "why": "The page bends along the line halfway between its corner and the finger, with its back and the fold's shadow drawn over the next page. Let go past a quarter and it turns; otherwise it falls back."
+      },
+      {
+        "choice": "Everything counted from one set of daily rows",
+        "why": "The reading map, the achievements and the year in review are worked out from the same rows per day and book. Nothing extra is stored or synced, and every device of an account agrees."
+      },
+      {
+        "choice": "Pictures drawn on the phone",
+        "why": "A shared passage and the year's summary are drawn in a canvas and handed to the share sheet. They are not uploaded anywhere."
       }
     ],
     "results": {
@@ -219,31 +244,79 @@
     "story": {
       "store": {
         "title": "Free classics to start",
-        "body": "Twenty public-domain books in the built-in store, from Dickens to Conan Doyle."
-      },
-      "book": {
-        "title": "Chapters even without an outline",
-        "body": "Every book has a card. A PDF with no built-in table of contents still gets chapters: they are found by their large headings."
-      },
-      "reading": {
-        "title": "Back where you stopped",
-        "body": "The Reading tab opens on the current book: the chapter, how far in, and its audiobook waiting in the player."
+        "body": "82 public-domain books and audiobooks in Russian and English, from Pushkin and Chekhov to Dickens and Conan Doyle."
       },
       "reader": {
         "title": "A reader that remembers",
         "body": "EPUB, FB2 and PDF open without internet, on the page where you stopped."
       },
-      "appearance": {
-        "title": "The page, your way",
-        "body": "Three typefaces, size, line spacing and margins, four page colours, pages or scroll."
+      "pageTurn": {
+        "title": "Pages that turn like paper",
+        "body": "Take a page by its edge and it bends where you hold it. A rustle follows the finger, and a page that turns over lands softly."
       },
-      "contents": {
-        "title": "Contents and bookmarks",
-        "body": "Finished chapters are ticked and the current one is highlighted; bookmarks are one tab over."
+      "sounds": {
+        "title": "Sounds for reading",
+        "body": "Rain, a fireplace, the sea or a train while a book is open. Seven sounds you mix like volume sliders, made on the phone with no sound files."
+      },
+      "quote": {
+        "title": "A passage as a picture",
+        "body": "Select a phrase and share it as a picture with the book and its cover underneath. Four looks and three shapes: story, post or square."
       },
       "player": {
         "title": "Or listen instead",
         "body": "MP3 and M4B audiobooks with chapters, playback speed and a sleep timer."
+      },
+      "map": {
+        "title": "A year of reading at a glance",
+        "body": "Twelve small calendars, each day shaded by its time with books, next to the hours, the pages and the days in a row."
+      },
+      "achievements": {
+        "title": "Badges for the habit",
+        "body": "Seventeen achievements with levels, from first steps to marathon days and bookish weekends. Two of them are secret."
+      },
+      "year": {
+        "title": "Your year in books",
+        "body": "The year as full-screen stories: days with books, the longest streak, the book of the year. At the end, a picture to share."
+      }
+    },
+    "updates": {
+      "lede": "Added in November: the things that make a reading app feel like a book. Pages turn like paper, sounds play while you read, a passage becomes a picture to share, and the reading adds up to a map, badges and a year told in stories.",
+      "pageTurn": {
+        "title": "Pages that turn like paper",
+        "body": "Take a page by its edge and it bends where you hold it, its back and shadow showing. A swish, a rustle and a soft landing go with it, made on the spot from noise."
+      },
+      "sounds": {
+        "title": "Sounds for reading",
+        "body": "Rain, a storm, a fireplace, the sea, a forest, a summer night and a train. Drag a sound up to bring it in, mix several, and every book starts in silence."
+      },
+      "select": {
+        "title": "A word explained, a passage shared",
+        "body": "Select a word and its meaning opens over the page, from Wiktionary. Select a phrase and it becomes a picture: four looks, three shapes, drawn on the phone."
+      },
+      "map": {
+        "title": "Reading map and statistics",
+        "body": "Time listening and reading, pages, books and days in a row, for a week, a month or all time. The year shows as twelve calendars, each day shaded by its time with books."
+      },
+      "achievements": {
+        "title": "Achievements",
+        "body": "Seventeen badges with levels, from bronze to ruby, two of them secret. They come from the same statistics, so every device of an account agrees."
+      },
+      "year": {
+        "title": "Your year in books",
+        "body": "Time with books, the longest streak, the book and the author of the year, a reader type, told as stories. It ends with a picture to share."
+      }
+    },
+    "mixer": {
+      "title": "Try the sounds here",
+      "body": "Four of the app's seven sounds, made in your browser from noise, the same idea as in Boowie: no sound files. Slide a sound to bring it in and set its level, and slide it back to take it away. They mix, so rain can go with the fireplace.",
+      "note": "Nothing plays until you turn a sound up. A tap turns it on or off; leaving the page stops it.",
+      "group": "Sounds for reading",
+      "stop": "Silence",
+      "sounds": {
+        "rain": "Rain",
+        "fire": "Fireplace",
+        "sea": "Sea",
+        "night": "Night"
       }
     },
     "morph": {
@@ -482,6 +555,15 @@
     "boowieAppearance": "Boowie reader settings: typeface, size, line spacing, margins, page colour, pages or scroll, justified or left",
     "boowieContents": "Boowie table of contents: finished chapters ticked, the current one highlighted, bookmarks in a second tab",
     "boowiePlayer": "Boowie audiobook player: the preface of A Christmas Carol with playback speed, sleep timer and chapters",
+    "boowiePageTurn": "A page of The Adventures of Sherlock Holmes in Boowie, bending like paper as it turns",
+    "boowieSounds": "Sounds for reading in Boowie: rain, storm, fireplace, sea, forest, night and train as level pills, with the storm and the fireplace turned up",
+    "boowieDictionary": "The dictionary in the Boowie reader: the selected word incorrigible with its transcription and Russian translations from Wiktionary",
+    "boowieQuote": "Sharing a quote in Boowie: a passage from Sherlock Holmes as a card, with the looks Cover, Paper, Night and Book and the shapes Story, Post and Square",
+    "boowieStats": "Boowie statistics for all time: 9 h 52 min listened, 51 min read, 174 pages, a 20-day streak and a chart by month",
+    "boowieMap": "The reading map in Boowie: twelve month calendars for 2026, with the days of November shaded by time with books",
+    "boowieAchievements": "Achievements in Boowie: 10 of 17 badges in bronze, silver and gold, with level dots under each",
+    "boowieYear": "Year in review in Boowie: the opening story, Your 2026 in books",
+    "boowieYearDays": "Year in review in Boowie: 25 days of the year with a book and a longest streak of 20 days",
     "wovieHome": "Wovie home page: a featured film with rating, genres and a Continue where you left off button",
     "wovieFilm": "Wovie film page: poster, TMDB score, Rotten Tomatoes rating, genres and running time",
     "wovieFilmHero": "Wovie film page for Project Hail Mary: poster, title, TMDB rating and genres over the film's backdrop",
