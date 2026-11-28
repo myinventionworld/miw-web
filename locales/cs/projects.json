@@ -62,16 +62,29 @@
       "design": "Jak je to postavené",
       "solutions": "Klíčová rozhodnutí",
       "solutionsNote": "Každé rozhodnutí a alternativa, kterou porazilo.",
-      "results": "Čísla"
+      "results": "Čísla",
+      "changes": "Co se změní",
+      "changesNote": "Stejná práce teď a se systémem.",
+      "stages": "Etapy",
+      "stagesNote": "Další etapa začne, až předchozí splní podmínky přechodu."
     },
     "table": {
       "figure": "Údaj",
-      "measures": "Co znamená"
+      "measures": "Co znamená",
+      "process": "Činnost",
+      "now": "Teď",
+      "after": "Se systémem"
     },
     "cta": {
       "title": "Potřebujete něco podobného?",
       "body": "Popište zadání pár řádky. Odpoví člověk z týmu.",
       "action": "Probrat projekt"
+    },
+    "stage": {
+      "done": "Hotovo",
+      "next": "Další",
+      "later": "Později",
+      "n": "Etapa {{n}}"
     }
   },
   "omnibus_nss": {
@@ -297,64 +310,141 @@
     }
   },
   "jo_plokhina": {
-    "category": "E-shop s obuví · klientský projekt",
-    "headline": "Obchod s obuví, kde se poslední pár prodá jednou",
-    "pitch": "E-shop pro rodinnou firmu s obuví v Žytomyru: zásoby v každém obchodě na tržišti, doporučení velikosti podle délky chodidla, objednávka přes telefon, doručení Novou poštou nebo vyzvednutí na tržišti.",
-    "credit": "Postavilo MIW Labs pro tuto firmu. Zatím nespuštěno: katalog je ukázkový, platby a Nová pošta jsou zatím náhradní.",
+    "category": "E-shop a evidence zásob · klientský projekt",
+    "headline": "Od papírového sešitu k jednomu systému",
+    "pitch": "Rodinná firma s obuví v Žytomyru přesouvá zásoby, objednávky a doručení z papírového sešitu do jednoho systému. Jeho první viditelnou částí je e-shop se zásobami v každém stánku a doporučením velikosti podle délky chodidla.",
+    "credit": "Staví MIW Labs pro tuto firmu. Etapa 0 ze 4 je hotová: systém je postavený a otestovaný na ukázkových datech. Platby a Nová pošta jsou zatím náhradní, dokud nezačne skutečný prodej.",
     "metrics": {
       "race": {
         "label": "Poslední páry",
         "note": "V testu 12 zákaznic soupeří o 4 páry a projdou přesně 4 objednávky."
       },
+      "tests": {
+        "label": "Automatických testů",
+        "note": "110 jednotkových a integračních testů a 30 end-to-end testů na telefonu i notebooku, včetně přístupnosti."
+      },
       "locations": {
         "label": "Míst se zbožím",
-        "note": "Dva obchody na tržišti a tři garáže v jedné tabulce zásob."
+        "note": "Dva stánky na tržišti a tři garáže v jedné tabulce zásob."
       },
-      "hold": {
-        "label": "Rezervace nezaplacené objednávky",
-        "note": "Nezaplacená online objednávka drží své páry 30 minut."
+      "threats": {
+        "label": "Popsaných hrozeb",
+        "note": "Ke každé hrozbě pro zásoby, ceny, platby a data zákaznic je zapsaná ochrana a místo, kde se testuje."
       }
     },
     "problem": {
-      "lede": "Firma prodává dámskou obuv ze dvou obchodů na tržišti a tří garáží, často po jednom páru v každé velikosti, a účetnictví vede v papírovém sešitu.",
+      "lede": "Firma prodává dámskou obuv ze dvou stánků na tržišti a tří garáží, často po jednom páru v každé velikosti. Vše o zásobách a prodeji je v jednom papírovém sešitu, takže se rozhoduje po paměti.",
       "points": [
-        "Poslední pár se může prodat v obchodě i online ve stejnou chvíli.",
-        "Každý model je jinak malý nebo velký, takže samotné číslo velikosti neřekne, co padne.",
-        "Ceny a zásoby musí pocházet z obchodu, nikdy z toho, co pošle prohlížeč."
+        "Nedá se hned zjistit, jestli je velikost v druhém stánku nebo v garáži.",
+        "Každý model padne jinak a online samotné číslo velikosti zákaznici neřekne, co jí padne.",
+        "Nákup se řídí odhadem a sešit je jediná kopie dat."
       ]
     },
     "design": {
-      "lede": "Každá změna prochází přes Server Action, která zkontroluje vstup a spočítá cenu objednávky z databáze. Vytvoření objednávky je jedna transakce, která zamkne potřebné řádky zásob.",
+      "lede": "Jedna databáze drží zásoby všech pěti míst. Změny zadávají ti, kdo mají zboží v ruce; web, doručení, platby, upozornění i nákup čtou stejná čísla a nevedou vlastní záznamy.",
       "nodes": {
-        "shopper": "Zákaznice",
-        "office": "Administrace",
-        "actions": "Server Actions · kontroly",
-        "orders": "Objednávky · jedna transakce",
-        "delivery": "Nová pošta · platby",
-        "pg": "PostgreSQL · zásoby"
+        "stalls": "Stánky na tržišti",
+        "garages": "Garáže",
+        "owner": "Majitelka",
+        "db": "Jedna databáze zásob",
+        "site": "Web",
+        "delivery": "Nová pošta",
+        "payments": "Platby a účtenky",
+        "notify": "Viber a Telegram",
+        "analytics": "Analýza nákupu",
+        "markets": "Tržiště, později"
       },
       "edges": {
-        "actions-orders": "ceny z DB",
-        "orders-pg": "zámky řádků",
-        "orders-delivery": "zatím náhradní"
+        "stalls-db": "prodeje",
+        "garages-db": "příjem",
+        "owner-db": "ceny"
       }
     },
+    "changes": [
+      {
+        "process": "Kde je velikost",
+        "now": "Po paměti nebo v sešitu",
+        "after": "Na webu, v administraci i v botu, pro všech pět míst najednou"
+      },
+      {
+        "process": "Prodej na tržišti",
+        "now": "Zápis do sešitu",
+        "after": "Jedno ťuknutí v telefonu a zásoba je aktuální všude"
+      },
+      {
+        "process": "Objednávka s doručením",
+        "now": "Není",
+        "after": "Web zarezervuje pár, přepravní štítek se vytvoří sám a jeho číslo odejde přes Viber"
+      },
+      {
+        "process": "Příjem zboží",
+        "now": "Zápis do sešitu",
+        "after": "Zadaný v telefonu, páry jsou hned vidět na webu"
+      },
+      {
+        "process": "Podklady pro účetní",
+        "now": "Ručně ze sešitu",
+        "after": "Export prodejů a účtenek z databáze"
+      },
+      {
+        "process": "Nákup",
+        "now": "Podle zkušenosti a odhadu",
+        "after": "Prodeje podle velikostí a tip, co doobjednat"
+      },
+      {
+        "process": "Zákaznice",
+        "now": "Neukládají se",
+        "after": "Seznam podle telefonu se souhlasem a zpráva, když je velikost zpět"
+      }
+    ],
     "solutions": [
       {
-        "choice": "Rezervace zásob v jedné transakci",
-        "why": "Řádky zásob se zamykají vždy ve stejném pořadí, takže dvě objednávky posledního páru nemohou projít obě a překrývající se košíky se navzájem nezablokují. Test pošle 12 zákaznic pro 4 páry: projdou přesně 4 objednávky."
+        "choice": "Jeden zdroj pravdy",
+        "why": "Zásoby žijí v jedné databázi. Web, administrace, bot i budoucí tržiště ji čtou a nikdy nevedou vlastní počty."
       },
       {
-        "choice": "Velikost podle délky chodidla",
-        "why": "Každý model má svůj střih a vložku každé velikosti lze změřit. Zákaznice jednou zadá délku chodidla a obchod doporučí velikost a umí ukázat jen boty, které v ní jsou."
+        "choice": "Rezervace v jedné transakci",
+        "why": "Řádky zásob se zamykají vždy ve stejném pořadí, takže dvě objednávky posledního páru nemohou projít obě. Test pošle 12 zákaznic pro 4 páry: projdou přesně 4 objednávky."
       },
       {
-        "choice": "Doručení a platby za rozhraním",
-        "why": "Nová pošta a platby jsou za malými rozhraními a zatím mají náhradní implementace, takže skutečné poskytovatele lze připojit bez zásahu do obchodu."
+        "choice": "Padnutí jako produkt",
+        "why": "Web doporučí velikost podle délky chodidla v každém modelu. Se skutečným katalogem přibudou změřené vložky, šířka, nárt a poznámka majitelky, jak model padne."
+      },
+      {
+        "choice": "Peníze až při přesných zásobách",
+        "why": "Práce jde ve čtyřech etapách s podmínkami přechodu. Online platby přijímáme až poté, co inventura souhlasí s databází."
+      },
+      {
+        "choice": "Jednoduché pro ty, kdo s tím pracují",
+        "why": "Telefon, pár tlačítek, bot v Telegramu. Pokud něco trvá déle než zápis do sešitu, je to chyba systému."
+      }
+    ],
+    "stages": [
+      {
+        "name": "Základ",
+        "status": "done",
+        "goal": "Základ pro prodej: e-shop podle prototypu v ukrajinštině a angličtině, zásoby pro pět míst, objednávky bez přeprodeje, administrace s rolemi, 140 automatických testů."
+      },
+      {
+        "name": "Spuštění jako ukázka",
+        "status": "next",
+        "goal": "Živý web se skutečným sortimentem a digitální evidencí, bez online plateb: fotky a vložky 10–20 modelů, stránky o doručení, výměně a velikostech, inventura z telefonu.",
+        "gate": "Přechod: inventura souhlasí s databází a poskytovatel plateb je vybraný."
+      },
+      {
+        "name": "Skutečný prodej",
+        "status": "later",
+        "goal": "Objednávka projde od platby po přepravní štítek bez ruční práce: platby a vratky, fiskální účtenky, Nová pošta, přehled objednávek, zprávy přes Viber a bot v Telegramu pro majitelku.",
+        "gate": "Přechod: objednávky jdou bez ručních kroků a jsou nasbíraná 2–3 měsíce dat o prodeji."
+      },
+      {
+        "name": "Automatizace a růst",
+        "status": "later",
+        "goal": "Nákup podle dat a nové kanály nad stejnou databází: tipy na doobjednání podle velikostí, přesuny s QR kódy na krabicích, seznam zákaznic, řada Vyrobeno v Žytomyru, Prom a Rozetka."
       }
     ],
     "results": {
-      "lede": "Obchod je postavený a otestovaný na telefonech i noteboocích, v ukrajinštině a angličtině. Dál přijde skutečný katalog a fotky, potom platby a Nová pošta."
+      "lede": "Etapa 0 ze 4 je uzavřená a ověřená automatickými testy na GitHubu. Úspěch tu znamená méně rutiny a méně ztracených prodejů, ne jen návštěvnost. Výchozí hodnoty změříme v prvním měsíci digitální evidence, takže cílová čísla zatím nemáme."
     }
   },
   "screens": {

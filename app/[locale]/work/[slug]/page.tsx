@@ -71,7 +71,7 @@ export default async function WorkCasePage(
   if (!project) notFound();
 
   const locale = await currentLocale();
-  const { t } = await initTranslations(locale, ["projects", "common"]);
+  const { t, i18n } = await initTranslations(locale, ["projects", "common"]);
   const tr = (key: string) => t(key);
   const href = localeHref(locale, `/work/${project.slug}`);
   const structured = [
@@ -104,6 +104,21 @@ export default async function WorkCasePage(
   const solutions = t(`${project.id}.solutions`, {
     returnObjects: true,
   }) as { choice: string; why: string }[];
+  const changes = i18n.exists(`projects:${project.id}.changes`)
+    ? (t(`${project.id}.changes`, { returnObjects: true }) as {
+        process: string;
+        now: string;
+        after: string;
+      }[])
+    : [];
+  const stages = i18n.exists(`projects:${project.id}.stages`)
+    ? (t(`${project.id}.stages`, { returnObjects: true }) as {
+        name: string;
+        status: "done" | "next" | "later";
+        goal: string;
+        gate?: string;
+      }[])
+    : [];
 
   // The diagram is a pure renderer: it owns the grid and knows nothing about
   // languages, so the labels are resolved here and handed to it.
@@ -257,6 +272,44 @@ export default async function WorkCasePage(
         </div>
       </section>
 
+      {changes.length > 0 && (
+        <section className="mt-20">
+          <SectionLabel>{t("case.sections.changes")}</SectionLabel>
+          <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
+            {t("case.sections.changesNote")}
+          </p>
+          <div className="mt-8 border-t border-white/20">
+            <div className="hidden gap-6 border-b border-white/12 py-3 text-label text-steel md:grid md:grid-cols-[11rem_1fr_1fr]">
+              <span>{t("case.table.process")}</span>
+              <span>{t("case.table.now")}</span>
+              <span>{t("case.table.after")}</span>
+            </div>
+            {changes.map((c) => (
+              <div
+                key={c.process}
+                className="grid gap-1.5 border-b border-white/12 py-4 md:grid-cols-[11rem_1fr_1fr] md:gap-6"
+              >
+                <p className="text-body leading-snug font-semibold text-white">
+                  {c.process}
+                </p>
+                <p className="text-body leading-relaxed text-zinc">
+                  <span className="text-label text-steel md:hidden">
+                    {t("case.table.now")}:{" "}
+                  </span>
+                  {c.now}
+                </p>
+                <p className="text-body leading-relaxed text-white">
+                  <span className="text-label text-comet md:hidden">
+                    {t("case.table.after")}:{" "}
+                  </span>
+                  {c.after}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mt-20">
         <SectionLabel n="03">{t("case.sections.solutions")}</SectionLabel>
         <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
@@ -275,6 +328,54 @@ export default async function WorkCasePage(
           ))}
         </div>
       </section>
+
+      {stages.length > 0 && (
+        <section className="mt-20">
+          <SectionLabel>{t("case.sections.stages")}</SectionLabel>
+          <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
+            {t("case.sections.stagesNote")}
+          </p>
+          <ol className="mt-8 border-t border-white/20">
+            {stages.map((s, i) => (
+              <li
+                key={s.name}
+                className="grid gap-2 border-b border-white/12 py-5 md:grid-cols-[11rem_1fr] md:gap-6"
+              >
+                <div>
+                  <p className="flex items-center gap-2 text-label tabular-nums">
+                    <span className="text-steel">
+                      {t("case.stage.n", { n: i })}
+                    </span>
+                    <span
+                      className={clsx(
+                        "font-semibold",
+                        s.status === "done" && "text-comet",
+                        s.status === "next" && "text-white",
+                        s.status === "later" && "text-steel",
+                      )}
+                    >
+                      {t(`case.stage.${s.status}`)}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-copy leading-snug font-semibold text-white">
+                    {s.name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-body leading-relaxed text-zinc">
+                    {s.goal}
+                  </p>
+                  {s.gate && (
+                    <p className="mt-2 text-small leading-relaxed text-steel">
+                      {s.gate}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       <section className="mt-20">
         <SectionLabel n="04">{t("case.sections.results")}</SectionLabel>
