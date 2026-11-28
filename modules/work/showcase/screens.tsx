@@ -1,12 +1,21 @@
 import Image from "next/image";
 
+import boowieAchievements from "../screens/boowie-achievements.webp";
 import boowieAppearance from "../screens/boowie-appearance.webp";
 import boowieBook from "../screens/boowie-book.webp";
 import boowieContents from "../screens/boowie-contents.webp";
+import boowieDictionary from "../screens/boowie-dictionary.webp";
+import boowieMap from "../screens/boowie-map.webp";
+import boowiePageTurn from "../screens/boowie-page-turn.webp";
 import boowiePlayer from "../screens/boowie-player.webp";
+import boowieQuote from "../screens/boowie-quote.webp";
 import boowieReader from "../screens/boowie-reader.webp";
 import boowieReading from "../screens/boowie-reading.webp";
+import boowieSounds from "../screens/boowie-sounds.webp";
+import boowieStats from "../screens/boowie-stats.webp";
 import boowieStore from "../screens/boowie-store.webp";
+import boowieYear from "../screens/boowie-year.webp";
+import boowieYearDays from "../screens/boowie-year-days.webp";
 import omnibusBooking from "../screens/omnibus-booking.webp";
 import omnibusDesktop from "../screens/omnibus-desktop.webp";
 import omnibusFlowStart from "../screens/omnibus-flow-start.webp";
@@ -59,6 +68,15 @@ const SHOTS = {
   boowieAppearance: boowieAppearance,
   boowieContents: boowieContents,
   boowiePlayer: boowiePlayer,
+  boowiePageTurn: boowiePageTurn,
+  boowieSounds: boowieSounds,
+  boowieDictionary: boowieDictionary,
+  boowieQuote: boowieQuote,
+  boowieStats: boowieStats,
+  boowieMap: boowieMap,
+  boowieAchievements: boowieAchievements,
+  boowieYear: boowieYear,
+  boowieYearDays: boowieYearDays,
   wovieHome: wovieHome,
   wovieFilm: wovieFilm,
   wovieFilmHero: wovieFilmHero,
@@ -96,6 +114,7 @@ const BY_PROJECT: Record<
     /** A scroll story for the Work page: one screen per step, its copy under
      *  `projects:<id>.story.<key>`. */
     story?: { shot: ShotId; key: string }[];
+    updates?: { shots: ShotId[]; key: string }[];
     /** A silent screen recording laid over the main window's screenshot, in
      *  `public/screens/`. Its first frame should be that screenshot. */
     video?: LoopVideo;
@@ -120,12 +139,22 @@ const BY_PROJECT: Record<
     built: ["boowieReader", "boowiePlayer"],
     story: [
       { shot: "boowieStore", key: "store" },
-      { shot: "boowieBook", key: "book" },
-      { shot: "boowieReading", key: "reading" },
       { shot: "boowieReader", key: "reader" },
-      { shot: "boowieAppearance", key: "appearance" },
-      { shot: "boowieContents", key: "contents" },
+      { shot: "boowiePageTurn", key: "pageTurn" },
+      { shot: "boowieSounds", key: "sounds" },
+      { shot: "boowieQuote", key: "quote" },
       { shot: "boowiePlayer", key: "player" },
+      { shot: "boowieMap", key: "map" },
+      { shot: "boowieAchievements", key: "achievements" },
+      { shot: "boowieYearDays", key: "year" },
+    ],
+    updates: [
+      { shots: ["boowiePageTurn"], key: "pageTurn" },
+      { shots: ["boowieSounds"], key: "sounds" },
+      { shots: ["boowieDictionary", "boowieQuote"], key: "select" },
+      { shots: ["boowieMap", "boowieStats"], key: "map" },
+      { shots: ["boowieAchievements"], key: "achievements" },
+      { shots: ["boowieYear", "boowieYearDays"], key: "year" },
     ],
   },
   wovie: {
@@ -449,6 +478,58 @@ export function DockShots({
           />
         </div>
       ))}
+    </div>
+  );
+}
+
+export function hasUpdates(project: ProjectCase) {
+  return Boolean(BY_PROJECT[project.slug]?.updates?.length);
+}
+
+export function UpdateShots({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const items = BY_PROJECT[project.slug]?.updates;
+  if (!items?.length) return null;
+  return (
+    <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pt-2 pb-6 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:gap-x-10 md:gap-y-16 md:overflow-visible md:px-0 lg:grid-cols-3">
+      {items.map((u, i) => {
+        const shots = u.shots.map((id) => shot(id, t));
+        return (
+          <Reveal
+            key={u.key}
+            delay={(i % 3) * 0.08}
+            className="w-[70%] max-w-[300px] shrink-0 snap-center md:w-auto md:max-w-none"
+          >
+            <figure>
+              {shots.length > 1 ? (
+                <PhoneSwitch
+                  shots={shots}
+                  interval={3000 + i * 350}
+                  className="mx-auto w-full max-w-[250px]"
+                />
+              ) : (
+                <PhoneFrame
+                  shot={shots[0]}
+                  className="mx-auto w-full max-w-[250px]"
+                />
+              )}
+              <figcaption className="mt-6 md:mx-auto md:max-w-[300px]">
+                <h3 className="text-copy leading-snug font-semibold text-white">
+                  {t(`projects:${project.id}.updates.${u.key}.title`)}
+                </h3>
+                <p className="mt-2 text-body leading-relaxed text-zinc">
+                  {t(`projects:${project.id}.updates.${u.key}.body`)}
+                </p>
+              </figcaption>
+            </figure>
+          </Reveal>
+        );
+      })}
     </div>
   );
 }

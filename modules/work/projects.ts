@@ -168,11 +168,20 @@ export const PROJECTS: ProjectCase[] = [
     variant: "reader",
     host: "boovie-kappa.vercel.app",
     liveUrl: "https://boovie-kappa.vercel.app/",
-    stack: ["Next.js", "TypeScript", "IndexedDB", "OPFS", "Service Worker"],
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "IndexedDB",
+      "OPFS",
+      "Service Worker",
+      "Web Audio",
+    ],
     metrics: [
       { id: "formats", value: "5", basis: "observed" },
-      { id: "store", value: "20", basis: "observed" },
+      { id: "store", value: "82", basis: "observed" },
       { id: "offline", value: "Offline", basis: "observed" },
+      { id: "sounds", value: "7", basis: "observed" },
+      { id: "achievements", value: "17", basis: "observed" },
     ],
     design: {
       nodes: [

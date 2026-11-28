@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { locale as currentLocale } from "next/root-params";
 import {
+  AmbientMixer,
   ArchDiagram,
   Device,
   PairRace,
@@ -13,6 +14,8 @@ import {
   ProductShots,
   hasBuiltShot,
   hasScreens,
+  hasUpdates,
+  UpdateShots,
   LandingMark,
   PROJECTS,
   projectBySlug,
@@ -221,6 +224,23 @@ export default async function WorkCasePage(
             <Device project={project} />
           </div>
         )
+      )}
+
+      {hasUpdates(project) && (
+        <section className="mt-20">
+          <SectionLabel>{t("case.sections.updates")}</SectionLabel>
+          <p className="mt-6 max-w-2xl text-copy-lg leading-relaxed text-platinum">
+            {t(`${project.id}.updates.lede`)}
+          </p>
+          <div className="mt-12">
+            <UpdateShots project={project} t={tr} />
+          </div>
+          {project.slug === "boowie" && (
+            <div className="mt-16 md:mt-20">
+              <AmbientMixer />
+            </div>
+          )}
+        </section>
       )}
 
       <section className="mt-20">
