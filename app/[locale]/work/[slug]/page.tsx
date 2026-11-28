@@ -4,8 +4,11 @@ import { locale as currentLocale } from "next/root-params";
 import {
   ArchDiagram,
   Device,
+  PairRace,
   ReadListen,
   SeatRace,
+  SizeFinder,
+  Reveal,
   BuiltShot,
   ProductShots,
   hasBuiltShot,
@@ -96,6 +99,11 @@ export default async function WorkCasePage(
       <SeatRace t={tr} />
     ) : project.slug === "boowie" ? (
       <ReadListen t={tr} />
+    ) : project.slug === "jo-plokhina" ? (
+      <div className="grid items-start gap-12 md:grid-cols-2 md:gap-8">
+        <PairRace />
+        <SizeFinder />
+      </div>
     ) : null;
 
   const points = t(`${project.id}.problem.points`, {
@@ -284,9 +292,10 @@ export default async function WorkCasePage(
               <span>{t("case.table.now")}</span>
               <span>{t("case.table.after")}</span>
             </div>
-            {changes.map((c) => (
-              <div
+            {changes.map((c, i) => (
+              <Reveal
                 key={c.process}
+                delay={i * 0.06}
                 className="grid gap-1.5 border-b border-white/12 py-4 md:grid-cols-[11rem_1fr_1fr] md:gap-6"
               >
                 <p className="text-body leading-snug font-semibold text-white">
@@ -304,7 +313,7 @@ export default async function WorkCasePage(
                   </span>
                   {c.after}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>

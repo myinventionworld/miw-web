@@ -445,6 +445,26 @@
     ],
     "results": {
       "lede": "Stage 0 of 4 is done and checked by automated tests on GitHub. Success here means less routine and fewer lost sales, not just traffic. The baselines are taken in the first month of digital stock-keeping, so there are no target figures yet."
+    },
+    "race": {
+      "shoppers": "12 shoppers",
+      "pairs": "4 pairs",
+      "result": "4 orders · 8 sold out",
+      "alt": "Twelve shoppers race for four pairs and exactly four orders go through",
+      "a": "Twelve shoppers press buy at the same moment, and four pairs are left.",
+      "b": "Each order locks the stock rows it needs, always in the same order, so the orders queue instead of colliding.",
+      "c": "Exactly four orders go through. The other eight see the pair is sold out, and no pair is sold twice."
+    },
+    "fit": {
+      "foot": "Foot length",
+      "model": "How this model fits",
+      "small": "Runs small",
+      "true": "True to size",
+      "large": "Runs large",
+      "yours": "Your size",
+      "result": "A {{foot}} cm foot takes size {{size}} in this model: its insole is {{insole}} cm.",
+      "none": "No size from 36 to 41 is long enough for this foot.",
+      "note": "The rule the shop uses: the smallest size whose insole is at least as long as the foot. A measured insole replaces the estimate."
     }
   },
   "screens": {

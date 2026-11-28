@@ -466,6 +466,16 @@ h2 {
   97%, 100% { opacity: 0; }
 }
 
+/* Architecture diagrams: data moving along each edge, slowly. */
+.arch-flow {
+  stroke-dasharray: 5 195;
+  animation: arch-flow 3.2s linear infinite;
+}
+@keyframes arch-flow {
+  from { stroke-dashoffset: 5; }
+  to { stroke-dashoffset: -100; }
+}
+
 /* Boowie read/listen, a 7s loop: the same place as text, then as audio. */
 .morph-read {
   animation: morph-read 7s ease-in-out infinite;
@@ -494,6 +504,9 @@ h2 {
   .morph-read,
   .morph-listen {
     animation: none !important;
+  }
+  .arch-flow {
+    display: none;
   }
   /* End state of the race: B on the seat, told it is taken; all captions. */
   .race-a,

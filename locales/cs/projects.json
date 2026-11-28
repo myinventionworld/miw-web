@@ -445,6 +445,26 @@
     ],
     "results": {
       "lede": "Etapa 0 ze 4 je uzavřená a ověřená automatickými testy na GitHubu. Úspěch tu znamená méně rutiny a méně ztracených prodejů, ne jen návštěvnost. Výchozí hodnoty změříme v prvním měsíci digitální evidence, takže cílová čísla zatím nemáme."
+    },
+    "race": {
+      "shoppers": "12 zákaznic",
+      "pairs": "4 páry",
+      "result": "4 objednávky · 8 vyprodáno",
+      "alt": "Dvanáct zákaznic soupeří o čtyři páry a projdou přesně čtyři objednávky",
+      "a": "Dvanáct zákaznic klikne na nákup ve stejnou chvíli a zbývají čtyři páry.",
+      "b": "Každá objednávka zamkne potřebné řádky zásob vždy ve stejném pořadí, takže objednávky čekají ve frontě a nesrazí se.",
+      "c": "Projdou přesně čtyři objednávky. Zbylých osm uvidí, že je pár vyprodaný, a žádný pár se neprodá dvakrát."
+    },
+    "fit": {
+      "foot": "Délka chodidla",
+      "model": "Jak model padne",
+      "small": "Je menší",
+      "true": "Odpovídá velikosti",
+      "large": "Je větší",
+      "yours": "Vaše velikost",
+      "result": "Chodidlu {{foot}} cm v tomto modelu padne velikost {{size}}: vložka má {{insole}} cm.",
+      "none": "Žádná velikost od 36 do 41 není pro toto chodidlo dost dlouhá.",
+      "note": "Pravidlo, podle kterého obchod funguje: nejmenší velikost, jejíž vložka není kratší než chodidlo. Změřená vložka odhad nahradí."
     }
   },
   "screens": {
