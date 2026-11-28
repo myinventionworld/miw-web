@@ -334,7 +334,7 @@
         "pg": "PostgreSQL · остатки"
       },
       "edges": {
-        "actions-orders": "цены из базы",
+        "actions-orders": "цены из БД",
         "orders-pg": "блокировки строк",
         "orders-delivery": "пока заглушки"
       }

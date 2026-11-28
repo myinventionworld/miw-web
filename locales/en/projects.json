@@ -334,7 +334,7 @@
         "pg": "PostgreSQL · stock"
       },
       "edges": {
-        "actions-orders": "prices from the database",
+        "actions-orders": "DB prices",
         "orders-pg": "row locks",
         "orders-delivery": "stand-ins for now"
       }

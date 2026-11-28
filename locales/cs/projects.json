@@ -334,7 +334,7 @@
         "pg": "PostgreSQL · zásoby"
       },
       "edges": {
-        "actions-orders": "ceny z databáze",
+        "actions-orders": "ceny z DB",
         "orders-pg": "zámky řádků",
         "orders-delivery": "zatím náhradní"
       }
