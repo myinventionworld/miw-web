@@ -2,8 +2,8 @@
 
 The site of MIW, a team of seven in Prague that builds websites, online stores and automation for
 small businesses, MVPs and AI features for startups, and its own products. The home page is one
-continuous camera flight: you leave Earth orbit, pass three stations — startups, small businesses,
-our products — and arrive at the contact console. `/work` and `/about` are plain pages, and every
+continuous camera flight: you leave Earth orbit, pass four stations — startups, small businesses,
+our products and the team — and arrive at the contact console. `/work` and `/about` are plain pages, and every
 page has the same header.
 
 There is exactly one element on the page with real height. Everything else is fixed, and scroll
@@ -111,12 +111,13 @@ app/                       Routes only
 modules/
   home/                    The scroll flight
     experience.tsx         Lenis root, scroll bridge, overlay stack, scroll runway
-    navbar.tsx             Fixed glass header, sliding nav pill, phone menu
-    project-dock.tsx       Station brief + docked project card with prototype frame
+    navbar.tsx             Fixed header with the status strip, sliding nav pill, phone menu
+    hero.tsx               The opening screen and its pins on Earth
+    station-deck.tsx       Each station's copy, screenshots and the labels pinned to its body
     transmission-console.tsx  The contact console at the end of the flight
     fallback.tsx           The flat page: touch screens, no GPU
     stage.tsx              Scroll-window primitive
-    stations.ts            The three stations and their anchors on the track
+    stations.ts            The four stations and their anchors on the track
     flight.ts              Shared flight state, camera spline, warp/proximity curves
     scene/                 The WebGL scene: <Canvas>, planets, rings, starfield, effects, GLSL
   work/                    Case studies: projects.ts, screenshots, showcase frames, diagrams
@@ -280,7 +281,7 @@ For testing on a particular machine:
   llvmpipe, Microsoft Basic Render Driver) counts as none: the flight would run at a few frames a
   second and block the page. Then, on touch screens, and where a real GPU proves too slow even at
   the lowest quality (see [Rendering quality](#rendering-quality)), `modules/home/fallback.tsx` serves a complete
-  document — the hero, all three stations with their projects and the contact form —
+  document — the hero, the stations with their projects, the team and the contact form —
   instead of the camera flight.
 - The console requires at least one engagement type and a valid return address before it will
   fire, and reports failures inline.

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "check:boundaries": "node scripts/ci/boundaries.mjs",
-    "test": "node --test \"modules/**/*.test.mjs\"",
+    "test": "node --test \"modules/**/*.test.mjs\" \"shared/**/*.test.mjs\"",
     "bench:scene": "node scripts/perf/scene-bench.mjs",
     "i18n:pull": "i18nexus pull -p ./locales",
     "i18n:listen": "i18nexus listen -p ./locales",

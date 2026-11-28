@@ -3,16 +3,30 @@
     "nav": "For startups",
     "cta": "Discuss your MVP",
     "business": {
-      "headline": "From idea to a first version people can use.",
-      "lede": "MVPs, backends and AI features for startups and tech teams. Omnibus is one our team built. Try to book the same seat twice."
-    }
+      "headline": "First versions people can use.",
+      "lede": "MVPs, backends and AI features for startups and tech teams. Omnibus is one our team built."
+    },
+    "case": [
+      {
+        "label": "The problem",
+        "body": "Two people see the same seat free and both press book."
+      },
+      {
+        "label": "How it is built",
+        "body": "One short transaction takes a PostgreSQL lock on that seat before checking it."
+      },
+      {
+        "label": "The result",
+        "body": "The second booking is refused on the spot. Target: zero double bookings."
+      }
+    ]
   },
   "commerce": {
     "nav": "For small businesses",
     "cta": "Get a website or store",
     "business": {
       "headline": "A website, a store, or a tool that saves you hours.",
-      "lede": "For shops, workshops and local services: a clear website, online orders and booking, or a simple system for stock instead of a paper notebook."
+      "lede": "For shops, workshops and local services in Czechia."
     },
     "program": [
       {
@@ -25,9 +39,15 @@
       },
       {
         "label": "Stock and booking",
-        "body": "Track goods, orders or appointments instead of a paper notebook."
+        "body": "Goods, orders or appointments instead of a paper notebook."
       }
-    ]
+    ],
+    "steps": [
+      "You tell us what you need. A few lines are enough.",
+      "A person from the team replies within one working day.",
+      "We agree on budget and timing, from projects up to €2k."
+    ],
+    "example": "An online shoe store for a family business in Zhytomyr."
   },
   "labs": {
     "nav": "Our products",
@@ -36,6 +56,18 @@
     "business": {
       "headline": "We build our own products too.",
       "lede": "Boowie is a reader and audiobook player that works offline. Wovie is a film catalogue with watchlists. Both are live, so open them."
+    },
+    "land": "Land on Work",
+    "landNote": "All products and case studies",
+    "products": {
+      "boowie": "Reading and listening keep one position, even offline.",
+      "wovie": "Films with TMDB ratings and watchlists."
     }
+  },
+  "team": {
+    "nav": "Team",
+    "headline": "Seven people, one team.",
+    "lede": "Engineers, an analyst and a designer in Prague. You talk directly to the people who build your project.",
+    "link": "Meet the team"
   }
 }

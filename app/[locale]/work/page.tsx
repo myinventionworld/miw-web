@@ -3,7 +3,7 @@ import { locale as currentLocale } from "next/root-params";
 
 import { PageLayout } from "@/modules/layout/server";
 import { JsonLd, breadcrumbs } from "@/modules/seo";
-import { Device, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
+import { Device, LandingMark, ProductShots, hasScreens, PROJECTS } from "@/modules/work";
 import { initTranslations, alternates, localeHref } from "@/modules/i18n";
 import { clsx } from "clsx";
 
@@ -55,13 +55,15 @@ export default async function WorkIndexPage() {
       </section>
 
       {PROJECTS.map((p, i) => (
-        <section key={p.slug} className={clsx(i % 2 === 0 && "bg-carbon")}>
+        <section key={p.slug} id={p.slug} className={clsx("scroll-mt-14 overflow-x-clip", i % 2 === 0 && "bg-carbon")}>
           <div className={`${FRAME} py-24 text-center md:py-28`}>
             <p className="inline-flex items-center gap-2 text-small font-semibold text-white">
-              <span
-                className="size-2.5 rounded-full"
-                style={{ background: p.color }}
-              />
+              <LandingMark id={`product:${p.slug}`}>
+                <span
+                  className="size-2.5 rounded-full"
+                  style={{ background: p.color }}
+                />
+              </LandingMark>
               {p.name}
             </p>
             <h2 className="mx-auto mt-4 max-w-3xl text-[clamp(2rem,4.8vw,3.6rem)] leading-[1.04] font-bold tracking-[-0.045em] text-white">

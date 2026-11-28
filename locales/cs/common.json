@@ -20,7 +20,16 @@
     "contact": "Kontakt",
     "menu": "Menu",
     "language": "Jazyk",
-    "about": "O nás"
+    "about": "O nás",
+    "products": "Produkty",
+    "team": "Tým",
+    "aboutUs": "O nás",
+    "drawer": {
+      "services": "Weby a e-shopy pro malé firmy. MVP a AI funkce pro startupy.",
+      "products": "Věci, které jsme nejdřív udělali pro sebe.",
+      "team": "Sedm lidí v Praze.",
+      "contact": "Napište týmu napřímo."
+    }
   },
   "footer": {
     "back": "Zpět na úvod",
@@ -42,7 +51,8 @@
     "readCaseStudyLong": "Číst případovou studii",
     "liveApp": "Otevřít",
     "budget": "cíl",
-    "measured": "ověřeno"
+    "measured": "ověřeno",
+    "openNamed": "Otevřít {{name}}"
   },
   "home": {
     "titleTop": "Malý tým.",
@@ -52,7 +62,15 @@
     "ctaStations": "Co děláme",
     "ctaWork": "Naše práce",
     "transmissionTitle": "Napište, co potřebujete",
-    "transmissionBody": "Stačí pár řádků. Každou zprávu čte člověk z týmu a odpoví."
+    "transmissionBody": "Stačí pár řádků. Každou zprávu čte člověk z týmu a odpoví.",
+    "ctaFlight": "Začít let",
+    "pins": {
+      "backend": "Omnibus",
+      "commerce": "Web · e-shop · sklad",
+      "labs": "Boowie · Wovie",
+      "team": "Sedm lidí",
+      "transmission": "Odpověď do jednoho pracovního dne"
+    }
   },
   "contact": {
     "email": "E-mail",

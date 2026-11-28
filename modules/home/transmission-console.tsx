@@ -152,9 +152,9 @@ export function TransmissionConsole({ progress }: { progress: MotionValue<number
 
   return (
     <Stage progress={progress} window={WINDOW} lift={60} exit={false}>
-      {/* Clears the status strip and nav rather than passing under them. The
-          clearance holds at every width: the nav is 97px tall on desktop too,
-          and a short landscape window is exactly where the panel grows into it.
+      {/* Clears the header rather than passing under it. The clearance holds
+          at every width: a short landscape window is exactly where the panel
+          grows into it.
 
           A column, so the site footer can take the last row under the panel:
           the end of the runway is the deck's last screen, and anything placed
