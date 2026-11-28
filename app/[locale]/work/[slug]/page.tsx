@@ -10,6 +10,7 @@ import {
   ProductShots,
   hasBuiltShot,
   hasScreens,
+  LandingMark,
   PROJECTS,
   projectBySlug,
   STATUS_TONE,
@@ -42,7 +43,7 @@ export async function generateMetadata(
   const { t } = await initTranslations(locale, ["projects"]);
 
   return {
-    title: `${project.name} — ${t(`${project.id}.headline`)}`,
+    title: `${project.name}: ${t(`${project.id}.headline`)}`,
     description: t(`${project.id}.pitch`),
     alternates: alternates(locale, `/work/${slug}`),
   };
@@ -134,10 +135,12 @@ export default async function WorkCasePage(
 
         <div className="mt-7 flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-2 text-copy-lg font-semibold text-white">
-            <span
-              className="size-2.5 rounded-full"
-              style={{ background: project.color }}
-            />
+            <LandingMark id={`product:${project.slug}`}>
+              <span
+                className="size-2.5 rounded-full"
+                style={{ background: project.color }}
+              />
+            </LandingMark>
             {project.name}
           </span>
           <span
@@ -175,14 +178,12 @@ export default async function WorkCasePage(
               {t("case.launch")}
             </a>
           )}
-          <span className="text-label text-steel">
-            {project.host}
-          </span>
+          {project.liveUrl && (
+            <span className="text-label text-steel">{project.host}</span>
+          )}
         </div>
 
-        <p className="mt-8 text-small text-zinc">
-          {project.stack.join(" · ")}
-        </p>
+        <p className="mt-8 text-small text-zinc">{project.stack.join(" · ")}</p>
       </header>
 
       {/* The product itself: real screenshots where we have them, the working
@@ -208,9 +209,7 @@ export default async function WorkCasePage(
           {points.map((p) => (
             <li key={p} className="flex gap-3.5">
               <span className="mt-[9px] size-1 shrink-0 rounded-full bg-white/35" />
-              <span className="text-lead leading-relaxed text-zinc">
-                {p}
-              </span>
+              <span className="text-lead leading-relaxed text-zinc">{p}</span>
             </li>
           ))}
         </ul>
@@ -229,12 +228,12 @@ export default async function WorkCasePage(
           <div
             className={clsx(
               "mt-12 grid items-center gap-12",
-              hasBuiltShot(project) && explainer && "md:grid-cols-[minmax(0,300px)_1fr]",
+              hasBuiltShot(project) &&
+                explainer &&
+                "md:grid-cols-[minmax(0,300px)_1fr]",
             )}
           >
-            {hasBuiltShot(project) && (
-              <BuiltShot project={project} t={tr} />
-            )}
+            {hasBuiltShot(project) && <BuiltShot project={project} t={tr} />}
             {explainer}
           </div>
         ) : (
@@ -321,7 +320,6 @@ export default async function WorkCasePage(
             </tbody>
           </table>
         </div>
-
       </section>
 
       <section className="mt-24 border-t border-white/12 pt-16">

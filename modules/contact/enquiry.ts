@@ -102,7 +102,7 @@ type Translate = (key: string) => string;
  */
 export function composeEnquiry(e: Enquiry, t: Translate) {
   const what = e.engagement ? t(`engagements.${e.engagement}.label`) : t("form.scope");
-  const subject = `MIW — ${what} — ${e.org}`;
+  const subject = `MIW · ${what} · ${e.org}`;
   const lines = [
     `${t("form.name")}: ${e.name}`,
     `${t("form.company")}: ${e.org}`,

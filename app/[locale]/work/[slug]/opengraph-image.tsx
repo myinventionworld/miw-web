@@ -22,7 +22,7 @@ export async function generateImageMetadata({
       id: project.slug,
       size,
       contentType,
-      alt: `${project.name} — ${t(`${project.id}.headline`)}`,
+      alt: `${project.name}: ${t(`${project.id}.headline`)}`,
     },
   ];
 }

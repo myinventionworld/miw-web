@@ -64,7 +64,7 @@ export async function initTranslations(
     // here is what gets handed to the browser, and a Czech reader has no use
     // for the Russian dictionary. English rides along as the fallback so a key
     // that has not come back from translation yet reads as a sentence rather
-    // than as `stations.guild.lede`.
+    // than as `stations.labs.lede`.
     preload: resources
       ? []
       : Array.from(new Set([locale, i18nConfig.defaultLocale])),

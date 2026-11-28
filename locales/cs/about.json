@@ -1,9 +1,9 @@
 {
-  "metaTitle": "O nás — MIW",
+  "metaTitle": "O nás · MIW",
   "metaDescription": "MIW je sedmičlenný tým v Praze: inženýři, analytik a designér. Kdo jsme, co děláme a jak pracujeme.",
   "eyebrow": "O nás",
   "title": "Malý tým, který dotahuje věci do konce.",
-  "lede": "Sedm lidí v Praze. Pracujeme pro malé firmy a startupy a děláme i vlastní produkty — takže víme, co stojí dostat se od nápadu k lidem, kteří to používají.",
+  "lede": "Sedm lidí v Praze. Pracujeme pro malé firmy a startupy a děláme i vlastní produkty. Proto víme, co stojí dostat se od nápadu k lidem, kteří to používají.",
   "what": {
     "title": "Co děláme",
     "items": [
@@ -13,7 +13,7 @@
       },
       {
         "label": "Pro startupy",
-        "body": "MVP, backendy a AI funkce — od první verze dál."
+        "body": "MVP, backendy a AI funkce, od první verze dál."
       }
     ]
   },

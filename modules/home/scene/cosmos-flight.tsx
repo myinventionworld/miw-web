@@ -5,16 +5,46 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import {
-  BIAS_SCALE,
   BODY,
-  FRAME_BIAS,
+  FRAME,
+  HERO_FRAME,
   damp,
   flight,
+  lerp,
   sampleCamera,
   smoothstep,
+  type BodyScreen,
   type Vec3,
 } from "../flight";
 import { STATIONS } from "../stations";
+
+const DOCKED_FOV = 38;
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+const LOOK = new THREE.Vector3();
+const TO_BODY = new THREE.Vector3();
+const NDC = new THREE.Vector3();
+
+/** A body's circle on screen, in CSS pixels. */
+function project(
+  pos: THREE.Vector3,
+  radius: number,
+  camera: THREE.PerspectiveCamera,
+  size: { width: number; height: number },
+): BodyScreen {
+  const gap = pos.distanceTo(camera.position);
+  const ahead = LOOK.set(0, 0, -1)
+    .applyQuaternion(camera.quaternion)
+    .dot(TO_BODY.copy(pos).sub(camera.position).normalize());
+  const ndc = NDC.copy(pos).project(camera);
+  const half = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const angle = Math.asin(Math.min(1, radius / Math.max(gap, 1e-6)));
+  return {
+    x: ((ndc.x + 1) / 2) * size.width,
+    y: ((1 - ndc.y) / 2) * size.height,
+    r: (Math.tan(angle) / half) * (size.height / 2),
+    visible: ahead > 0.2 && Math.abs(ndc.x) < 1.4 && Math.abs(ndc.y) < 2.4,
+  };
+}
 
 const LOOK_AHEAD = 0.022;
 
@@ -42,8 +72,10 @@ export function CosmosFlight() {
   const up = useRef(new THREE.Vector3());
   const forward = useRef(new THREE.Vector3());
   const roll = useRef(0);
+  const dived = useRef(new THREE.Vector3());
+  const aim = useRef(new THREE.Vector3());
 
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, size }, delta) => {
     const p = flight.eased;
 
     sampleCamera(p, scratchA.current);
@@ -70,36 +102,33 @@ export function CosmosFlight() {
       .copy(position.current)
       .addScaledVector(heading.current, LOOK_DISTANCE);
 
-    // ...then ease onto the station's body as we park. `proximity` is 1 on
-    // station and 0 mid-leg, so the lock and the warp are exact inverses.
+    // ...then turn onto the station's body as we park. Offsetting the aim by
+    // tan(half fov) * distance per unit of FRAME puts the body exactly there
+    // on screen.
     const station = STATIONS[flight.station];
-    const anchor = BODY[station.id];
-    // Past the last station the lock releases. `proximityAt` returns 1 for
-    // everything beyond the final anchor, so without this the camera keeps
-    // the pulsar dead-centre all the way to the console — a star behind the
-    // form is exactly the washed-out composition this rebuild replaced.
-    const lock = anchor ? flight.proximity * (1 - smoothstep(0.84, 0.93, p)) : 0;
+    const anchor = station && BODY[station.id];
+    const lock = anchor ? flight.proximity : 0;
     if (anchor) {
       body.current.set(...anchor.pos);
-      target.current.lerp(body.current, lock * 0.92);
+      const docked = FRAME[station.id];
+      const hero = station.id === "backend" ? 1 - smoothstep(0, station.anchor, p) : 0;
+      const fx = lerp(docked.x, HERO_FRAME.x, hero);
+      const fy = lerp(docked.y, HERO_FRAME.y, hero);
+      const gap = body.current.distanceTo(position.current);
+      const tan = Math.tan(THREE.MathUtils.degToRad(DOCKED_FOV / 2));
+      forward.current.copy(body.current).sub(position.current).normalize();
+      right.current.crossVectors(forward.current, WORLD_UP).normalize();
+      up.current.crossVectors(right.current, forward.current).normalize();
+      aim.current
+        .copy(body.current)
+        .addScaledVector(right.current, -fx * tan * (size.width / size.height) * gap)
+        .addScaledVector(up.current, -fy * tan * gap);
+      target.current.lerp(aim.current, lock);
     }
 
     forward.current.copy(target.current).sub(position.current).normalize();
     right.current.crossVectors(forward.current, camera.up).normalize();
     up.current.crossVectors(right.current, forward.current).normalize();
-
-    // Docking composition. The lock above centres the body by construction,
-    // which is the wrong answer now that the info card alternates sides: three
-    // of the four stations would park their card on top of their own subject.
-    // Nudging the aim point away from the body slides it across the frame, and
-    // scaling by `lock` means this only ever applies while parked — the transit
-    // is still aimed down the track.
-    const bias = FRAME_BIAS[station.id];
-    if (bias && lock > 0.001) {
-      target.current
-        .addScaledVector(right.current, -bias.x * BIAS_SCALE.x * lock)
-        .addScaledVector(up.current, -bias.y * BIAS_SCALE.y * lock);
-    }
 
     // Parallax as a look-target offset rather than a post-hoc euler tweak, so
     // the camera basis stays orthonormal and the horizon never shears.
@@ -114,12 +143,21 @@ export function CosmosFlight() {
       .addScaledVector(right.current, flight.pointerEased.x * 1.1 * sway)
       .addScaledVector(up.current, flight.pointerEased.y * 0.7 * sway);
 
+    const dive = flight.diveBody ? flight.dive : 0;
+    if (flight.diveBody && dive > 0) {
+      dived.current.set(...flight.diveBody.pos);
+      const gap = dived.current.distanceTo(position.current);
+      const travel = Math.max(0, gap - flight.diveBody.radius * 2.1) * dive;
+      camera.position.lerp(dived.current, travel / Math.max(gap, 1e-6));
+      target.current.lerp(dived.current, dive);
+    }
+
     camera.lookAt(target.current);
 
     const drift =
       Math.sin(p * 21.0) * 0.016 + flight.velocity * 0.05 + flight.warp * 0.014;
     roll.current = damp(roll.current, drift, 4.2, delta);
-    camera.rotateZ(roll.current);
+    camera.rotateZ(roll.current * (1 - dive));
 
     // Widen the lens in transit — cheap, and it reads as raw speed.
     const perspective = camera as THREE.PerspectiveCamera;
@@ -128,6 +166,18 @@ export function CosmosFlight() {
       perspective.fov = damp(perspective.fov, fov, 5, delta);
       perspective.updateProjectionMatrix();
     }
+
+    camera.updateMatrixWorld();
+    if (flight.diveBody) {
+      dived.current.set(...flight.diveBody.pos);
+      flight.diveScreen = project(dived.current, flight.diveBody.radius, perspective, size);
+    }
+    flight.bodyScreen = anchor
+      ? {
+          id: station.id,
+          ...project(body.current, anchor.radius, perspective, size),
+        }
+      : null;
   });
 
   return null;

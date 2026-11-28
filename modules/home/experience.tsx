@@ -1,21 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, ViewTransition } from "react";
+import { flushSync } from "react-dom";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { ReactLenis, useLenis } from "lenis/react";
 import { useMotionValue, type MotionValue } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/shared/lib/cn";
 
-import { clamp01, flight } from "./flight";
+import { clamp01, diveBodyAt, flight, sectionAt } from "./flight";
+import { runDive, settle, skipTransitionOnInput } from "./landing";
 import { useDockSnap } from "./use-dock-snap";
-import { CONSOLE_ANCHOR, STATIONS, stationById, type Mode } from "./stations";
+import { CONSOLE_ANCHOR, stationById } from "./stations";
 import { Navbar } from "./navbar";
-import { ProjectDock } from "./project-dock";
+import { Hero } from "./hero";
+import { StationDeck } from "./station-deck";
 import { Fallback } from "./fallback";
 import { SignalLost } from "./signal-lost";
-import { Stage } from "./stage";
 import { TransmissionConsole } from "./transmission-console";
-import type { StationId } from "@/shared/station-id";
+import { PROJECTS, projectForStation } from "@/modules/work";
+import {
+  LANDING,
+  PAGE_TRANSITION,
+  landingMarkFor,
+  registerLander,
+  rememberDeparture,
+  rememberedStation,
+  sectionFromHash,
+  setLandingMark,
+  takeTakeoff,
+  type Section,
+} from "@/shared/lib/landing";
 import { detectHardwareGpu, prefersFlatDeck } from "./webgl-support";
 
 const CosmosScene = dynamic(
@@ -23,10 +39,15 @@ const CosmosScene = dynamic(
   { ssr: false },
 );
 
-/** Total scroll runway. Nine screens of travel across five parking points. */
-const RUNWAY = "h-[900vh]";
+const RUNWAY = "h-[880vh]";
 
 const RECONNECT_MS = 4000;
+
+const DIVE_MS = 520;
+const PULL_BACK_MS = 1400;
+const PULL_BACK_DELAY_MS = 250;
+const DAYLIGHT_MAX_MS = 1500;
+const SCENE_MAX_MS = 8000;
 
 /** Set once the scene proved too slow even at its lowest quality, for the rest of the tab's session. */
 const TOO_SLOW_KEY = "miw:flat-deck";
@@ -39,61 +60,6 @@ function rememberedTooSlow() {
   }
 }
 
-function Hero({
-  progress,
-  onExplore,
-  onDiscovery,
-}: {
-  progress: MotionValue<number>;
-  onExplore: () => void;
-  onDiscovery: () => void;
-}) {
-  const { t } = useTranslation("common");
-
-  return (
-    <Stage
-      progress={progress}
-      window={[0, 0, 0.016, 0.036]}
-      enter={false}
-      lift={40}
-    >
-      <div className="mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 md:px-10">
-        <h1 className="text-lift text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[0.96] font-bold tracking-[-0.05em] text-white">
-          {t("home.titleTop")}
-          <br className="hidden sm:block" /> {t("home.titleBottom")}
-        </h1>
-
-        {/* Only the body copy takes a scrim. The headline is large enough to
-            carry itself, and washing the whole block would flatten the planet
-            the hero is framed against. */}
-        <div className="copy-scrim mt-6 max-w-xl">
-          <p className="text-lift relative text-copy-lg leading-relaxed text-platinum">
-            {t("home.lede")}
-          </p>
-        </div>
-
-        <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onDiscovery}
-            className="flex items-center gap-2 rounded-full bg-action px-6 py-3 text-lead font-semibold text-on-action transition-colors hover:bg-action-hover"
-          >
-            {t("home.ctaContact")}
-          </button>
-          <button
-            type="button"
-            onClick={onExplore}
-            className="flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-6 py-3 text-lead font-medium text-white backdrop-blur transition-colors hover:border-white/90 hover:bg-white/10"
-          >
-            {t("home.ctaStations")}
-          </button>
-        </div>
-
-      </div>
-    </Stage>
-  );
-}
-
 /**
  * Everything below lives inside `<ReactLenis>` so it can grab the instance —
  * navigation has to drive Lenis rather than `window.scrollTo`, or the smooth
@@ -102,11 +68,13 @@ function Hero({
 function Deck({
   webgl,
   gpu,
+  shell,
   onSceneLost,
   onTooSlow,
 }: {
   webgl: boolean;
   gpu: string;
+  shell?: string;
   onSceneLost: () => void;
   onTooSlow: () => void;
 }) {
@@ -140,10 +108,6 @@ function Deck({
       el.removeEventListener("webglcontextrestored", onRestored, true);
     };
   }, [webgl, onSceneLost]);
-
-  // One copy mode. The old Business / Telemetry toggle doubled every station's
-  // text for a distinction most visitors never looked for.
-  const mode: Mode = "business";
 
   /**
    * One scroll position, read by everything.
@@ -182,63 +146,191 @@ function Deck({
     [lenis],
   );
 
-  const goStation = useCallback(
-    (id: StationId) => travel(stationById(id).anchor),
+  const fly = useCallback(
+    (to: Section | null) =>
+      travel(!to ? 0 : to === "transmission" ? CONSOLE_ANCHOR : stationById(to).anchor),
     [travel],
   );
+
+  const router = useRouter();
+  const landing = useRef(false);
+  const [planet, setPlanet] = useState<{ x: number; y: number; r: number } | null>(null);
+  const [diving, setDiving] = useState(false);
+  const [daylight, setDaylight] = useState<"on" | "fading" | null>(null);
+
+  useEffect(() => {
+    flight.dive = 0;
+    flight.diveBody = null;
+    flight.diveScreen = null;
+  }, []);
+
+  const land = useCallback(
+    (to: string) => {
+      if (landing.current) return;
+      landing.current = true;
+      lenis?.stop();
+      router.prefetch(to);
+
+      const section = sectionAt(flight.eased);
+      const station = section && section !== "transmission" ? section : null;
+      const product = (station && projectForStation(station)?.slug) ?? PROJECTS[0].slug;
+      const path = new URL(to, window.location.href).pathname;
+      const mark = landingMarkFor(path, product);
+      rememberDeparture(section);
+      window.history.replaceState(
+        null,
+        "",
+        section ? `#${section}` : window.location.pathname + window.location.search,
+      );
+      if (/\/work$/.test(path) && product !== PROJECTS[0].slug) to = `${path}#${product}`;
+
+      const go = () => {
+        setLandingMark(flight.reducedMotion ? null : mark);
+        skipTransitionOnInput(2000);
+        router.push(to, { transitionTypes: [LANDING] });
+        window.setTimeout(() => setLandingMark(null), 2000);
+      };
+
+      if (flight.reducedMotion || !webgl) {
+        go();
+        return;
+      }
+
+      flight.diveBody = diveBodyAt(flight.eased);
+      flight.diveScreen = null;
+      setDiving(true);
+      void settle()
+        .then(() => (flight.diveScreen?.visible ? runDive(1, DIVE_MS) : undefined))
+        .then(() => {
+          const s = flight.diveScreen;
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          flushSync(() =>
+            setPlanet(
+              s?.visible && s.r > 4
+                ? { x: s.x, y: s.y, r: Math.min(s.r, Math.hypot(w, h)) }
+                : { x: w / 2, y: h / 2, r: Math.min(w, h) * 0.14 },
+            ),
+          );
+          go();
+        });
+    },
+    [lenis, router, webgl],
+  );
+
+  useEffect(() => registerLander(land), [land]);
 
   // The editorial routes link back to `/#transmission` and to a station
   // (`/#commerce`). Lenis owns scrollTop, so the browser's native hash jump
   // lands on nothing — the camera has to be flown there instead, once, after
   // the scroller exists.
+  //
+  // Coming back from a light page (a header link or the browser's Back) is a
+  // take-off instead: parked at once where the visitor left, under daylight
+  // that fades as the camera pulls back from the planet.
   const jumped = useRef(false);
   useEffect(() => {
     if (!lenis || jumped.current) return;
-    const hash = window.location.hash.slice(1);
-    const station = STATIONS.find((s) => s.id === hash);
-    const anchor = hash === "transmission" ? CONSOLE_ANCHOR : station?.anchor;
-    if (anchor === undefined) return;
     jumped.current = true;
-    const id = setTimeout(() => travel(anchor), 140);
-    return () => clearTimeout(id);
+    const returning = takeTakeoff();
+    const section = sectionFromHash(window.location.hash) ?? (returning ? rememberedStation() : null);
+    const anchor =
+      section === "transmission" ? CONSOLE_ANCHOR : section ? stationById(section).anchor : 0;
+
+    if (!returning) {
+      if (!section) return;
+      const id = setTimeout(() => travel(anchor), 140);
+      return () => clearTimeout(id);
+    }
+
+    lenis.scrollTo(anchor * lenis.limit, { immediate: true, force: true });
+    flight.progress = anchor;
+    flight.eased = anchor;
+    setDaylight("on");
+    if (flight.reducedMotion || section === "transmission") {
+      const id = requestAnimationFrame(() => requestAnimationFrame(() => setDaylight("fading")));
+      return () => cancelAnimationFrame(id);
+    }
+
+    flight.diveBody = diveBodyAt(anchor);
+    flight.dive = 1;
+    const start = performance.now();
+    let faded = false;
+    let later = 0;
+    let raf = requestAnimationFrame(function wait() {
+      const drawn = flight.diveScreen !== null;
+      const waited = performance.now() - start;
+      if (!faded && (drawn || waited > DAYLIGHT_MAX_MS)) {
+        faded = true;
+        setDaylight("fading");
+      }
+      if (drawn) later = window.setTimeout(() => void runDive(0, PULL_BACK_MS), PULL_BACK_DELAY_MS);
+      else if (waited > SCENE_MAX_MS) flight.dive = 0;
+      else raf = requestAnimationFrame(wait);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(later);
+    };
   }, [lenis, travel]);
 
   return (
     <>
-      <div ref={scene} className="fixed inset-0 z-0 bg-void">
-        {webgl && <CosmosScene key={sceneKey} gpu={gpu} onTooSlow={onTooSlow} />}
-        {lost && <SignalLost message={t("signalLost")} />}
-      </div>
+      <ViewTransition {...PAGE_TRANSITION.flight} default="none">
+        <div className={cn("fixed inset-0", shell)}>
+          <div ref={scene} className="fixed inset-0 z-0 bg-void">
+            {webgl && <CosmosScene key={sceneKey} gpu={gpu} onTooSlow={onTooSlow} />}
+            {lost && <SignalLost message={t("signalLost")} />}
+          </div>
 
-      {/* Filmic grade. Light touch — the panels carry their own contrast now. */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-10"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(3,3,5,0.5) 0%, transparent 18%, transparent 62%, rgba(3,3,5,0.72) 100%)",
-        }}
-      />
+          {/* Filmic grade. Light touch — the panels carry their own contrast now. */}
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 z-10"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(3,3,5,0.5) 0%, transparent 18%, transparent 62%, rgba(3,3,5,0.72) 100%)",
+            }}
+          />
 
-      <Navbar
-        onNavigate={goStation}
-        onLaunch={() => travel(CONSOLE_ANCHOR)}
-      />
+          {daylight && (
+            <div
+              aria-hidden
+              onTransitionEnd={() => setDaylight(null)}
+              className={cn(
+                "pointer-events-none fixed inset-0 z-40 bg-white transition-opacity duration-700 ease-out motion-reduce:duration-200",
+                daylight === "fading" && "opacity-0",
+              )}
+            />
+          )}
 
-      <Hero
-        progress={progress}
-        onExplore={() => goStation("backend")}
-        onDiscovery={() => travel(CONSOLE_ANCHOR)}
-      />
-      <ProjectDock
-        progress={progress}
-        mode={mode}
-        onAction={() => travel(CONSOLE_ANCHOR)}
-      />
-      <TransmissionConsole progress={progress} />
+          <div className={cn("transition-opacity duration-300 ease-out", diving && "opacity-0")}>
+            <Hero progress={progress} onStart={() => fly("backend")} onFly={fly} />
+            <StationDeck progress={progress} onAction={() => fly("transmission")} />
+            <TransmissionConsole progress={progress} />
+          </div>
+        </div>
+      </ViewTransition>
+
+      {planet && (
+        <ViewTransition name="landing-body" share="landing-morph" default="none">
+          <div
+            aria-hidden
+            className="pointer-events-none fixed z-[60] rounded-full"
+            style={{
+              left: planet.x - planet.r,
+              top: planet.y - planet.r,
+              width: planet.r * 2,
+              height: planet.r * 2,
+            }}
+          />
+        </ViewTransition>
+      )}
+
+      <Navbar className={shell} progress={progress} onFly={fly} />
 
       {/* The only element with real height — everything else is fixed. */}
-      <div aria-hidden className={`${RUNWAY} w-full`} />
+      <div aria-hidden className={cn(RUNWAY, "w-full", shell)} />
     </>
   );
 }
@@ -304,7 +396,13 @@ export function Experience() {
         allowNestedScroll: true,
       }}
     >
-      <Deck webgl={Boolean(flight3d)} gpu={gpu} onSceneLost={toFlatPage} onTooSlow={tooSlow} />
+      <Deck
+        webgl={Boolean(flight3d)}
+        gpu={gpu}
+        shell={flight3d === true ? undefined : "[@media(pointer:coarse)_and_(hover:none)]:hidden"}
+        onSceneLost={toFlatPage}
+        onTooSlow={tooSlow}
+      />
     </ReactLenis>
   );
 
@@ -318,15 +416,11 @@ export function Experience() {
   return (
     <>
       {flight3d !== true && (
-        <div className={flight3d === false ? undefined : "hidden [@media(pointer:coarse)_and_(hover:none)]:block"}>
-          <Fallback />
-        </div>
+        <Fallback
+          className={flight3d === false ? undefined : "hidden [@media(pointer:coarse)_and_(hover:none)]:block"}
+        />
       )}
-      {flight3d !== false && (
-        <div className={flight3d === true ? undefined : "[@media(pointer:coarse)_and_(hover:none)]:hidden"}>
-          {deck}
-        </div>
-      )}
+      {flight3d !== false && deck}
     </>
   );
 }

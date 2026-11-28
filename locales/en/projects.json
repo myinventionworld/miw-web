@@ -17,8 +17,8 @@
       "chapter": "Ch. {{n}}",
       "position": "Position in the chapter",
       "idle": "> simulation: move the position, then switch between reading and listening.",
-      "toListen": "> chapter {{n}}, page {{page}} of {{pages}} → audio at {{at}} of {{total}}. Same place.",
-      "toRead": "> chapter {{n}}, audio at {{at}} → page {{page}} of {{pages}}. Same place."
+      "toListen": "> chapter {{n}}, page {{page}} of {{pages}} matches audio at {{at}} of {{total}}. Same place.",
+      "toRead": "> chapter {{n}}, audio at {{at}} matches page {{page}} of {{pages}}. Same place."
     }
   },
   "status": {
@@ -32,7 +32,8 @@
     "demo": "Live demo",
     "staging": "Staging",
     "internal": "Internal",
-    "source": "Source only"
+    "source": "Source only",
+    "unreleased": "Not launched yet"
   },
   "basis": {
     "observed": {
@@ -41,19 +42,19 @@
     },
     "target": {
       "label": "Target",
-      "note": "What the build is designed for — not a measured result"
+      "note": "What the build is designed for, not a measured result"
     }
   },
   "index": {
-    "metaTitle": "Work — MIW",
-    "metaDescription": "Projects by the MIW team: a seat-booking system, an offline reader and audiobook player, and a film catalogue. What each one does and how it is built.",
+    "metaTitle": "Work · MIW",
+    "metaDescription": "Projects by the MIW team: a seat-booking system, an offline reader and audiobook player, a film catalogue, and an online shoe store for a client. What each one does and how it is built.",
     "eyebrow": "Work",
     "title": "What we have built",
-    "lede": "Projects our team built and runs. Each one is live — open it and try.",
-    "body": "Client projects will appear here as they ship."
+    "lede": "Projects our team built and runs, and what we build for clients.",
+    "body": "The live ones you can open and try. A client project says how far along it is."
   },
   "case": {
-    "back": "← All work",
+    "back": "All work",
     "launch": "Open the live app",
     "diagramAlt": "Architecture diagram",
     "sections": {
@@ -89,11 +90,11 @@
       },
       "deploy": {
         "label": "Runs on",
-        "note": "Containers on a k3s cluster — the address linked from this page."
+        "note": "Containers on a k3s cluster, at the address linked from this page."
       }
     },
     "problem": {
-      "lede": "Booking systems break exactly when two people want the same thing at the same time — which is also when the business earns money.",
+      "lede": "Booking systems break exactly when two people want the same thing at the same time. That is also when the business earns money.",
       "points": [
         "If the app reads a seat and then writes it, two requests can both see it free and both book it.",
         "Overbooking is often repaired afterwards with a nightly job and an apology, instead of being impossible in the first place.",
@@ -246,7 +247,7 @@
     "metrics": {
       "route": {
         "label": "Page change",
-        "note": "The target for moving between pages — not measured yet."
+        "note": "The target for moving between pages, not measured yet."
       },
       "revalidate": {
         "label": "Catalogue refresh",
@@ -262,7 +263,7 @@
       ]
     },
     "design": {
-      "lede": "Catalogue pages render on the server and are cached for an hour. Only personal data — favourites and watchlists — reads the database.",
+      "lede": "Catalogue pages render on the server and are cached for an hour. Only personal data, favourites and watchlists, reads the database.",
       "nodes": {
         "visitor": "Visitor",
         "rsc": "Server render",
@@ -284,7 +285,7 @@
       },
       {
         "choice": "Film pages rendered on the server",
-        "why": "Film pages, Top Rated and New Releases arrive as HTML, so a slow phone is not left waiting for JavaScript. The main browse page is still rendered in the browser — next on the list."
+        "why": "Film pages, Top Rated and New Releases arrive as HTML, so a slow phone is not left waiting for JavaScript. The main browse page is still rendered in the browser. It is next on the list."
       },
       {
         "choice": "The database only for personal data",
@@ -293,6 +294,67 @@
     ],
     "results": {
       "lede": "Wovie is a work in progress with a public demo, and its source is open."
+    }
+  },
+  "jo_plokhina": {
+    "category": "Online shoe store · client project",
+    "headline": "A shoe shop that sells the last pair once",
+    "pitch": "An online store for a family shoe business in Zhytomyr: stock in each market store, size advice by foot length, checkout by phone, Nova Poshta delivery or pickup at the market.",
+    "credit": "Built by MIW Labs for the business. Not launched yet: the catalogue is demo data, and payments and Nova Poshta are stand-ins.",
+    "metrics": {
+      "race": {
+        "label": "Last pairs",
+        "note": "In a test, 12 shoppers race for 4 pairs and exactly 4 orders go through."
+      },
+      "locations": {
+        "label": "Places with stock",
+        "note": "Two market stores and three garages in one stock table."
+      },
+      "hold": {
+        "label": "Unpaid order hold",
+        "note": "An unpaid online order keeps its pairs for 30 minutes."
+      }
+    },
+    "problem": {
+      "lede": "The business sells women's shoes from two market stores and three garages, often one pair per size, and keeps its books in a paper notebook.",
+      "points": [
+        "The last pair can sell on the shelf and online at the same moment.",
+        "Shoes run small or large from model to model, so a size number alone does not say what fits.",
+        "Prices and stock have to come from the shop, never from what the browser sends."
+      ]
+    },
+    "design": {
+      "lede": "Every change goes through a Server Action that checks the input and prices the order from the database. Placing an order is one transaction that locks the stock rows it needs.",
+      "nodes": {
+        "shopper": "Shopper",
+        "office": "Back office",
+        "actions": "Server Actions · checks",
+        "orders": "Orders · one transaction",
+        "delivery": "Nova Poshta · payments",
+        "pg": "PostgreSQL · stock"
+      },
+      "edges": {
+        "actions-orders": "DB prices",
+        "orders-pg": "row locks",
+        "orders-delivery": "stand-ins for now"
+      }
+    },
+    "solutions": [
+      {
+        "choice": "Reserve stock in one transaction",
+        "why": "Stock rows are locked in a fixed order, so two orders for the last pair cannot both succeed and overlapping carts cannot block each other. A test sends 12 shoppers after 4 pairs: exactly 4 orders go through."
+      },
+      {
+        "choice": "Size from foot length",
+        "why": "Each model has its own fit, and the insole of each size can be measured. A shopper enters a foot length once, and the shop recommends a size and can show only the shoes that come in it."
+      },
+      {
+        "choice": "Delivery and payments behind interfaces",
+        "why": "Nova Poshta and payments sit behind small interfaces with stand-ins for now, so the real providers can be connected without touching the shop."
+      }
+    ],
+    "results": {
+      "lede": "The shop is built and tested on phones and laptops, in Ukrainian and English. Next come the real catalogue and photos, then payments and Nova Poshta."
     }
   },
   "screens": {

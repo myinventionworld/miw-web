@@ -30,7 +30,7 @@ import { DOCKS } from "./flight";
  *
  * It must reach every position where a card is on screen, because stopping
  * there is the half-arrived state the whole exercise is about. A station's band
- * is ±0.05 of progress, which on a 900vh runway is ±0.4 screens.
+ * is ±0.05 of track, which at nine screens per unit of track is ±0.4 screens.
  *
  * It must *not* reach half a leg, or a deliberate flick forward is inside the
  * radius of the station it just left and gets dragged home. Legs are 0.24, so

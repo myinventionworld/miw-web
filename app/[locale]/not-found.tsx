@@ -32,10 +32,10 @@ export default async function NotFound() {
             {t("footer.back")}
           </Link>
           <Link href={localeHref(locale, "/work")} className="text-lead font-medium text-comet hover:underline">
-            {t("nav.work")} ›
+            {t("nav.work")}
           </Link>
           <Link href={localeHref(locale, "/about")} className="text-lead font-medium text-comet hover:underline">
-            {t("nav.about")} ›
+            {t("nav.about")}
           </Link>
         </div>
       </CoverHero>

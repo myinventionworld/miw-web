@@ -6,7 +6,6 @@ import * as THREE from "three";
 
 import { PROJECTS } from "@/modules/work";
 import { BODY, damp, flight, smoothstep, type Vec3 } from "../flight";
-import { productFocus } from "../product-focus";
 
 /**
  * Our products as moons, each in its own colour, orbiting the planet of the
@@ -74,7 +73,6 @@ function Moon({ spec, color }: { spec: MoonSpec; color: string }) {
   const shown = useRef(0);
   /** The moon itself: also off while it is behind the text. */
   const opacity = useRef(0);
-  const focus = useRef(0);
   const screen = useMemo(() => new THREE.Vector3(), []);
 
   const material = useMemo(
@@ -131,20 +129,10 @@ function Moon({ spec, color }: { spec: MoonSpec; color: string }) {
     }
     shown.current = damp(shown.current, spec.visible(flight.eased), 6, delta);
     opacity.current = damp(opacity.current, shown.current * clear, 6, delta);
-    focus.current = damp(
-      focus.current,
-      productFocus.slug === spec.slug ? 1 : 0,
-      8,
-      delta,
-    );
-
-    const f = focus.current;
     material.opacity = opacity.current;
-    (orbit.material as THREE.LineBasicMaterial).opacity =
-      shown.current * (0.12 + 0.4 * f);
+    (orbit.material as THREE.LineBasicMaterial).opacity = shown.current * 0.12;
 
     if (moon.current) {
-      moon.current.scale.setScalar(1 + 0.35 * f);
       moon.current.visible = opacity.current > 0.01;
     }
     if (group.current) group.current.visible = shown.current > 0.01;

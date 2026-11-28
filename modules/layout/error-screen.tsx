@@ -50,7 +50,7 @@ export function ErrorScreen({
               {text.retry}
             </button>
             <a href={home} className="text-lead font-medium text-comet hover:underline">
-              {text.back} ›
+              {text.back}
             </a>
           </div>
         </CoverHero>

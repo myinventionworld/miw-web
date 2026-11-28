@@ -23,7 +23,7 @@
     },
     "automation": {
       "label": "Stock, orders, booking",
-      "prompt": "What do you keep track of today, and how — paper, Excel, something else?"
+      "prompt": "What do you keep track of today, and how: paper, Excel, something else?"
     },
     "mvp": {
       "label": "MVP",
@@ -92,7 +92,11 @@
     "another": "Send another message"
   },
   "autoreply": {
-    "subject": "We have your message — MIW Labs",
+    "subject": "MIW Labs: we have your message",
     "body": "Hello,\n\nThis is an automatic confirmation: your message has reached the MIW Labs team. A person from the team will reply within one working day.\n\nIf you would like to add something, reply to this email.\n\nMIW Labs"
+  },
+  "team": {
+    "line": "Seven people in Prague.",
+    "link": "Meet the team"
   }
 }

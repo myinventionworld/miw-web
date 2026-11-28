@@ -42,6 +42,7 @@ function moving() {
     Math.abs(flight.velocity) > 0.005 ||
     flight.warp > 0.005 ||
     flight.pulse > 0 ||
+    (flight.dive > 0 && flight.dive < 1) ||
     (steering &&
       (Math.abs(flight.pointer.x - flight.pointerEased.x) > 0.002 ||
         Math.abs(flight.pointer.y - flight.pointerEased.y) > 0.002))

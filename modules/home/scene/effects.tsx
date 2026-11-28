@@ -73,7 +73,7 @@ export function Effects({
       // halo we just removed.
       bloom.current.intensity =
         lerp(0.6, 1.45, warp) * (1 - star * 0.44) + flight.pulse * 2.4;
-      bloom.current.luminanceMaterial.threshold = lerp(0.22, 1.02, star);
+      bloom.current.luminanceMaterial.threshold = lerp(0.98, 1.02, star);
       // Collapse the kernel too. Threshold alone still leaves an eight-level
       // mipmap chain smearing the core across half the frame.
       bloom.current.mipmapBlurPass.radius = lerp(BASE_RADIUS, 0.38, star);
@@ -103,8 +103,8 @@ export function Effects({
         ref={tune}
         mipmapBlur
         intensity={0.62}
-        luminanceThreshold={0.2}
-        luminanceSmoothing={0.32}
+        luminanceThreshold={0.98}
+        luminanceSmoothing={0.2}
         radius={BASE_RADIUS}
         levels={8}
       />

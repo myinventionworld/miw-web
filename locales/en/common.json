@@ -1,12 +1,12 @@
 {
   "meta": {
-    "title": "MIW — websites, products and AI tools from Prague",
-    "description": "MIW is a team of seven in Prague. We build websites, online stores and automation for small businesses, and MVPs and AI features for startups — and we build our own products."
+    "title": "MIW: websites, products and AI tools from Prague",
+    "description": "MIW is a team of seven in Prague. We build websites, online stores and automation for small businesses, and MVPs and AI features for startups. We also build our own products."
   },
   "brand": {
     "tagline": "MIW Labs · Prague",
-    "logoAria": "MIW — back to the start",
-    "deckAria": "MIW — back to the start"
+    "logoAria": "MIW, back to the start",
+    "deckAria": "MIW, back to the start"
   },
   "availability": {
     "prefix": "Status",
@@ -14,13 +14,22 @@
     "scope": "Prague, Czech Republic"
   },
   "nav": {
+    "services": "Services",
     "work": "Work",
     "bookCall": "Start a project",
     "contact": "Contact",
     "menu": "Menu",
-    "caseStudies": "Case studies",
     "language": "Language",
-    "about": "About us"
+    "about": "About",
+    "products": "Products",
+    "team": "Team",
+    "aboutUs": "About us",
+    "drawer": {
+      "services": "Websites and stores for small businesses. MVPs and AI features for startups.",
+      "products": "Things we built for ourselves first.",
+      "team": "Seven people in Prague.",
+      "contact": "Write to the team directly."
+    }
   },
   "footer": {
     "back": "Back to home",
@@ -41,9 +50,9 @@
     "readCaseStudy": "Case study",
     "readCaseStudyLong": "Read the case study",
     "liveApp": "Open",
-    "liveAppOut": "Open ↗",
     "budget": "target",
-    "measured": "measured"
+    "measured": "measured",
+    "openNamed": "Open {{name}}"
   },
   "home": {
     "titleTop": "Small team.",
@@ -53,7 +62,15 @@
     "ctaStations": "See what we do",
     "ctaWork": "See our work",
     "transmissionTitle": "Tell us what you need",
-    "transmissionBody": "A few lines are enough. A person from the team reads every message and replies."
+    "transmissionBody": "A few lines are enough. A person from the team reads every message and replies.",
+    "ctaFlight": "Start the flight",
+    "pins": {
+      "backend": "Omnibus",
+      "commerce": "Website · store · stock",
+      "labs": "Boowie · Wovie",
+      "team": "Seven people",
+      "transmission": "Reply in one working day"
+    }
   },
   "contact": {
     "email": "Email",

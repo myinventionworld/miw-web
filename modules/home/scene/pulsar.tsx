@@ -4,13 +4,13 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { BODY, damp, flight, smoothstep } from "../flight";
+import { PULSAR, damp, flight, smoothstep } from "../flight";
 import { Rings } from "./rings";
 import { bindUniforms } from "./bind-uniforms";
 import { useCull } from "./cull";
 
-const POS = new THREE.Vector3(...BODY.guild.pos);
-const R = BODY.guild.radius;
+const POS = new THREE.Vector3(...PULSAR.pos);
+const R = PULSAR.radius;
 
 const RING_INNER = R * 1.48;
 const RING_OUTER = R * 2.42;

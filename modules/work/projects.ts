@@ -77,7 +77,8 @@ export type Environment =
   | "demo"
   | "staging"
   | "internal"
-  | "source";
+  | "source"
+  | "unreleased";
 
 /**
  * Structure only. The prose counterpart of each project lives at
@@ -102,6 +103,7 @@ export interface ProjectCase {
   /** Monospace short form used on the deck and in diagrams. */
   codename: string;
   station: StationId;
+  client?: true;
   status: ProjectStatus;
   environment: Environment;
   /** Only the project docked on a station needs a demo. */
@@ -227,6 +229,41 @@ export const PROJECTS: ProjectCase[] = [
       ],
     },
   },
+  {
+    id: "jo_plokhina",
+    slug: "jo-plokhina",
+    name: "J.O.Plokhina",
+    color: "#7a2233",
+    codename: "PLOKHINA",
+    station: "commerce",
+    client: true,
+    status: "build",
+    environment: "unreleased",
+    host: "",
+    stack: ["Next.js", "TypeScript", "PostgreSQL", "Drizzle", "Better Auth", "Vercel"],
+    metrics: [
+      { id: "race", value: "4 / 12", basis: "observed" },
+      { id: "locations", value: "5", basis: "observed" },
+      { id: "hold", value: "30 min", basis: "observed" },
+    ],
+    design: {
+      nodes: [
+        { id: "shopper", kind: "entry", col: 0, row: 0 },
+        { id: "office", kind: "entry", col: 0, row: 1 },
+        { id: "actions", kind: "service", col: 1, row: 0 },
+        { id: "orders", kind: "service", col: 2, row: 0 },
+        { id: "delivery", kind: "model", col: 2, row: 1 },
+        { id: "pg", kind: "store", col: 3, row: 0 },
+      ],
+      edges: [
+        { from: "shopper", to: "actions" },
+        { from: "office", to: "actions" },
+        { from: "actions", to: "orders" },
+        { from: "orders", to: "pg" },
+        { from: "orders", to: "delivery" },
+      ],
+    },
+  },
 ];
 
 export function projectBySlug(slug: string): ProjectCase | undefined {
@@ -235,14 +272,8 @@ export function projectBySlug(slug: string): ProjectCase | undefined {
 
 /**
  * The artifact a station puts in its frame: the first project registered
- * against it. Station 02 has no finished small-business project yet and station
- * 04 is the team, so both have none — `undefined` is a valid answer, not a gap
- * to fill.
+ * against it. `undefined` is a valid answer, not a gap to fill.
  */
 export function projectForStation(station: StationId): ProjectCase | undefined {
   return PROJECTS.find((p) => p.station === station);
-}
-
-export function projectsForStations(stations: readonly StationId[]) {
-  return PROJECTS.filter((p) => stations.includes(p.station));
 }

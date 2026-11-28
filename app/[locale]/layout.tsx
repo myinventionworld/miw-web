@@ -21,7 +21,6 @@ import "../globals.css";
 import { CookieBanner } from "@/modules/cookies";
 import {
   TranslationsProvider,
-  LightVeilHost,
   initTranslations,
   NAMESPACES,
   alternates,
@@ -91,7 +90,6 @@ export default async function RootLayout(props: LayoutProps<"/[locale]">) {
           resources={resources}
         >
           {props.children}
-          <LightVeilHost />
           <CookieBanner />
         </TranslationsProvider>
         <Analytics />
