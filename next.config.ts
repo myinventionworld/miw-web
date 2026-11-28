@@ -20,6 +20,11 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   images: {
+    // On Vercel, image transformations it had not made before came back
+    // empty while earlier ones still loaded, most likely the project's Image
+    // Optimization limit. The sources are already WebP, so they are served as
+    // they are. Remove this once new transformations work again.
+    unoptimized: true,
     // AVIF first, WebP for the browsers without it.
     formats: ["image/avif", "image/webp"],
     // 480 fills the gap between 384 and 640: a phone screenshot drawn ~240px
