@@ -7,6 +7,7 @@ export {
 } from "./projects";
 export { Device } from "./showcase/device";
 export { ReadListen, SeatRace } from "./showcase/explainers";
+export { PairRace, SizeFinder } from "./showcase/plokhina";
 export { ProjectActions, ShowcaseFrame } from "./showcase/frame";
 export { Reveal } from "./showcase/reveal";
 export {

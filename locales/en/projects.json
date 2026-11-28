@@ -62,16 +62,29 @@
       "design": "How it is built",
       "solutions": "Key decisions",
       "solutionsNote": "Each choice, and the alternative it beat.",
-      "results": "Numbers"
+      "results": "Numbers",
+      "changes": "What changes",
+      "changesNote": "The same work, before and with the system.",
+      "stages": "Stages",
+      "stagesNote": "Each stage starts only when the one before has passed its gate."
     },
     "table": {
       "figure": "Figure",
-      "measures": "What it means"
+      "measures": "What it means",
+      "process": "Work",
+      "now": "Now",
+      "after": "With the system"
     },
     "cta": {
       "title": "Need something similar?",
       "body": "Tell us what you need in a few lines. A person from the team replies.",
       "action": "Start a project"
+    },
+    "stage": {
+      "done": "Done",
+      "next": "Next",
+      "later": "Later",
+      "n": "Stage {{n}}"
     }
   },
   "omnibus_nss": {
@@ -297,64 +310,161 @@
     }
   },
   "jo_plokhina": {
-    "category": "Online shoe store · client project",
-    "headline": "A shoe shop that sells the last pair once",
-    "pitch": "An online store for a family shoe business in Zhytomyr: stock in each market store, size advice by foot length, checkout by phone, Nova Poshta delivery or pickup at the market.",
-    "credit": "Built by MIW Labs for the business. Not launched yet: the catalogue is demo data, and payments and Nova Poshta are stand-ins.",
+    "category": "Online store and stock system · client project",
+    "headline": "From a paper notebook to one system",
+    "pitch": "A family shoe business in Zhytomyr moves its stock, orders and delivery from a paper notebook into one system. Its first visible part is the online store, with stock in each market stall and size advice by foot length.",
+    "credit": "Built by MIW Labs for the business. Stage 0 of 4 is done: the system is built and tested on demo data. Payments and Nova Poshta are stand-ins until real sales start.",
     "metrics": {
       "race": {
         "label": "Last pairs",
         "note": "In a test, 12 shoppers race for 4 pairs and exactly 4 orders go through."
       },
+      "tests": {
+        "label": "Automated tests",
+        "note": "110 unit and integration tests and 30 end-to-end runs on a phone and a laptop, with accessibility checks."
+      },
       "locations": {
         "label": "Places with stock",
-        "note": "Two market stores and three garages in one stock table."
+        "note": "Two market stalls and three garages in one stock table."
       },
-      "hold": {
-        "label": "Unpaid order hold",
-        "note": "An unpaid online order keeps its pairs for 30 minutes."
+      "threats": {
+        "label": "Threats covered",
+        "note": "Each threat to stock, prices, payments and customer data has a written control and the place where it is tested."
       }
     },
     "problem": {
-      "lede": "The business sells women's shoes from two market stores and three garages, often one pair per size, and keeps its books in a paper notebook.",
+      "lede": "The business sells women's shoes from two market stalls and three garages, often one pair per size. Everything known about stock and sales is in one paper notebook, so decisions are made from memory.",
       "points": [
-        "The last pair can sell on the shelf and online at the same moment.",
-        "Shoes run small or large from model to model, so a size number alone does not say what fits.",
-        "Prices and stock have to come from the shop, never from what the browser sends."
+        "Nobody can see at a glance whether a size is in the other stall or in a garage.",
+        "Fit changes from model to model, and online a size number alone does not tell a buyer what will fit.",
+        "Purchasing goes by feel, and the notebook is the only copy of the data."
       ]
     },
     "design": {
-      "lede": "Every change goes through a Server Action that checks the input and prices the order from the database. Placing an order is one transaction that locks the stock rows it needs.",
+      "lede": "One database holds the stock of all five places. The people who have the shoes in hand enter the changes; the website, delivery, payments, notifications and purchasing read the same numbers and keep no records of their own.",
       "nodes": {
-        "shopper": "Shopper",
-        "office": "Back office",
-        "actions": "Server Actions · checks",
-        "orders": "Orders · one transaction",
-        "delivery": "Nova Poshta · payments",
-        "pg": "PostgreSQL · stock"
+        "stalls": "Market stalls",
+        "garages": "Garages",
+        "owner": "Owner",
+        "db": "One stock database",
+        "site": "Website",
+        "delivery": "Nova Poshta",
+        "payments": "Payments and receipts",
+        "notify": "Viber and Telegram",
+        "analytics": "Purchasing analytics",
+        "markets": "Marketplaces, later"
       },
       "edges": {
-        "actions-orders": "DB prices",
-        "orders-pg": "row locks",
-        "orders-delivery": "stand-ins for now"
+        "stalls-db": "sales",
+        "garages-db": "deliveries",
+        "owner-db": "prices"
       }
     },
+    "changes": [
+      {
+        "process": "Where a size is",
+        "now": "From memory or the notebook",
+        "after": "On the website, in the back office and in the bot, for all five places at once"
+      },
+      {
+        "process": "A sale at the market",
+        "now": "A line in the notebook",
+        "after": "One tap on a phone updates the stock everywhere"
+      },
+      {
+        "process": "An order with delivery",
+        "now": "Not possible",
+        "after": "The site reserves the pair, the waybill is created and its number goes to Viber"
+      },
+      {
+        "process": "New stock arrives",
+        "now": "A line in the notebook",
+        "after": "Entered on a phone, the pairs show on the site at once"
+      },
+      {
+        "process": "Report for the accountant",
+        "now": "Summed up by hand from the notebook",
+        "after": "Sales and receipts exported from the database"
+      },
+      {
+        "process": "Purchasing",
+        "now": "By experience and feel",
+        "after": "Sales by size and a hint of what to restock"
+      },
+      {
+        "process": "Customers",
+        "now": "Not kept",
+        "after": "A list by phone number, with consent, and a message when her size is back"
+      }
+    ],
     "solutions": [
       {
+        "choice": "One source of truth",
+        "why": "Stock lives in one database. The website, the back office, the bot and later the marketplaces read it and never keep their own count."
+      },
+      {
         "choice": "Reserve stock in one transaction",
-        "why": "Stock rows are locked in a fixed order, so two orders for the last pair cannot both succeed and overlapping carts cannot block each other. A test sends 12 shoppers after 4 pairs: exactly 4 orders go through."
+        "why": "Stock rows are locked in a fixed order, so two orders for the last pair cannot both succeed. A test sends 12 shoppers after 4 pairs: exactly 4 orders go through."
       },
       {
-        "choice": "Size from foot length",
-        "why": "Each model has its own fit, and the insole of each size can be measured. A shopper enters a foot length once, and the shop recommends a size and can show only the shoes that come in it."
+        "choice": "Fit as the product",
+        "why": "The site suggests a size by foot length in each model. With the real catalogue come insoles measured per size, width and instep, and a note from the owner on how each model fits."
       },
       {
-        "choice": "Delivery and payments behind interfaces",
-        "why": "Nova Poshta and payments sit behind small interfaces with stand-ins for now, so the real providers can be connected without touching the shop."
+        "choice": "Money only when the stock is right",
+        "why": "The work goes in four stages with a gate between each. Buyers can pay online only after a stock-take shows the database matches the shelves."
+      },
+      {
+        "choice": "Simple for the people who use it",
+        "why": "A phone, a couple of buttons, a Telegram bot. If something takes longer than a line in the notebook, the system is wrong."
+      }
+    ],
+    "stages": [
+      {
+        "name": "Foundation",
+        "status": "done",
+        "goal": "The base to sell on: the store from the prototype in Ukrainian and English, stock for five places, orders without overselling, a back office with roles, 140 automated tests."
+      },
+      {
+        "name": "Launch as a case",
+        "status": "next",
+        "goal": "A live site with the real range and digital stock-keeping, without online payment: photos and insoles for 10 to 20 models, delivery, exchange and size pages, stock-takes from a phone.",
+        "gate": "Gate: a stock-take matches the database, and the payment provider is chosen."
+      },
+      {
+        "name": "Real sales",
+        "status": "later",
+        "goal": "An order goes from payment to waybill with no manual steps: payments and refunds, fiscal receipts, Nova Poshta, an orders screen, Viber messages for buyers and a Telegram bot for the owner.",
+        "gate": "Gate: orders run without manual steps, and there are two to three months of sales data."
+      },
+      {
+        "name": "Automation and growth",
+        "status": "later",
+        "goal": "Purchasing by data and new channels on the same database: restock hints by size, transfers with QR codes on the boxes, a customer list, a Made in Zhytomyr line, Prom and Rozetka."
       }
     ],
     "results": {
-      "lede": "The shop is built and tested on phones and laptops, in Ukrainian and English. Next come the real catalogue and photos, then payments and Nova Poshta."
+      "lede": "Stage 0 of 4 is done and checked by automated tests on GitHub. Success here means less routine and fewer lost sales, not just traffic. The baselines are taken in the first month of digital stock-keeping, so there are no target figures yet."
+    },
+    "race": {
+      "shoppers": "12 shoppers",
+      "pairs": "4 pairs",
+      "result": "4 orders · 8 sold out",
+      "alt": "Twelve shoppers race for four pairs and exactly four orders go through",
+      "a": "Twelve shoppers press buy at the same moment, and four pairs are left.",
+      "b": "Each order locks the stock rows it needs, always in the same order, so the orders queue instead of colliding.",
+      "c": "Exactly four orders go through. The other eight see the pair is sold out, and no pair is sold twice."
+    },
+    "fit": {
+      "foot": "Foot length",
+      "model": "How this model fits",
+      "small": "Runs small",
+      "true": "True to size",
+      "large": "Runs large",
+      "yours": "Your size",
+      "result": "A {{foot}} cm foot takes size {{size}} in this model: its insole is {{insole}} cm.",
+      "none": "No size from 36 to 41 is long enough for this foot.",
+      "note": "The rule the shop uses: the smallest size whose insole is at least as long as the foot. A measured insole replaces the estimate."
     }
   },
   "screens": {

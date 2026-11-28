@@ -52,7 +52,8 @@ export function ArchDiagram({
   // Each column is centred on the band independently, so a column with one
   // node sits level with the middle of a column with three.
   const rowsIn = new Map<number, number>();
-  for (const n of nodes) rowsIn.set(n.col, Math.max(rowsIn.get(n.col) ?? 0, n.row + 1));
+  for (const n of nodes)
+    rowsIn.set(n.col, Math.max(rowsIn.get(n.col) ?? 0, n.row + 1));
   const maxRows = Math.max(...rowsIn.values());
   const height = PAD * 2 + (maxRows - 1) * ROW_GAP + NODE_H;
   const mid = height / 2;
@@ -90,11 +91,14 @@ export function ArchDiagram({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M0,1 L7,4 L0,7 z" style={{ fill: mix("--color-white", 50) }} />
+            <path
+              d="M0,1 L7,4 L0,7 z"
+              style={{ fill: mix("--color-white", 50) }}
+            />
           </marker>
         </defs>
 
-        {edges.map((e) => {
+        {edges.map((e, i) => {
           const a = pos.get(e.from);
           const b = pos.get(e.to);
           if (!a || !b) return null;
@@ -114,6 +118,18 @@ export function ArchDiagram({
                 strokeWidth="1.2"
                 markerEnd="url(#arrow)"
               />
+              <path
+                d={`M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2 - 6},${y2}`}
+                fill="none"
+                pathLength={100}
+                className="arch-flow"
+                style={{
+                  stroke: "var(--color-comet)",
+                  animationDelay: `${(i % 5) * -0.45}s`,
+                }}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
               {e.label && (
                 <text
                   x={cx}
@@ -122,7 +138,10 @@ export function ArchDiagram({
                   fontSize="9.5"
                   fontFamily="ui-monospace, SFMono-Regular, monospace"
                   letterSpacing="0.1em"
-                  style={{ fill: "var(--color-zinc)", stroke: "var(--color-void)" }}
+                  style={{
+                    fill: "var(--color-zinc)",
+                    stroke: "var(--color-void)",
+                  }}
                   strokeWidth="4"
                   paintOrder="stroke"
                 >
