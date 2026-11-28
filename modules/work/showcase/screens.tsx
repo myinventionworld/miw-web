@@ -523,7 +523,6 @@ export function StationPhone({
   return (
     <PhoneFrame
       shot={shot(id, t)}
-      sizes="200px"
       className={cn("rounded-[1.8rem] border-[5px]", className)}
     />
   );
@@ -546,14 +545,15 @@ export function ProjectThumb({
       src={s.src}
       alt={s.alt}
       fill
-      sizes="420px"
+      sizes="(min-width: 1024px) 880px, 90vw"
       className="object-cover object-top"
     />
   ) : (
     <Image
       src={s.src}
       alt={s.alt}
-      sizes="160px"
+      sizes="(min-width: 768px) 260px, 60vw"
+      quality={90}
       className="absolute top-[6%] left-1/2 h-[88%] w-auto -translate-x-1/2 rounded-[14px] border-[3px] border-[#1c1c20]"
     />
   );

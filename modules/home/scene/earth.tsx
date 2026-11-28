@@ -256,7 +256,7 @@ export function Earth({ detail, cloudDetail }: { detail: number; cloudDetail: nu
         />
       </mesh>
 
-      <mesh scale={1.085}>
+      <mesh scale={1.045}>
         <sphereGeometry args={[EARTH_RADIUS, 64, 32]} />
         <shaderMaterial
           vertexShader={atmosphereVertex}

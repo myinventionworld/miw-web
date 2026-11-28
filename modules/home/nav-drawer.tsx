@@ -30,8 +30,6 @@ export const DRAWERS: readonly DrawerId[] = [
 
 const PILL =
   "flex items-center rounded-full border border-white/25 px-4 py-2 text-small font-medium text-white transition-colors hover:border-white/80 hover:bg-white/10";
-const PILL_SOLID =
-  "flex items-center rounded-full bg-action px-4 py-2 text-small font-semibold text-on-action transition-colors hover:bg-action-hover";
 
 function Shell({
   id,
@@ -58,6 +56,7 @@ function Shell({
       }
       transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
       className="drawer absolute inset-x-0 top-full hidden lg:block"
+      style={{ background: "rgb(7 10 24)" }}
     >
       <div className="px-8 py-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -252,23 +251,11 @@ function Team({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-function Contact({ onFly }: { onFly: (to: Section) => void }) {
+function Contact() {
   const { t } = useTranslation("common");
 
   return (
-    <Shell
-      id="contact"
-      line={t("nav.drawer.contact")}
-      actions={
-        <button
-          type="button"
-          onClick={() => onFly("transmission")}
-          className={PILL_SOLID}
-        >
-          {t("nav.bookCall")}
-        </button>
-      }
-    >
+    <Shell id="contact" line={t("nav.drawer.contact")} actions={null}>
       <dl className="grid grid-cols-3 gap-x-7">
         <div className="border-t border-white/12 pt-4">
           <dt className="text-meta text-zinc">{t("contact.email")}</dt>
@@ -318,5 +305,5 @@ export function NavDrawer({
     return <Services onFly={onFly} onDismiss={onDismiss} />;
   if (id === "products") return <Products onDismiss={onDismiss} />;
   if (id === "team") return <Team onDismiss={onDismiss} />;
-  return <Contact onFly={onFly} />;
+  return <Contact />;
 }
