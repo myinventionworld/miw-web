@@ -46,7 +46,8 @@
       "You tell us what you need. A few lines are enough.",
       "A person from the team replies within one working day.",
       "We agree on budget and timing, from projects up to €2k."
-    ]
+    ],
+    "example": "An online shoe store for a family business in Zhytomyr."
   },
   "labs": {
     "nav": "Our products",

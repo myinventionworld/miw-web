@@ -196,7 +196,8 @@ function RingPins({ points }: { points: ProgramPoint[] }) {
 }
 
 function Commerce({ onAction }: { onAction: () => void }) {
-  const { t } = useTranslation("stations");
+  const { t } = useTranslation(["stations", "common", "projects"]);
+  const client = projectForStation("commerce");
   const copy = t("commerce.business", { returnObjects: true }) as StationCopy;
   const steps = t("commerce.steps", { returnObjects: true }) as string[];
   const program = t("commerce.program", {
@@ -237,6 +238,26 @@ function Commerce({ onAction }: { onAction: () => void }) {
           <button type="button" onClick={onAction} className={cn(PILL, "mt-7")}>
             {t("commerce.cta")}
           </button>
+          {client && (
+            <div className="mt-7 border-t border-white/12 pt-4">
+              <p className="text-lift flex items-center gap-2.5 text-body">
+                <Dot color={client.color} />
+                <span className="font-semibold text-white">{client.name}</span>
+                <span className="text-small text-zinc">
+                  {t(`projects:environment.${client.environment}`)}
+                </span>
+              </p>
+              <p className="text-lift mt-1 text-small leading-snug text-zinc">
+                {t("commerce.example")}
+              </p>
+              <LocaleLink
+                href={`/work/${client.slug}`}
+                className={cn(LINK, "mt-2 inline-block text-body")}
+              >
+                {t("common:project.caseStudy")}
+              </LocaleLink>
+            </div>
+          )}
         </div>
       </div>
     </>

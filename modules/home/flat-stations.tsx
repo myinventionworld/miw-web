@@ -396,7 +396,8 @@ function RingedPlanet({ points }: { points: ProgramPoint[] }) {
 }
 
 export function CommerceBand() {
-  const { t } = useTranslation("stations");
+  const { t } = useTranslation(["stations", "projects"]);
+  const client = projectForStation("commerce");
   const copy = t("commerce.business", { returnObjects: true }) as StationCopy;
   const steps = t("commerce.steps", { returnObjects: true }) as string[];
   const program = t("commerce.program", {
@@ -441,6 +442,18 @@ export function CommerceBand() {
               {t("commerce.cta")}
             </a>
           </div>
+          {client && (
+            <div className="mt-10 border-t border-line pt-5">
+              <ProductLine
+                project={client}
+                status={t(`projects:environment.${client.environment}`)}
+              />
+              <p className="mt-2 text-copy leading-snug text-white">
+                {t("commerce.example")}
+              </p>
+              <ProductLinks project={client} />
+            </div>
+          )}
         </div>
       </div>
     </section>
