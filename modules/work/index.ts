@@ -14,6 +14,7 @@ export {
   DockShots,
   HeroShots,
   ProductShots,
+  ProjectThumb,
   StationPhone,
   StationWindow,
   hasBuiltShot,

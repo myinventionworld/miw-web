@@ -23,7 +23,13 @@
     "about": "About",
     "products": "Products",
     "team": "Team",
-    "aboutUs": "About us"
+    "aboutUs": "About us",
+    "drawer": {
+      "services": "Websites and stores for small businesses. MVPs and AI features for startups.",
+      "products": "Things we built for ourselves first.",
+      "team": "Seven people in Prague.",
+      "contact": "Write to the team directly."
+    }
   },
   "footer": {
     "back": "Back to home",

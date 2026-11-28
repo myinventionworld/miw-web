@@ -50,6 +50,8 @@ void main() {
 `;
 
 const surfaceFragment = /* glsl */ `
+${NOISE_GLSL}
+
 uniform samplerCube uFields;
 uniform samplerCube uIce;
 uniform vec3 uSunDir;
@@ -64,8 +66,9 @@ void main() {
   vec3 sp = normalize(vUnit);
 
   vec4 fields = textureCube(uFields, sp);
-  float land = fields.g;
-  float detail = fields.b;
+  float fine = snoise(sp * 41.0) * 0.6 + snoise(sp * 113.0) * 0.4;
+  float land = smoothstep(0.3, 0.7, fields.g + fine * 0.1);
+  float detail = clamp(fields.b + fine * 0.14, 0.0, 1.0);
 
   vec3 abyss = vec3(0.002, 0.008, 0.028);
   vec3 shelf = vec3(0.010, 0.047, 0.104);
@@ -112,6 +115,8 @@ void main() {
 `;
 
 const cloudFragment = /* glsl */ `
+${NOISE_GLSL}
+
 uniform samplerCube uFields;
 uniform vec3 uSunDir;
 uniform float uTime;
@@ -134,9 +139,11 @@ void main() {
   // The two layers turn at different rates, so the cloud cover keeps
   // re-forming instead of riding the sphere as one rigid decal.
   float band = textureCube(uFields, spinY(sp, uTime * 0.011)).r;
-  float wisp = textureCube(uFields, spinY(sp, uTime * 0.026)).g;
+  vec3 drift = spinY(sp, uTime * 0.026);
+  float wisp = textureCube(uFields, drift).g;
+  float fine = snoise(drift * 57.0) * 0.5 + 0.5;
 
-  float mask = band * wisp;
+  float mask = smoothstep(0.03, 0.52, band * wisp * (0.62 + 0.76 * fine));
   float day = smoothstep(-0.10, 0.34, dot(n, uSunDir));
 
   vec3 col = vec3(0.80, 0.86, 0.96) * (day * 1.05 + 0.018);
@@ -173,7 +180,7 @@ void main() {
 }
 `;
 
-export function Earth({ detail }: { detail: number }) {
+export function Earth({ detail, cloudDetail }: { detail: number; cloudDetail: number }) {
   const root = useRef<THREE.Group>(null);
   const planet = useRef<THREE.Mesh>(null);
   const clouds = useRef<THREE.Mesh>(null);
@@ -181,7 +188,7 @@ export function Earth({ detail }: { detail: number }) {
   const cull = useCull();
 
   const surfaceMap = useBakedCube(surfaceFields, detail);
-  const cloudMap = useBakedCube(cloudFields, 512);
+  const cloudMap = useBakedCube(cloudFields, cloudDetail);
 
   const uniforms = useMemo(
     () => ({

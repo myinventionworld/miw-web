@@ -23,7 +23,13 @@
     "about": "O nás",
     "products": "Produkty",
     "team": "Tým",
-    "aboutUs": "O nás"
+    "aboutUs": "O nás",
+    "drawer": {
+      "services": "Weby a e-shopy pro malé firmy. MVP a AI funkce pro startupy.",
+      "products": "Věci, které jsme nejdřív udělali pro sebe.",
+      "team": "Sedm lidí v Praze.",
+      "contact": "Napište týmu napřímo."
+    }
   },
   "footer": {
     "back": "Zpět na úvod",
