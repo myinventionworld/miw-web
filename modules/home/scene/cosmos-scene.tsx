@@ -148,12 +148,14 @@ function Warmup({
 const Scene = memo(function Scene({
   dense,
   detail,
+  earthDetail,
   composer,
   onWarm,
   onReady,
 }: {
   dense: boolean;
   detail: number;
+  earthDetail: number;
   composer: RefObject<EffectComposer | null>;
   onWarm: () => void;
   onReady: () => void;
@@ -168,7 +170,7 @@ const Scene = memo(function Scene({
 
       <Suspense fallback={null}>
         <ChromeEnvironment />
-        <Earth detail={detail} />
+        <Earth detail={earthDetail} cloudDetail={detail} />
         <RingedPlanet />
         <IcePlanet detail={detail} />
         <Pulsar />
@@ -273,6 +275,7 @@ export function CosmosScene({ gpu, onTooSlow }: { gpu: string; onTooSlow: () => 
 
   // Fixed at mount: rebaking the planets later would cost more than it saves.
   const detail = plan.tier === "low" ? 512 : 1024;
+  const earthDetail = plan.tier === "high" ? 2048 : detail;
 
   const [mountedAt] = useState(() => performance.now());
   useEffect(() => {
@@ -305,7 +308,7 @@ export function CosmosScene({ gpu, onTooSlow }: { gpu: string; onTooSlow: () => 
     >
       <FramePacer governor={governor} gate={gate} />
       <FlightDriver />
-      <Scene dense={dense} detail={detail} composer={composer} onWarm={onWarm} onReady={onReady} />
+      <Scene dense={dense} detail={detail} earthDetail={earthDetail} composer={composer} onWarm={onWarm} onReady={onReady} />
       <Effects dpr={dpr} lite={tier === "low"} composer={composer} />
       {stats && (
         <Suspense fallback={null}>

@@ -108,7 +108,10 @@ const BY_PROJECT: Record<
     phones: ["omnibusSeats", "omnibusHomeMobile", "omnibusMobile"],
     windows: ["omnibusResults", "omnibusBooking"],
     built: ["omnibusSeats"],
-    video: { mp4: "/screens/omnibus-flow.mp4", webm: "/screens/omnibus-flow.webm" },
+    video: {
+      mp4: "/screens/omnibus-flow.mp4",
+      webm: "/screens/omnibus-flow.webm",
+    },
   },
   boowie: {
     phones: ["boowieReading", "boowieReader", "boowiePlayer"],
@@ -153,7 +156,8 @@ function MainWindow({
   host: string;
   video?: LoopVideo;
 }) {
-  if (full) return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
+  if (full)
+    return <ScrollingWindow src={full.src} alt={full.alt} host={host} />;
   return (
     <BrowserFrame
       shot={shot}
@@ -247,7 +251,11 @@ export function ProductShots({
         <PhoneRow shots={set.journey.map((id) => shot(id, t))} />
         {left && center && right && (
           <div className="mt-6 md:mt-16">
-            <PhoneFan left={shot(left, t)} center={shot(center, t)} right={shot(right, t)} />
+            <PhoneFan
+              left={shot(left, t)}
+              center={shot(center, t)}
+              right={shot(right, t)}
+            />
           </div>
         )}
       </>
@@ -283,9 +291,10 @@ export function ProductShots({
   // built", so here the window leans on another phone and the swipe row leaves
   // that screen out. The Work page has no such section and leads with it.
   const built = set.built ?? [];
-  const others = gallery && built.length
-    ? set.phones.filter((id) => !built.includes(id)).map((id) => shot(id, t))
-    : phones;
+  const others =
+    gallery && built.length
+      ? set.phones.filter((id) => !built.includes(id)).map((id) => shot(id, t))
+      : phones;
   const lead = others[0] ?? phones[0];
   const windows = gallery ? (set.windows ?? []).map((id) => shot(id, t)) : [];
 
@@ -300,7 +309,11 @@ export function ProductShots({
             video={set.video}
           />
         </Reveal>
-        <Reveal from="right" delay={0.15} className="absolute right-0 bottom-0 w-[23%]">
+        <Reveal
+          from="right"
+          delay={0.15}
+          className="absolute right-0 bottom-0 w-[23%]"
+        >
           <PhoneFrame shot={lead} />
         </Reveal>
       </div>
@@ -346,7 +359,11 @@ export function HeroShots({
         <Reveal className="w-[84%]">
           <BrowserFrame shot={desktop} host={omnibusHost} />
         </Reveal>
-        <Reveal from="right" delay={0.15} className="absolute right-[2%] bottom-0 w-[22%]">
+        <Reveal
+          from="right"
+          delay={0.15}
+          className="absolute right-[2%] bottom-0 w-[22%]"
+        >
           <PhoneFrame shot={player} />
         </Reveal>
       </div>
@@ -385,11 +402,16 @@ export function DockShots({
             phone && "w-[84%]",
           )}
         >
-          <div className="flex h-7 items-center gap-1.5 border-b border-white/12 bg-white/5 px-3" aria-hidden>
+          <div
+            className="flex h-7 items-center gap-1.5 border-b border-white/12 bg-white/5 px-3"
+            aria-hidden
+          >
             <span className="size-2 rounded-full bg-white/22" />
             <span className="size-2 rounded-full bg-white/22" />
             <span className="size-2 rounded-full bg-white/22" />
-            <span className="ml-2 truncate text-label text-zinc">{project.host}</span>
+            <span className="ml-2 truncate text-label text-zinc">
+              {project.host}
+            </span>
           </div>
           <Image
             src={desktop.src}
@@ -448,10 +470,18 @@ export function BuiltShot({
   const ids = BY_PROJECT[project.slug]?.built;
   if (!ids?.length) return null;
   if (ids.length > 1) {
-    return <PhoneSwitch shots={ids.map((id) => shot(id, t))} className="mx-auto w-[64%] max-w-[300px]" />;
+    return (
+      <PhoneSwitch
+        shots={ids.map((id) => shot(id, t))}
+        className="mx-auto w-[64%] max-w-[300px]"
+      />
+    );
   }
   return (
-    <PhoneFrame shot={shot(ids[0], t)} className="mx-auto w-[64%] max-w-[300px]" />
+    <PhoneFrame
+      shot={shot(ids[0], t)}
+      className="mx-auto w-[64%] max-w-[300px]"
+    />
   );
 }
 
@@ -467,7 +497,13 @@ export function StationWindow({
 }) {
   const id = BY_PROJECT[project.slug]?.desktop;
   if (!id) return null;
-  return <BrowserFrame shot={shot(id, t)} host={project.host} className={className} />;
+  return (
+    <BrowserFrame
+      shot={shot(id, t)}
+      host={project.host}
+      className={className}
+    />
+  );
 }
 
 /** A station on the 3D home: one of the product's phone screens, by its place in the list. */
@@ -489,6 +525,36 @@ export function StationPhone({
       shot={shot(id, t)}
       sizes="200px"
       className={cn("rounded-[1.8rem] border-[5px]", className)}
+    />
+  );
+}
+
+/** A product's picture for a menu card: its desktop screen, or a phone screen on black. */
+export function ProjectThumb({
+  project,
+  t,
+}: {
+  project: ProjectCase;
+  t: Translate;
+}) {
+  const set = BY_PROJECT[project.slug];
+  const id = set?.desktop ?? set?.phones[0];
+  if (!set || !id) return null;
+  const s = shot(id, t);
+  return set.desktop ? (
+    <Image
+      src={s.src}
+      alt={s.alt}
+      fill
+      sizes="420px"
+      className="object-cover object-top"
+    />
+  ) : (
+    <Image
+      src={s.src}
+      alt={s.alt}
+      sizes="160px"
+      className="absolute top-[6%] left-1/2 h-[88%] w-auto -translate-x-1/2 rounded-[14px] border-[3px] border-[#1c1c20]"
     />
   );
 }
